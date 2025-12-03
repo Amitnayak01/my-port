@@ -1,0 +1,505 @@
+/* ==============================
+   Global Styles
+================================ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #1c1c1c;
+    color: #fff;
+    display: flex;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+/* ==============================
+   Sidebar Styles
+================================ */
+.sidebar {
+    width: 250px;
+    background-color: #111;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: width 0.3s ease;
+}
+/* Mobile Navigation Bar */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%; /* Full width for mobile */
+        height: auto; /* Adjust height */
+        position: flex; /* Stick to the top */
+        top: 0;
+        left: 0;
+        z-index: 1000; /* Ensure it stays above other content */
+        flex-direction: row; /* Horizontal layout */
+        justify-content: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #333; /* Add a bottom border */
+    }
+
+    .sidebar nav ul {
+        display: flex; /* Horizontal layout for nav items */
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .sidebar nav ul li {
+        margin: 0 10px; /* Adjust spacing between nav items */
+    }
+
+    .content {
+        margin-top: 30px; /* Add margin to avoid overlapping with the fixed navbar */
+    }
+}
+/* Sidebar Navigation */
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    margin: 20px 0;
+}
+
+.sidebar nav ul li a {
+    color: #bbb;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+    color: #e74c3c;
+}
+
+/* Collapsed Sidebar for Mobile */
+.sidebar.collapsed {
+    width: 60px;
+    overflow: hidden;
+}
+
+.sidebar.collapsed nav ul li a {
+    font-size: 0;
+    text-align: center;
+}
+
+.sidebar.collapsed nav ul li a::before {
+    content: attr(data-icon);
+    font-size: 18px;
+    color: #bbb;
+}
+
+/* Sidebar Navigation for Smaller Phones */
+@media (max-width: 480px) {
+    .sidebar nav ul li a {
+        font-size: 12px; /* Further decrease font size for smaller phones */
+        padding: 0px 8px; /* Reduce padding even more */
+    }
+}
+/* ==============================
+   Main Content Styles
+================================ */
+.content {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+    background-color: #1c1c1c;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px 0;
+}
+
+.hero-text {
+    max-width: 600px;
+}
+
+.hero-text h1 {
+    font-size: 36px;
+    margin: 0 0 10px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.hero-text .name {
+    color: #e74c3c;
+}
+
+.hero-text .role {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.hero-text p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.hero-text .btn {
+    background-color: #e74c3c;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.hero-text .btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+}
+
+/* Hero Image */
+.hero-image img {
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: slideInFromRight 1s ease-out;
+}
+
+/* ==============================
+   Section Styles
+================================ */
+section {
+    margin-bottom: 60px;
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e74c3c;
+    padding-bottom: 10px;
+}
+
+/* List & Paragraph */
+p, ul {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background: #333;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* ==============================
+   Responsive Design
+================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        flex-direction: row;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 28px;
+    }
+
+    .hero-image img {
+        width: 150px;
+        margin-top: 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    p, ul {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-text h1 {
+        font-size: 24px;
+    }
+
+    .hero-image img {
+        width: 120px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    p, ul {
+        font-size: 10px;
+    }
+}
+
+/* ==============================
+   Animations
+================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes rotateIn {
+    from {
+        transform: rotate(-360deg);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0);
+        opacity: 1;
+    }
+}
+
+/* ==============================
+   Hero Section Animations
+================================ */
+.hero-text h1 {
+    font-size: 36px;
+    margin: 0 0 10px;
+    animation: slideInFromLeft 1s ease-in-out;
+}
+
+.hero-text p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.hero-text .btn {
+    background-color: #e74c3c;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    animation: bounce 2s infinite;
+    transition: all 0.3s ease;
+}
+
+.hero-image img {
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 1.5s ease-out;
+}
+
+/* ==============================
+   Section Animations
+================================ */
+section {
+    margin-bottom: 60px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e74c3c;
+    padding-bottom: 10px;
+    animation: slideInFromRight 1s ease-in-out;
+}
+
+ul li {
+    background: #333;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    animation: zoomIn 0.5s ease-in-out;
+}
+
+
+/* ==============================
+   Responsive Design Animations
+================================ */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 28px;
+        animation: slideInFromLeft 1s ease-in-out;
+    }
+
+    .hero-image img {
+        width: 150px;
+        margin-top: 20px;
+        animation: zoomIn 1.5s ease-out;
+    }
+
+    h2 {
+        font-size: 20px;
+        animation: slideInFromRight 1s ease-in-out;
+    }
+
+    p, ul {
+        font-size: 12px;
+        animation: fadeIn 1s ease-in-out;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-text h1 {
+        font-size: 24px;
+        animation: slideInFromLeft 1s ease-in-out;
+    }
+
+    .hero-image img {
+        width: 120px;
+        animation: zoomIn 1.5s ease-out;
+    }
+
+    h2 {
+        font-size: 18px;
+        animation: slideInFromRight 1s ease-in-out;
+    }
+
+    p, ul {
+        font-size: 10px;
+        animation: fadeIn 1s ease-in-out;
+    }
+}
+/* ==============================
+   Hover Effects
+================================ */
+
+/* Sidebar Navigation Links */
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+    color: #e74c3c;
+    text-decoration: underline;
+    transform: scale(1.1); /* Slight zoom effect */
+    transition: all 0.3s ease;
+}
+
+/* Hero Button */
+.hero-text .btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1); /* Slight zoom effect */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Add shadow on hover */
+    transition: all 0.3s ease;
+}
+
+/* List Items */
+ul li:hover {
+    background: #444; /* Slightly lighter background */
+    transform: translateX(10px); /* Slide effect */
+    transition: all 0.3s ease;
+}
+
+/* Footer Links */
+footer a {
+    color: #bbb;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #e74c3c;
+    text-decoration: underline;
+}
+
+/* Back to Top Button */
+.back-to-top:hover {
+    background-color: #c0392b;
+    transform: scale(1.2); /* Larger zoom effect */
+    transition: all 0.3s ease;
+}
+
+/* Hero Image */
+.hero-image img:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6); /* Add shadow on hover */
+    transition: all 0.3s ease;
+}
+
+/* Section Headings */
+h2:hover {
+    color: #e74c3c;
+    transform: translateY(-5px); /* Slight upward movement */
+    transition: all 0.3s ease;
+}
+
+  
+  #contact a {
+    color:#e74c3c; /* LinkedIn blue */
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  #contact a:hover {
+    color: #005582;
+    text-decoration: underline;
+  }
+  
