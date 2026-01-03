@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amit Kumar Nayak - Full Stack Developer</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-brand">AKN</div>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul id="navMenu">
+                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section id="hero" class="hero">
+            <div class="hero-text">
+                <h1>Hello, I'm <span class="name">Amit Kumar Nayak</span></h1>
+                <p>I'm a <span class="role">Full Stack Developer</span></p>
+                <p>Aspiring software engineer with a strong foundation in programming and web development, passionate about building impactful projects and continuously growing in the field.</p>
+                
+                <div class="contact-info">
+                    <div class="contact-item">📍 Samalpur, Odisha</div>
+                    <div class="contact-item">📞 +91 7735254860</div>
+                </div>
+
+                <div class="btn-group">
+                    <a href="Amit_Nayak_CV.pdf" class="btn" target="_blank">View CV</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="profile.jpg" alt="Amit Kumar Nayak">
+            </div>
+        </section>
+
+        <!-- About & Education Section -->
+        <section id="about">
+            <h2>About Me</h2>
+            <div class="about-content">
+                <p>I'm an aspiring software engineer with expertise in Java, C++, web development, and modern technologies. With a strong foundation in both frontend and backend development, I'm passionate about creating full-stack applications that solve real-world problems and deliver exceptional user experiences.</p>
+                
+                <h2 style="margin-top: 3rem; margin-bottom: 2rem;">Education</h2>
+                <div class="education-grid">
+                    <div class="education-card">
+                        <h3>Bachelor of Technology (B.Tech) in CSIT</h3>
+                        <p class="institution">Institute of Technical Education and Research (SOA), Bhubaneswar</p>
+                        <p class="duration">2021 - 2025</p>
+                        <p class="score">CGPA: 7.07</p>
+                    </div>
+                    <div class="education-card">
+                        <h3>12th Grade (CHSE)</h3>
+                        <p class="institution">Vikash Higher Secondary School, Sambalpur</p>
+                        <p class="duration">2020 - 2021</p>
+                        <p class="score">Percentage: 82.33%</p>
+                    </div>
+                    <div class="education-card">
+                        <h3>10th Grade (CHSE)</h3>
+                        <p class="institution">Sri Aurobindo Integral School, Kindita</p>
+                        <p class="duration">2018 - 2019</p>
+                        <p class="score">Percentage: 80.17%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills">
+            <h2>Technical Skills</h2>
+            <div class="skills-container">
+                <div class="skill-category">
+                    <h3>Programming Languages</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">C</span>
+                        <span class="skill-tag">C++</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">SQL</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3>Frontend Development</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">HTML5</span>
+                        <span class="skill-tag">CSS3</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">React.js</span>
+                        <span class="skill-tag">Tailwind CSS</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3>Backend Development</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Node.js</span>
+                        <span class="skill-tag">Express.js</span>
+                        <span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">RESTful APIs</span>
+                        <span class="skill-tag">Socket.io</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3>Tools & Technologies</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">GitHub</span>
+                        <span class="skill-tag">VS Code</span>
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">DBMS</span>
+                        <span class="skill-tag">JWT</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience">
+            <h2>Training & Internship</h2>
+            <div class="experience-card">
+                <h3>Full Stack Web Development</h3>
+                <p class="company">Edu-versity (AMG Technologies LLP)</p>
+                <p class="duration">July 2024 - September 2024</p>
+                <p>Completed full-stack development program with outstanding performance, receiving Academic Head's Letter of Recommendation. Demonstrated strong technical skills, proactive learning approach, and effective collaboration on team projects. Recognized for analytical abilities, attention to detail, and passion for web development.</p>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects">
+            <h2>Featured Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <h3>ChessArena: Professional-Grade Online Chess Gaming Application</h3>
+                    <p class="project-duration">February 2025 – March 2025</p>
+                    <p>Architected and deployed a production-ready full-stack real-time multiplayer chess platform leveraging Node.js, Express.js, and Socket.IO for bidirectional communication, orchestrating 50+ concurrent game rooms with live state synchronization across 100+ players while maintaining sub-100ms latency and 99.8% uptime through optimized WebSocket management and efficient server-side game state validation and proper sound system.</p>
+                    <a href="https://chess-2-jm3a.onrender.com" class="project-link" target="_blank">View Project →</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>SEVEN WONDERS – A Comprehensive Travel Platform</h3>
+                    <p class="project-duration">January 2024 – February 2024</p>
+                    <p>Developed a travel web application using Node.js, Express.js, and MongoDB showcasing the Seven Wonders of the World. Implemented secure user authentication with JWT and bcrypt, built RESTful APIs for user management and reviews with CRUD operations, and created role-based access control. Designed a responsive frontend with interactive image slideshows and dynamic content.</p>
+                    <a href="https://the-7.onrender.com" class="project-link" target="_blank">View Project →</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Full-Stack Chat Application</h3>
+                    <p class="project-duration">June 2023 – August 2023</p>
+                    <p>Designed and deployed a full-stack chat application on Render using React, Express.js, and MongoDB. Implemented RESTful APIs, real-time communication with Socket.io, and a responsive UI to ensure a seamless user experience. Acquired hands-on expertise in front-end and back-end development, database management, and real-time data handling using modern web technologies.</p>
+                    <a href="https://chatapp-drt5.onrender.com" class="project-link" target="_blank">View Project →</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Quiz Master - Full-Stack Online Assessment Platform</h3>
+                    <p class="project-duration">September 2023 – October 2023</p>
+                    <p>Created an online assessment platform with Node.js and MongoDB that streamlines quiz delivery for educational institutions. Features include secure JWT authentication, role-based portals for teachers and students, real-time quiz timer with auto-submission, and automated scoring across General, Aptitude, and Technical categories. Developed RESTful APIs for CRUD operations and implemented a competitive leaderboard system.</p>
+                    <a href="https://quiz-master-zoo7.onrender.com" class="project-link" target="_blank">View Project →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2>Get In Touch</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>📧 Email</h3>
+                    <a href="mailto:amitkumarnayak330@gmail.com">amitkumarnayak330@gmail.com</a>
+                </div>
+                <div class="contact-card">
+                    <h3>💼 LinkedIn</h3>
+                    <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank">linkedin.com/in/amit-nayak-738024344</a>
+                </div>
+                <div class="contact-card">
+                    <h3>💻 GitHub</h3>
+                    <a href="https://github.com/Amitnayak01" target="_blank">github.com/Amitnayak01</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Amit Kumar Nayak. All rights reserved. | Languages: Odia, Hindi, English</p>
+    </footer>
+
+    <script>
+        // Create animated particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = window.innerWidth < 768 ? 10 : 20;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            const size = Math.random() * 100 + 50;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        const navLinks = document.querySelectorAll('nav a');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close menu when clicking on a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Smooth scroll and active nav link
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').slice(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.project-card, .skill-category, .education-card, .contact-card, .experience-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Optimize particle rendering on resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const currentParticles = particlesContainer.children.length;
+                const targetParticles = window.innerWidth < 768 ? 10 : 20;
+                
+                if (currentParticles !== targetParticles) {
+                    particlesContainer.innerHTML = '';
+                    for (let i = 0; i < targetParticles; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        const size = Math.random() * 100 + 50;
+                        particle.style.width = size + 'px';
+                        particle.style.height = size + 'px';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = Math.random() * 100 + '%';
+                        particle.style.animationDelay = Math.random() * 20 + 's';
+                        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                        particlesContainer.appendChild(particle);
+                    }
+                }
+            }, 250);
+        });
+    </script>
+</body>
+</html>
