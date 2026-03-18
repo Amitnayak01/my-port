@@ -1,379 +1,2117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amit Kumar Nayak - Full Stack Developer</title>
+    <title>Amit Kumar Nayak — Full Stack Developer</title>
+    <meta name="description" content="Full Stack Developer specializing in React, Node.js, WebRTC & real-time applications. Building scalable, high-performance web experiences.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="particles" id="particles"></div>
 
-    <!-- Navigation -->
-    <nav>
+    <!-- ── Scroll Progress Bar ── -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- ── Cursor Glow ── -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- ── Animated Gradient Mesh ── -->
+    <div class="gradient-mesh" aria-hidden="true">
+        <div class="mesh-blob mesh-blob-1"></div>
+        <div class="mesh-blob mesh-blob-2"></div>
+        <div class="mesh-blob mesh-blob-3"></div>
+    </div>
+
+    <!-- ── Particles & Noise ── -->
+    <div class="particles" id="particles"></div>
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- ── Command Palette ── -->
+    <div class="cmd-overlay" id="cmdOverlay" role="dialog" aria-label="Command palette" aria-modal="true">
+        <div class="cmd-palette" id="cmdPalette">
+            <div class="cmd-input-wrap">
+                <span class="cmd-icon">⌕</span>
+                <input type="text" class="cmd-input" id="cmdInput" placeholder="Search… type a command" autocomplete="off" spellcheck="false">
+                <span class="cmd-kbd">ESC</span>
+            </div>
+            <div class="cmd-results" id="cmdResults" role="listbox">
+                <!-- Populated by JS -->
+            </div>
+            <div class="cmd-footer">
+                <span class="cmd-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                <span class="cmd-hint"><kbd>↵</kbd> select</span>
+                <span class="cmd-hint"><kbd>esc</kbd> close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Navigation ── -->
+    <nav id="navbar">
         <div class="nav-container">
-            <div class="nav-brand">AKN</div>
-            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="nav-brand">
+                <span class="brand-dot"></span>AKN
+            </div>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
             </button>
-            <ul id="navMenu">
-                <li><a href="#hero" class="active">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
+            <ul id="navMenu" role="menubar">
+                <li role="none"><a href="#hero"       class="active" role="menuitem">Home</a></li>
+                <li role="none"><a href="#about"      role="menuitem">About</a></li>
+                <li role="none"><a href="#skills"     role="menuitem">Skills</a></li>
+                <li role="none"><a href="#experience" role="menuitem">Experience</a></li>
+                <li role="none"><a href="#projects"   role="menuitem">Projects</a></li>
+                <li role="none"><a href="#contact"    role="menuitem">Contact</a></li>
             </ul>
+            <div class="nav-controls">
+                <button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+                <button class="nav-icon-btn" id="cmdTrigger" aria-label="Open command palette" title="Command palette (Ctrl+K)">⌘</button>
+                <a href="Amit Nayak-Resume.pdf" class="nav-resume-btn" target="_blank" rel="noopener">Resume ↗</a>
+            </div>
         </div>
     </nav>
 
+    <!-- ── Floating Hire Me Button ── -->
+    <a href="mailto:amitkumarnayak330@gmail.com" class="hire-float" id="hireFloat" aria-label="Hire Amit">
+        <span class="hf-dot"></span>
+        Hire Me
+    </a>
+
     <div class="container">
-        <!-- Hero Section -->
+
+        <!-- ════════════════════════════════════════════
+             HERO
+        ════════════════════════════════════════════ -->
         <section id="hero" class="hero">
+            <!-- Subtle grid lines in background -->
+            <div class="hero-parallax-bg" aria-hidden="true">
+                <div class="hero-grid-line hero-grid-h"></div>
+                <div class="hero-grid-line hero-grid-h"></div>
+                <div class="hero-grid-line hero-grid-v"></div>
+                <div class="hero-grid-line hero-grid-v"></div>
+            </div>
+
+            <!-- Floating tech icon decoration -->
+            <div class="hero-float-icons" aria-hidden="true">
+                <span class="float-icon" style="color:#61dafb">⚛</span>
+                <span class="float-icon" style="color:#68a063">⬡</span>
+                <span class="float-icon" style="color:#c9a96e">◈</span>
+            </div>
+
             <div class="hero-text">
-                <h1>Hello, I'm <span class="name">Amit Kumar Nayak</span></h1>
-                <p>I'm a <span class="role">Full Stack Developer</span></p>
-                <p>Aspiring software engineer with a strong foundation in programming and web development, passionate about building impactful projects and continuously growing in the field.</p>
-                
-                <div class="contact-info">
-                    <div class="contact-item">📍 Samalpur, Odisha</div>
-                    <div class="contact-item">📞 +91 7735254860</div>
+                <div class="avail-badge">
+                    <span class="avail-dot"></span>
+                    Available for opportunities
                 </div>
-
+                <h1 class="hero-heading">
+                    Hello, I'm<br>
+                    <span class="hero-name">Amit Kumar<br>Nayak</span>
+                </h1>
+                <div class="hero-role-wrap">
+                    <span class="hero-role-label" id="typingTarget"></span><span class="typing-cursor" id="typingCursor"></span>
+                </div>
+                <p class="hero-desc">Building scalable, real-time web applications with modern stacks. Passionate about clean architecture and exceptional user experiences.</p>
+                <div class="hero-stack-badges">
+                    <span class="hstack-badge"><span class="hs-icon react">⚛</span>React</span>
+                    <span class="hstack-badge"><span class="hs-icon node">⬡</span>Node.js</span>
+                    <span class="hstack-badge"><span class="hs-icon mongo">●</span>MongoDB</span>
+                    <span class="hstack-badge"><span class="hs-icon socket">⚡</span>Socket.io</span>
+                    <span class="hstack-badge"><span class="hs-icon webrtc">◈</span>WebRTC</span>
+                </div>
+                <div class="hero-meta">
+                    <div class="hero-meta-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Sambalpur, Odisha
+                    </div>
+                    <div class="hero-meta-sep">·</div>
+                    <div class="hero-meta-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.4a16 16 0 0 0 5.55 5.55l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+                        +91 7735254860
+                    </div>
+                </div>
                 <div class="btn-group">
-                    <a href="Amit Nayak-Resume.pdf" class="btn" target="_blank">View CV</a>
-                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                    <a href="#projects" class="btn btn-primary btn-magnetic">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        View Projects
+                    </a>
+                    <a href="Amit Nayak-Resume.pdf" class="btn btn-secondary btn-magnetic" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download CV
+                    </a>
+                    <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-icon btn-magnetic" aria-label="GitHub">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank" rel="noopener" class="btn btn-icon btn-magnetic" aria-label="LinkedIn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
                 </div>
             </div>
-            <div class="hero-image">
-                <img src="profile.jpg" alt="Amit Kumar Nayak">
+
+            <div class="hero-visual">
+                <div class="hero-image-wrap" id="heroImgWrap">
+                    <div class="hero-glow-ring" aria-hidden="true"></div>
+                    <div class="hero-glow-ring-2" aria-hidden="true"></div>
+                    <div class="hero-img-outer">
+                        <img src="profile.jpg" alt="Amit Kumar Nayak" class="hero-img" loading="eager">
+                    </div>
+                    <div class="hero-stat-card stat-card-1" aria-label="7 plus projects">
+                        <span class="stat-num" data-count="7" data-suffix="+">7+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="hero-stat-card stat-card-2" aria-label="3 plus years coding">
+                        <span class="stat-num" data-count="3" data-suffix="+">3+</span>
+                        <span class="stat-label">Yrs Coding</span>
+                    </div>
+                    <div class="hero-orbit-dot dot-1" aria-hidden="true"></div>
+                    <div class="hero-orbit-dot dot-2" aria-hidden="true"></div>
+                    <div class="hero-orbit-dot dot-3" aria-hidden="true"></div>
+                </div>
             </div>
         </section>
 
-        <!-- About & Education Section -->
+        <!-- ════════════════════════════════════════════
+             TECH STACK MARQUEE
+        ════════════════════════════════════════════ -->
+        <section id="techstack" class="techstack-section" aria-label="Technology stack">
+            <div class="ts-label">Core Technologies</div>
+            <div class="ts-track-wrap">
+                <div class="ts-track">
+                    <div class="ts-item"><span class="ts-icon">⚛</span><span>React.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">⬡</span><span>Node.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">🍃</span><span>MongoDB</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚡</span><span>Socket.io</span></div>
+                    <div class="ts-item"><span class="ts-icon">◈</span><span>WebRTC</span></div>
+                    <div class="ts-item"><span class="ts-icon">☕</span><span>Java</span></div>
+                    <div class="ts-item"><span class="ts-icon">📜</span><span>JavaScript</span></div>
+                    <div class="ts-item"><span class="ts-icon">🎨</span><span>Tailwind</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔗</span><span>REST APIs</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔐</span><span>JWT Auth</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚛</span><span>React.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">⬡</span><span>Node.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">🍃</span><span>MongoDB</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚡</span><span>Socket.io</span></div>
+                    <div class="ts-item"><span class="ts-icon">◈</span><span>WebRTC</span></div>
+                    <div class="ts-item"><span class="ts-icon">☕</span><span>Java</span></div>
+                    <div class="ts-item"><span class="ts-icon">📜</span><span>JavaScript</span></div>
+                    <div class="ts-item"><span class="ts-icon">🎨</span><span>Tailwind</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔗</span><span>REST APIs</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔐</span><span>JWT Auth</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             ABOUT & EDUCATION
+        ════════════════════════════════════════════ -->
         <section id="about">
-            <h2>About Me</h2>
+            <div class="section-header">
+                <span class="section-tag">About</span>
+                <h2 class="section-title">About Me</h2>
+            </div>
             <div class="about-content">
-                <p>I'm an aspiring software engineer with expertise in Java, C++, web development, and modern technologies. With a strong foundation in both frontend and backend development, I'm passionate about creating full-stack applications that solve real-world problems and deliver exceptional user experiences.</p>
-                
-                <h2 style="margin-top: 3rem; margin-bottom: 2rem;">Education</h2>
+                <div class="about-text-block reveal blur-reveal">
+                    <p>I'm an aspiring software engineer with expertise in Java, C++, web development, and modern technologies. With a strong foundation in both frontend and backend development, I'm passionate about creating full-stack applications that solve real-world problems and deliver exceptional user experiences.</p>
+                    <div class="about-highlights">
+                        <div class="about-hl-item">
+                            <span class="hl-num"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
+                            <span class="hl-label">Projects Built</span>
+                        </div>
+                        <div class="about-hl-item">
+                            <span class="hl-num"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
+                            <span class="hl-label">Years Coding</span>
+                        </div>
+                        <div class="about-hl-item">
+                            <span class="hl-num">B.Tech</span>
+                            <span class="hl-label">CSIT Graduate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header edu-header">
+                    <span class="section-tag">Education</span>
+                    <h2 class="section-title">Academic Background</h2>
+                </div>
                 <div class="education-grid">
-                    <div class="education-card">
-                        <h3>Bachelor of Technology (B.Tech) in CSIT</h3>
-                        <p class="institution">Institute of Technical Education and Research (SOA), Bhubaneswar</p>
-                        <p class="duration">2021 - 2025</p>
-                        <p class="score">CGPA: 7.07</p>
+                    <div class="education-card reveal">
+                        <div class="edu-icon">🎓</div>
+                        <div class="edu-info">
+                            <h3>B.Tech in CSIT</h3>
+                            <p class="institution">ITER (SOA University), Bhubaneswar</p>
+                            <p class="duration">2021 – 2025</p>
+                            <span class="edu-score">CGPA: 7.07</span>
+                        </div>
                     </div>
-                    <div class="education-card">
-                        <h3>12th Grade (CHSE)</h3>
-                        <p class="institution">Vikash Higher Secondary School, Sambalpur</p>
-                        <p class="duration">2020 - 2021</p>
-                        <p class="score">Percentage: 82.33%</p>
+                    <div class="education-card reveal">
+                        <div class="edu-icon">📘</div>
+                        <div class="edu-info">
+                            <h3>12th Grade (CHSE)</h3>
+                            <p class="institution">Vikash Higher Secondary School, Sambalpur</p>
+                            <p class="duration">2020 – 2021</p>
+                            <span class="edu-score">82.33%</span>
+                        </div>
                     </div>
-                    <div class="education-card">
-                        <h3>10th Grade (CHSE)</h3>
-                        <p class="institution">Sri Aurobindo Integral School, Kindita</p>
-                        <p class="duration">2018 - 2019</p>
-                        <p class="score">Percentage: 80.17%</p>
+                    <div class="education-card reveal">
+                        <div class="edu-icon">📗</div>
+                        <div class="edu-info">
+                            <h3>10th Grade (BSE)</h3>
+                            <p class="institution">Sri Aurobindo Integral School, Kindita</p>
+                            <p class="duration">2018 – 2019</p>
+                            <span class="edu-score">80.17%</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Skills Section -->
+        <!-- ════════════════════════════════════════════
+             SKILLS
+        ════════════════════════════════════════════ -->
         <section id="skills">
-            <h2>Technical Skills</h2>
+            <div class="section-header">
+                <span class="section-tag">Skills</span>
+                <h2 class="section-title">Technical Skills</h2>
+            </div>
             <div class="skills-container">
-                <div class="skill-category">
-                    <h3>Programming Languages</h3>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header">
+                        <span class="skill-cat-icon">💻</span>
+                        <h3>Programming Languages</h3>
+                    </div>
                     <div class="skill-tags">
-                        <span class="skill-tag">Java</span>
-                        <span class="skill-tag">C</span>
-                        <span class="skill-tag">C++</span>
-                        <span class="skill-tag">JavaScript</span>
-                        <span class="skill-tag">SQL</span>
+                        <span class="skill-tag"><span class="st-icon">☕</span>Java</span>
+                        <span class="skill-tag"><span class="st-icon">©</span>C</span>
+                        <span class="skill-tag"><span class="st-icon">C+</span>C++</span>
+                        <span class="skill-tag"><span class="st-icon js-c">JS</span>JavaScript</span>
+                        <span class="skill-tag"><span class="st-icon">⊗</span>SQL</span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3>Frontend Development</h3>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header">
+                        <span class="skill-cat-icon">🎨</span>
+                        <h3>Frontend Development</h3>
+                    </div>
                     <div class="skill-tags">
-                        <span class="skill-tag">HTML5</span>
-                        <span class="skill-tag">CSS3</span>
-                        <span class="skill-tag">JavaScript</span>
-                        <span class="skill-tag">React.js</span>
-                        <span class="skill-tag">Tailwind CSS</span>
+                        <span class="skill-tag"><span class="st-icon ht">H5</span>HTML5</span>
+                        <span class="skill-tag"><span class="st-icon cs">C3</span>CSS3</span>
+                        <span class="skill-tag"><span class="st-icon re">⚛</span>React.js</span>
+                        <span class="skill-tag"><span class="st-icon">🎨</span>Tailwind</span>
+                        <span class="skill-tag"><span class="st-icon js-c">JS</span>JavaScript</span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3>Backend Development</h3>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header">
+                        <span class="skill-cat-icon">⚙️</span>
+                        <h3>Backend Development</h3>
+                    </div>
                     <div class="skill-tags">
-                        <span class="skill-tag">Node.js</span>
-                        <span class="skill-tag">Express.js</span>
-                        <span class="skill-tag">MongoDB</span>
-                        <span class="skill-tag">RESTful APIs</span>
-                        <span class="skill-tag">Socket.io</span>
+                        <span class="skill-tag"><span class="st-icon no">⬡</span>Node.js</span>
+                        <span class="skill-tag"><span class="st-icon">Ex</span>Express.js</span>
+                        <span class="skill-tag"><span class="st-icon">🍃</span>MongoDB</span>
+                        <span class="skill-tag"><span class="st-icon">⇌</span>REST APIs</span>
+                        <span class="skill-tag"><span class="st-icon">⚡</span>Socket.io</span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3>Tools & Technologies</h3>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header">
+                        <span class="skill-cat-icon">🔧</span>
+                        <h3>Tools &amp; Technologies</h3>
+                    </div>
                     <div class="skill-tags">
-                        <span class="skill-tag">Git</span>
-                        <span class="skill-tag">GitHub</span>
-                        <span class="skill-tag">VS Code</span>
-                        <span class="skill-tag">Linux</span>
-                        <span class="skill-tag">DBMS</span>
-                        <span class="skill-tag">JWT</span>
+                        <span class="skill-tag"><span class="st-icon">⑂</span>Git</span>
+                        <span class="skill-tag"><span class="st-icon">◉</span>GitHub</span>
+                        <span class="skill-tag"><span class="st-icon">🐧</span>Linux</span>
+                        <span class="skill-tag"><span class="st-icon">🔐</span>JWT</span>
+                        <span class="skill-tag"><span class="st-icon">🗄</span>DBMS</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Experience Section -->
+        <!-- ════════════════════════════════════════════
+             EXPERIENCE
+        ════════════════════════════════════════════ -->
         <section id="experience">
-            <h2>Training & Internship</h2>
-            <div class="experience-card">
-                <h3>Full Stack Web Development</h3>
-                <p class="company">Edu-versity (AMG Technologies LLP)</p>
-                <p class="duration">July 2024 - September 2024</p>
-                <p>Completed full-stack development program with outstanding performance, receiving Academic Head's Letter of Recommendation. Demonstrated strong technical skills, proactive learning approach, and effective collaboration on team projects. Recognized for analytical abilities, attention to detail, and passion for web development.</p>
+            <div class="section-header">
+                <span class="section-tag">Experience</span>
+                <h2 class="section-title">Training &amp; Internship</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-line" aria-hidden="true"></div>
+                <div class="timeline-item experience-card reveal">
+                    <div class="timeline-dot" aria-hidden="true"></div>
+                    <div class="tl-date">Jul – Sep 2024</div>
+                    <div class="tl-content">
+                        <div class="tl-header">
+                            <div>
+                                <h3>Full Stack Web Development</h3>
+                                <p class="company">Edu-versity · AMG Technologies LLP</p>
+                            </div>
+                            <span class="tl-badge">Internship</span>
+                        </div>
+                        <p>Completed full-stack development program with outstanding performance, receiving Academic Head's Letter of Recommendation. Demonstrated strong technical skills, proactive learning approach, and effective collaboration on team projects. Recognized for analytical abilities, attention to detail, and passion for web development.</p>
+                        <div class="tl-tags">
+                            <span>React.js</span><span>Node.js</span><span>MongoDB</span><span>Express</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Projects Section -->
+        <!-- ════════════════════════════════════════════
+             FEATURED PROJECT
+        ════════════════════════════════════════════ -->
+        <section id="featured" class="featured-section">
+            <div class="section-header">
+                <span class="section-tag">Featured</span>
+                <h2 class="section-title">Spotlight Project</h2>
+            </div>
+
+            <!-- ── Main Card ───────────────────────────── -->
+            <div class="featured-card reveal blur-reveal">
+
+                <!-- LEFT: Animated multi-screen preview -->
+                <div class="featured-preview-wrap">
+
+                    <!-- ── Mosaic Photo Gallery ─────────────── -->
+                    <div class="vmg-mosaic" id="vmGallery">
+
+                        <!-- LARGE left: Video grid call -->
+                        <div class="vmg-cell vmg-large" data-index="0" role="button" tabindex="0" aria-label="Open screenshot 1 fullscreen">
+                            <div class="vmg-screenshot vmg-s0">
+                                <div class="vmg-s-topbar">
+                                    <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                    <span class="vmg-s-url">v-meet2.vercel.app</span>
+                                    <span class="vmg-s-rec">⬤ REC</span>
+                                </div>
+                                <div class="vmg-s-body">
+                                    <div class="vmg-grid4">
+                                        <div class="vmg-vcell vmg-active">
+                                            <div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div>
+                                            <div class="vmg-vname">Amit<span class="vmg-host">Host</span></div>
+                                            <div class="vmg-vring"></div>
+                                            <div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div>
+                                        </div>
+                                        <div class="vmg-vcell">
+                                            <div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div>
+                                            <div class="vmg-vname">Remote</div>
+                                        </div>
+                                        <div class="vmg-vcell">
+                                            <div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div>
+                                            <div class="vmg-vname">Sarah</div>
+                                        </div>
+                                        <div class="vmg-vcell vmg-screenshare">
+                                            <div class="vmg-ss-label">🖥️ Sharing</div>
+                                            <div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div>
+                                        </div>
+                                    </div>
+                                    <div class="vmg-ctrl-row">
+                                        <button class="vmg-cb vmg-cb-on">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg>
+                                        </button>
+                                        <button class="vmg-cb vmg-cb-on">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                                        </button>
+                                        <button class="vmg-cb">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+                                        </button>
+                                        <button class="vmg-cb">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        </button>
+                                        <button class="vmg-cb vmg-cb-end">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vmg-overlay">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                                <span>Fullscreen</span>
+                            </div>
+                            <div class="vmg-label">Zoom Grid Call</div>
+                        </div>
+
+                        <!-- Right column: 4 smaller cells -->
+                        <div class="vmg-right-col">
+
+                            <!-- WhatsApp Chat -->
+                            <div class="vmg-cell vmg-small" data-index="1" role="button" tabindex="0" aria-label="Open screenshot 2">
+                                <div class="vmg-screenshot vmg-s1">
+                                    <div class="vmg-s-topbar sm">
+                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                        <span class="vmg-s-url">v-meet — Chat</span>
+                                    </div>
+                                    <div class="vmg-chat-mini">
+                                        <div class="vmg-chat-sb">
+                                            <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
+                                            <div class="vmg-csb-item"><div class="vmg-cav" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div><div><div class="vmg-cn">Remote</div><div class="vmg-cl">Joining...</div></div><span class="vmg-badge">2</span></div>
+                                            <div class="vmg-csb-item"><div class="vmg-cav vmg-grp">👥</div><div><div class="vmg-cn">Dev Team</div><div class="vmg-cl">Sarah: pushed</div></div><span class="vmg-badge">5</span></div>
+                                        </div>
+                                        <div class="vmg-chat-msgs">
+                                            <div class="vmg-msg in">Can we start? 👋<span>10:42</span></div>
+                                            <div class="vmg-msg out">Yes! Starting... <span>10:43 ✓✓</span></div>
+                                            <div class="vmg-msg in vmg-file"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> design.pdf<span>10:44</span></div>
+                                            <div class="vmg-msg out">Got it! 😊<span>10:44 ✓✓</span></div>
+                                            <div class="vmg-typing"><span></span><span></span><span></span><em>typing…</em></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">WhatsApp Chat</div>
+                            </div>
+
+                            <!-- Audio Conference -->
+                            <div class="vmg-cell vmg-small" data-index="2" role="button" tabindex="0" aria-label="Open screenshot 3">
+                                <div class="vmg-screenshot vmg-s2">
+                                    <div class="vmg-s-topbar sm">
+                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                        <span class="vmg-s-url">Audio Conference</span>
+                                        <span class="vmg-s-rec">● LIVE</span>
+                                    </div>
+                                    <div class="vmg-audio-mini">
+                                        <div class="vmg-audio-center-mini">
+                                            <div class="vmg-pulse-ring"></div>
+                                            <div class="vmg-pulse-ring vmg-pr2"></div>
+                                            <div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div>
+                                            <div class="vmg-speak-label">Speaking</div>
+                                        </div>
+                                        <div class="vmg-orb-row">
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
+                                            <div class="vmg-mini-orb vmg-orb-muted" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div>
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div>
+                                        </div>
+                                        <div class="vmg-audio-stat">🎙 3 speaking · 🔇 2 muted</div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Audio Conference</div>
+                            </div>
+
+                            <!-- Group Call pinned -->
+                            <div class="vmg-cell vmg-small" data-index="3" role="button" tabindex="0" aria-label="Open screenshot 4">
+                                <div class="vmg-screenshot vmg-s3">
+                                    <div class="vmg-s-topbar sm">
+                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                        <span class="vmg-s-url">Dev Team · 6 members</span>
+                                        <span class="vmg-s-rec">⬤ REC</span>
+                                    </div>
+                                    <div class="vmg-group-mini">
+                                        <div class="vmg-pin-stage">
+                                            <div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div>
+                                            <div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div>
+                                            <div class="vmg-pin-tag">📌 Pinned · Speaking</div>
+                                        </div>
+                                        <div class="vmg-strip-mini">
+                                            <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
+                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
+                                            <div class="vmg-sm-cell vmg-muted"><div class="vmg-av sm" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div><small>John🔇</small></div>
+                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div><small>Maya</small></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Group Call</div>
+                            </div>
+
+                            <!-- Meeting Dashboard -->
+                            <div class="vmg-cell vmg-small" data-index="4" role="button" tabindex="0" aria-label="Open screenshot 5">
+                                <div class="vmg-screenshot vmg-s4">
+                                    <div class="vmg-s-topbar sm">
+                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                        <span class="vmg-s-url">v-meet — Dashboard</span>
+                                    </div>
+                                    <div class="vmg-dash-mini">
+                                        <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
+                                        <div class="vmg-dash-row">
+                                            <div class="vmg-dash-btn vmg-new-meet">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                                                New Meeting
+                                            </div>
+                                            <div class="vmg-dash-btn vmg-join-meet">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                                                Join Room
+                                            </div>
+                                        </div>
+                                        <div class="vmg-input-mini">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                            Enter meeting ID…
+                                        </div>
+                                        <div class="vmg-recent-label">Recent Rooms</div>
+                                        <div class="vmg-recent-row">
+                                            <div class="vmg-recent-item">vm-x9k2p</div>
+                                            <div class="vmg-recent-item">vm-8x3tz</div>
+                                            <div class="vmg-recent-item">vm-dev21</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Meeting Dashboard</div>
+                            </div>
+
+                        </div><!-- /vmg-right-col -->
+                    </div><!-- /vmg-mosaic -->
+
+                    <!-- Feature pills -->
+                    <div class="vm-feature-pills">
+                        <span class="vm-pill">🔒 E2E Encrypted</span>
+                        <span class="vm-pill">⚡ &lt;50ms latency</span>
+                        <span class="vm-pill">🌐 No install needed</span>
+                        <span class="vm-pill">📸 5 screens · tap to expand</span>
+                    </div>
+
+                </div><!-- /featured-preview-wrap -->
+
+                <!-- ── FULLSCREEN LIGHTBOX ─────────────── -->
+                <div class="vmg-lightbox" id="vmgLightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
+                    <div class="vmg-lb-backdrop"></div>
+                    <div class="vmg-lb-inner">
+                        <!-- Counter -->
+                        <div class="vmg-lb-counter"><span id="vmgLbCurr">1</span> / <span id="vmgLbTotal">5</span></div>
+                        <!-- Close -->
+                        <button class="vmg-lb-close" id="vmgLbClose" aria-label="Close">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                        <!-- Prev -->
+                        <button class="vmg-lb-nav vmg-lb-prev" id="vmgLbPrev" aria-label="Previous screenshot">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <!-- Content area -->
+                        <div class="vmg-lb-stage" id="vmgLbStage"></div>
+                        <!-- Caption -->
+                        <div class="vmg-lb-caption" id="vmgLbCaption"></div>
+                        <!-- Next -->
+                        <button class="vmg-lb-nav vmg-lb-next" id="vmgLbNext" aria-label="Next screenshot">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <!-- Dot indicators -->
+                        <div class="vmg-lb-dots" id="vmgLbDots"></div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Info -->
+                <div class="featured-info">
+                    <span class="featured-number">01</span>
+                    <h3 class="featured-title">V-Meet</h3>
+                    <p class="featured-subtitle">Real-Time Video, Audio &amp; Chat Platform</p>
+                    <p class="featured-desc">Built V-Meet — a full-featured real-time communication platform powered by WebRTC peer connections. Supports Zoom-style grid video conferencing and WhatsApp-style 1-on-1 messaging in one unified app. Features a complete audio conferencing system with noise suppression and push-to-talk, a robust group calling engine with dynamic speaker pinning, and a chat system with message delivery receipts (✓✓), emoji reactions, typing indicators, file sharing, and group rooms — all with secure JWT auth, unique meeting IDs, and sub-50 ms signaling via Socket.io.</p>
+                    <div class="featured-features">
+                        <div class="ff-item"><span class="ff-check">✓</span> Zoom-style grid layout + pinned speaker mode</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> WhatsApp-style chat — read receipts, emoji, file sharing</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Audio conference with mute, noise suppression &amp; push-to-talk</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Group calling — dynamic pin, strip view, 6+ participants</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Screen sharing with live annotation overlay</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Real-time typing indicators &amp; presence signals</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> WebRTC E2E encryption + JWT-secured auth</div>
+                    </div>
+                    <div class="featured-stack">
+                        <span>React.js</span><span>Node.js</span><span>Socket.io</span><span>WebRTC</span><span>MongoDB</span>
+                    </div>
+                    <div class="featured-actions">
+                        <a href="https://v-meet2.vercel.app" class="btn btn-primary btn-magnetic" target="_blank" rel="noopener">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-outline">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            View Code
+                        </a>
+                    </div>
+                </div>
+
+            </div><!-- /featured-card -->
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             PROJECTS GRID
+        ════════════════════════════════════════════ -->
         <section id="projects">
-            <h2>Featured Projects</h2>
+            <div class="section-header">
+                <span class="section-tag">Work</span>
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-sub">A collection of real-world applications built with modern stacks</p>
+            </div>
             <div class="projects-grid">
-                <div class="project-card">
 
-    <h3>E-Mart – Full Stack Marketplace Web Application</h3>
-
-    <p class="project-duration">January 2026 – February 2026</p>
-
-    <p>
-        Developed E-Mart, a production-ready OLX-style marketplace using React.js, Node.js, Express.js, and MongoDB. 
-        Implemented secure JWT-based authentication with role-based access control, real-time chat using Socket.IO, 
-        and RESTful APIs with structured validation, middleware architecture, and centralized error handling. 
-        Designed optimized MongoDB schemas with indexing for fast search, filtering, sorting, and pagination. 
-        Built image upload functionality with cloud storage integration, protected routes, and dynamic product management. 
-        Developed a responsive mobile-first UI using Tailwind CSS and Context API for efficient global state management.
-    </p>
-
-    <a href="https://e-mart-gamma-three.vercel.app" class="project-link" target="_blank">View Project →</a>
-
-</div>
-
-<div class="project-card">
-
-    <h3>V-Meet | Real-Time Video Meeting & Chat Platform</h3>
-
-    <p class="project-duration">November 2025 – December 2025</p>
-
-    <p>
-        Built V-Meet, a scalable real-time video conferencing and messaging platform using React.js, Node.js, Express, MongoDB, 
-        Socket.io, and WebRTC. Implemented secure authentication with protected routes, meeting room creation, 
-        unique meeting IDs, and participant management. Developed one-to-one and group video calling with screen sharing, 
-        live chat, typing indicators, and real-time notifications. 
-        Optimized WebRTC peer connection handling for low-latency communication and ensured a fully responsive, 
-        modern UI with smooth animations and efficient state handling.
-    </p>
-
-    <a href="https://v-meet2.vercel.app" class="project-link" target="_blank">View Project →</a>
-
-</div>
-
-<div class="project-card">
-
-    <h3>Cyber Security Tools Web Application</h3>
-
-    <p class="project-duration">July 2025 – September 2025</p>
-
-    <p>
-        Developed a full-stack cyber security utility platform using React.js and Node.js providing tools such as 
-        password strength analysis, hash generation (MD5, SHA-256), AES encryption/decryption, 
-        URL scanning, and port scanning modules. Implemented secure authentication using JWT with refresh tokens 
-        and role-based access control (RBAC). Designed modular backend architecture with input validation, 
-        rate limiting, and secure API handling. Built a professional dashboard UI with reusable components, 
-        dynamic charts, and fully responsive design.
-    </p>
-
-    <a href="https://cyber-security-tools-ruby.vercel.app" class="project-link" target="_blank">View Project →</a>
-
-</div>
-
-                <div class="project-card">
-                    <h3>ChessArena: Professional-Grade Online Chess Gaming Application</h3>
-                    <p class="project-duration">February 2025 – March 2025</p>
-                    <p>Architected and deployed a production-ready full-stack real-time multiplayer chess platform leveraging Node.js, Express.js, and Socket.IO for bidirectional communication, orchestrating 50+ concurrent game rooms with live state synchronization across 100+ players while maintaining sub-100ms latency and 99.8% uptime through optimized WebSocket management and efficient server-side game state validation and proper sound system.</p>
-                    <a href="https://chessarena-w7fq.onrender.com" class="project-link" target="_blank">View Project →</a>
+                <!-- E-Mart -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Production Live</div>
+                    <div class="pc-slideshow" data-slides="3">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart-gamma-three.vercel.app</span></div>
+                                    <div class="ps-body emart-home">
+                                        <div class="ps-nav-strip"><span class="ps-logo">🛒 E-Mart</span><span class="ps-search">🔍 Search products...</span><span class="ps-cart">🛍 Cart</span></div>
+                                        <div class="ps-hero-strip"><div class="ps-banner">🎉 New Arrivals — Shop Now</div></div>
+                                        <div class="ps-card-row"><div class="ps-pcard">📱<br><small>Phones</small></div><div class="ps-pcard">👕<br><small>Fashion</small></div><div class="ps-pcard">🪑<br><small>Home</small></div><div class="ps-pcard">💻<br><small>Tech</small></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d1117 0%,#161b22 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart — Chat</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-chat-window">
+                                            <div class="ps-chat-header">💬 Live Chat with Seller</div>
+                                            <div class="ps-messages"><div class="ps-msg them">Is this still available?</div><div class="ps-msg me">Yes! Ready to ship 📦</div><div class="ps-msg them">Great, I'll take it!</div></div>
+                                            <div class="ps-chat-input">Type a message...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b69 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart — Dashboard</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-dashboard">
+                                            <div class="ps-dash-title">📊 Seller Dashboard</div>
+                                            <div class="ps-stats-row"><div class="ps-stat-box"><span>42</span><small>Listings</small></div><div class="ps-stat-box"><span>18</span><small>Sold</small></div><div class="ps-stat-box gold"><span>★4.8</span><small>Rating</small></div></div>
+                                            <div class="ps-bar-row"><div class="ps-bar" style="width:80%">Electronics 80%</div><div class="ps-bar" style="width:55%">Fashion 55%</div><div class="ps-bar" style="width:35%">Home 35%</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>E-Mart</h3><p class="pc-sub">Full Stack Marketplace Web App</p></div>
+                            <a href="https://e-mart-gamma-three.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jan 2026 – Feb 2026</p>
+                        <p class="pc-desc">Production-ready OLX-style marketplace with JWT auth, real-time chat via Socket.IO, cloud image storage, and optimized MongoDB schemas for fast search, filtering, sorting &amp; pagination.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>MongoDB</span><span>Socket.IO</span><span>Tailwind</span><span>JWT</span></div>
+                        <a href="https://e-mart-gamma-three.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🏆 <strong>Highlights:</strong> Real-time messaging, optimized pagination, role-based auth, cloud storage integration</p>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <h3>SEVEN WONDERS – A Comprehensive Travel Platform</h3>
-                    <p class="project-duration">January 2024 – February 2024</p>
-                    <p>Developed a travel web application using Node.js, Express.js, and MongoDB showcasing the Seven Wonders of the World. Implemented secure user authentication with JWT and bcrypt, built RESTful APIs for user management and reviews with CRUD operations, and created role-based access control. Designed a responsive frontend with interactive image slideshows and dynamic content.</p>
-                    <a href="https://the-7.onrender.com" class="project-link" target="_blank">View Project →</a>
+                <!-- V-Meet -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>WebRTC · Low-Latency</div>
+                    <div class="pc-slideshow" data-slides="3">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet2.vercel.app</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-vmeet-grid">
+                                            <div class="ps-video-cell active"><div class="ps-vcam">A</div><div class="ps-vname">You</div></div>
+                                            <div class="ps-video-cell"><div class="ps-vcam">R</div><div class="ps-vname">Remote</div></div>
+                                            <div class="ps-video-cell"><div class="ps-vcam">S</div><div class="ps-vname">Screen</div></div>
+                                            <div class="ps-video-cell"><div class="ps-vcam">C</div><div class="ps-vname">Guest</div></div>
+                                        </div>
+                                        <div class="ps-controls-bar"><span>🎤</span><span class="red-ctrl">📵</span><span>📹</span><span>🖥</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f1923 0%,#1a2744 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet — Live Chat</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-chat-window">
+                                            <div class="ps-chat-header">💬 Meeting Chat</div>
+                                            <div class="ps-messages"><div class="ps-msg them">Can everyone hear me?</div><div class="ps-msg me">Yes, loud and clear! 👍</div><div class="ps-msg them typing">typing...</div></div>
+                                            <div class="ps-chat-input">Send a message...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d1520 0%,#162030 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet — New Meeting</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-join-room">
+                                            <div class="ps-room-icon">◈</div>
+                                            <div class="ps-room-title">Start or Join a Meeting</div>
+                                            <div class="ps-room-input">Meeting ID: VMT-2024-LIVE</div>
+                                            <div class="ps-room-btn">Join Now</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>V-Meet</h3><p class="pc-sub">Real-Time Video Meeting Platform</p></div>
+                            <a href="https://v-meet2.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Nov 2025 – Dec 2025</p>
+                        <p class="pc-desc">Scalable video conferencing platform using WebRTC for low-latency calls. Features secure auth, room creation, screen sharing, live chat, typing indicators, and real-time notifications.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>WebRTC</span><span>Socket.io</span><span>MongoDB</span></div>
+                        <a href="https://v-meet2.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">⚡ <strong>Tech:</strong> WebRTC P2P, Socket.io signaling, screen capture API, real-time presence</p>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <h3>Full-Stack Chat Application</h3>
-                    <p class="project-duration">June 2023 – August 2023</p>
-                    <p>Designed and deployed a full-stack chat application on Render using React, Express.js, and MongoDB. Implemented RESTful APIs, real-time communication with Socket.io, and a responsive UI to ensure a seamless user experience. Acquired hands-on expertise in front-end and back-end development, database management, and real-time data handling using modern web technologies.</p>
-                    <a href="https://chatapp-drt5.onrender.com" class="project-link" target="_blank">View Project →</a>
+                <!-- Cyber Security Tools -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>AES-256 · RBAC</div>
+                    <div class="pc-slideshow" data-slides="3">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a1628 0%,#0f2647 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">cyber-security-tools-ruby.vercel.app</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-cyber-dash">
+                                            <div class="ps-cyber-title">🔐 Security Dashboard</div>
+                                            <div class="ps-tool-grid">
+                                                <div class="ps-tool-btn">🔑 Password</div>
+                                                <div class="ps-tool-btn">⚙️ Hash Gen</div>
+                                                <div class="ps-tool-btn active">🔒 AES Enc</div>
+                                                <div class="ps-tool-btn">🌐 URL Scan</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#050d1a 0%,#0a1f35 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Encryption Tool</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-enc-tool">
+                                            <div class="ps-enc-label">AES-256 Encryption</div>
+                                            <div class="ps-enc-input">Plain text: Hello World</div>
+                                            <div class="ps-enc-output">Encrypted: U2FsdGVkX1...</div>
+                                            <div class="ps-enc-bar"><div class="ps-strength-bar" style="width:90%">Strong ✓</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0c1020 0%,#141c34 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Hash Generator</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-hash-tool">
+                                            <div class="ps-hash-label">Hash Generator</div>
+                                            <div class="ps-hash-row"><span class="ps-hash-type">MD5</span><span class="ps-hash-val">5d41402abc...</span></div>
+                                            <div class="ps-hash-row"><span class="ps-hash-type">SHA-256</span><span class="ps-hash-val">2cf24dba5f...</span></div>
+                                            <div class="ps-hash-row"><span class="ps-hash-type">SHA-512</span><span class="ps-hash-val">9b71d224bd...</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Cyber Security Tools</h3><p class="pc-sub">Security Utility Platform</p></div>
+                            <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jul 2025 – Sep 2025</p>
+                        <p class="pc-desc">Security utility platform with password analysis, hash generation (MD5/SHA-256), AES encryption/decryption, URL &amp; port scanning. Role-based access with JWT and refresh tokens.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>JWT</span><span>RBAC</span><span>AES-256</span></div>
+                        <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🔒 <strong>Security:</strong> AES-256, bcrypt hashing, refresh token rotation, RBAC middleware</p>
+                    </div>
                 </div>
 
-                <div class="project-card">
-                    <h3>Quiz Master - Full-Stack Online Assessment Platform</h3>
-                    <p class="project-duration">September 2023 – October 2023</p>
-                    <p>Created an online assessment platform with Node.js and MongoDB that streamlines quiz delivery for educational institutions. Features include secure JWT authentication, role-based portals for teachers and students, real-time quiz timer with auto-submission, and automated scoring across General, Aptitude, and Technical categories. Developed RESTful APIs for CRUD operations and implemented a competitive leaderboard system.</p>
-                    <a href="https://quiz-master-zoo7.onrender.com" class="project-link" target="_blank">View Project →</a>
+                <!-- ChessArena -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>50+ Rooms · 100+ Players</div>
+                    <div class="pc-slideshow" data-slides="3">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a1206 0%,#2d200a 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">chessarena-w7fq.onrender.com</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-chess-board">
+                                            <div class="ps-board-grid">
+                                                <div class="ps-cell dark">♜</div><div class="ps-cell light">♞</div><div class="ps-cell dark">♝</div><div class="ps-cell light">♛</div>
+                                                <div class="ps-cell light">♟</div><div class="ps-cell dark">♟</div><div class="ps-cell light">♟</div><div class="ps-cell dark">♟</div>
+                                                <div class="ps-cell dark"></div><div class="ps-cell light"></div><div class="ps-cell dark highlight">♘</div><div class="ps-cell light"></div>
+                                                <div class="ps-cell light">♙</div><div class="ps-cell dark">♙</div><div class="ps-cell light">♙</div><div class="ps-cell dark">♙</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#120d00 0%,#241a00 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">ChessArena — Lobby</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-lobby">
+                                            <div class="ps-lobby-title">♟ Active Rooms</div>
+                                            <div class="ps-room-row"><span class="ps-room-id">Room #1042</span><span class="ps-room-players">2/2</span><span class="ps-room-live">● LIVE</span></div>
+                                            <div class="ps-room-row"><span class="ps-room-id">Room #1043</span><span class="ps-room-players">1/2</span><span class="ps-room-wait">Waiting</span></div>
+                                            <div class="ps-room-row"><span class="ps-room-id">Room #1044</span><span class="ps-room-players">2/2</span><span class="ps-room-live">● LIVE</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0e0800 0%,#1e1200 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">ChessArena — Stats</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-chess-stats">
+                                            <div class="ps-cs-title">⚡ Live Statistics</div>
+                                            <div class="ps-cs-row"><span>Active Rooms</span><span class="ps-cs-val">50+</span></div>
+                                            <div class="ps-cs-row"><span>Online Players</span><span class="ps-cs-val">100+</span></div>
+                                            <div class="ps-cs-row"><span>Avg Latency</span><span class="ps-cs-val green">&lt;100ms</span></div>
+                                            <div class="ps-cs-row"><span>Uptime</span><span class="ps-cs-val green">99.8%</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>ChessArena</h3><p class="pc-sub">Real-Time Multiplayer Chess</p></div>
+                            <a href="https://chessarena-w7fq.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Feb 2025 – Mar 2025</p>
+                        <p class="pc-desc">Multiplayer chess platform orchestrating 50+ concurrent game rooms with live state sync across 100+ players, sub-100ms latency, and 99.8% uptime via optimized WebSocket management.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>Socket.IO</span><span>Express.js</span><span>WebSocket</span></div>
+                        <a href="https://chessarena-w7fq.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">♟ <strong>Scale:</strong> 50+ concurrent rooms, &lt;100ms latency, 99.8% uptime, chess.js engine</p>
+                    </div>
+                </div>
+
+                <!-- Seven Wonders -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Full CRUD · JWT</div>
+                    <div class="pc-slideshow" data-slides="2">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f1a0f 0%,#1a2e1a 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">the-7.onrender.com</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-travel-home">
+                                            <div class="ps-travel-hero">✈️ Seven Wonders of the World</div>
+                                            <div class="ps-wonder-grid">
+                                                <div class="ps-wonder-card">🏛️<br><small>Colosseum</small></div>
+                                                <div class="ps-wonder-card">🗿<br><small>Chichen Itza</small></div>
+                                                <div class="ps-wonder-card">🕌<br><small>Taj Mahal</small></div>
+                                                <div class="ps-wonder-card">🗼<br><small>Machu Picchu</small></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a1510 0%,#12251a 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">seven-wonders — Reviews</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-review-section">
+                                            <div class="ps-rev-title">⭐ User Reviews</div>
+                                            <div class="ps-review"><span class="ps-rev-user">John D.</span><span class="ps-rev-stars">★★★★★</span><span class="ps-rev-text">Amazing experience!</span></div>
+                                            <div class="ps-review"><span class="ps-rev-user">Sara K.</span><span class="ps-rev-stars">★★★★☆</span><span class="ps-rev-text">Loved the Colosseum tour</span></div>
+                                            <div class="ps-review"><span class="ps-rev-user">Alex M.</span><span class="ps-rev-stars">★★★★★</span><span class="ps-rev-text">Must visit the Taj Mahal</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Seven Wonders</h3><p class="pc-sub">Comprehensive Travel Platform</p></div>
+                            <a href="https://the-7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jan 2024 – Feb 2024</p>
+                        <p class="pc-desc">Travel web application showcasing the Seven Wonders with secure JWT auth, RESTful APIs for user management, CRUD reviews, and role-based access control.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>Express.js</span><span>MongoDB</span><span>JWT</span><span>bcrypt</span></div>
+                        <a href="https://the-7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🌍 <strong>Features:</strong> CRUD reviews, RESTful API design, bcrypt password hashing, RBAC</p>
+                    </div>
+                </div>
+
+                <!-- Chat App -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Socket.io · Real-Time</div>
+                    <div class="pc-slideshow" data-slides="2">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d0d1a 0%,#1a1a30 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">chatapp-drt5.onrender.com</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-chatapp">
+                                            <div class="ps-sidebar-mini">
+                                                <div class="ps-contact active">💬 General</div>
+                                                <div class="ps-contact">👤 Rohan</div>
+                                                <div class="ps-contact">👤 Priya</div>
+                                            </div>
+                                            <div class="ps-chat-main">
+                                                <div class="ps-msg them">Hey everyone! 👋</div>
+                                                <div class="ps-msg me">Hello! How's it going?</div>
+                                                <div class="ps-msg them">Working on a new project!</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#080812 0%,#14142a 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Chat App — Online</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-online-users">
+                                            <div class="ps-online-title">🟢 Online Users</div>
+                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Rohan Kumar</div>
+                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Priya Sharma</div>
+                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Dev Singh</div>
+                                            <div class="ps-user-count">3 users online</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Chat Application</h3><p class="pc-sub">Full-Stack Real-Time Messaging</p></div>
+                            <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jun 2023 – Aug 2023</p>
+                        <p class="pc-desc">Full-stack chat application with RESTful APIs, real-time communication via Socket.io, and a responsive UI for seamless user experience. Deployed on Render with MongoDB backend.</p>
+                        <div class="pc-stack"><span>React</span><span>Express.js</span><span>MongoDB</span><span>Socket.io</span></div>
+                        <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">💬 <strong>Features:</strong> Real-time presence, group rooms, persistent message history, responsive UI</p>
+                    </div>
+                </div>
+
+                <!-- Quiz Master -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Live Timer · Leaderboard</div>
+                    <div class="pc-slideshow" data-slides="2">
+                        <div class="pc-slides-track">
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f0a1e 0%,#1e1440 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">quiz-master-zoo7.onrender.com</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-quiz-ui">
+                                            <div class="ps-quiz-header">📝 Quiz Master <span class="ps-timer">⏱ 00:45</span></div>
+                                            <div class="ps-question">Q3. What is the time complexity of binary search?</div>
+                                            <div class="ps-options">
+                                                <div class="ps-option">A. O(n)</div>
+                                                <div class="ps-option correct">B. O(log n) ✓</div>
+                                                <div class="ps-option">C. O(n²)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pc-slide" style="background:linear-gradient(135deg,#0c0820 0%,#18103a 100%)">
+                                <div class="ps-mockup">
+                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Quiz Master — Leaderboard</span></div>
+                                    <div class="ps-body">
+                                        <div class="ps-leaderboard">
+                                            <div class="ps-lb-title">🏆 Leaderboard</div>
+                                            <div class="ps-lb-row gold-row"><span>1.</span><span>Amit K.</span><span>98/100</span></div>
+                                            <div class="ps-lb-row silver-row"><span>2.</span><span>Rohan S.</span><span>92/100</span></div>
+                                            <div class="ps-lb-row bronze-row"><span>3.</span><span>Priya M.</span><span>88/100</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                    </div>
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Quiz Master</h3><p class="pc-sub">Online Assessment Platform</p></div>
+                            <a href="https://quiz-master-zoo7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Sep 2023 – Oct 2023</p>
+                        <p class="pc-desc">Online assessment platform with JWT auth, role-based portals for teachers and students, real-time quiz timer with auto-submission, and competitive leaderboard across categories.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>MongoDB</span><span>JWT</span><span>Express.js</span></div>
+                        <a href="https://quiz-master-zoo7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">📊 <strong>Features:</strong> Teacher/student portals, auto-submit timer, category filters, real-time leaderboard</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             GITHUB ACTIVITY
+        ════════════════════════════════════════════ -->
+        <section id="github-activity" class="github-section">
+            <div class="section-header">
+                <span class="section-tag">Activity</span>
+                <h2 class="section-title">GitHub Contributions</h2>
+            </div>
+            <div class="github-card reveal">
+                <div class="github-card-header">
+                    <div class="github-profile-info">
+                        <div class="gh-avatar">A</div>
+                        <div>
+                            <div class="gh-name">Amitnayak01</div>
+                            <div class="gh-handle">github.com/Amitnayak01</div>
+                        </div>
+                    </div>
+                    <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-outline gh-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        View Profile
+                    </a>
+                </div>
+                <div class="github-graph-wrap">
+                    <img src="https://github-readme-activity-graph.vercel.app/graph?username=Amitnayak01&theme=github-dark&bg_color=0e0e0e&color=c9b896&line=c9b896&point=e8dcc8&area=true&area_color=c9b896&hide_border=true"
+                        alt="GitHub Activity Graph — Amitnayak01"
+                        class="github-graph-img" loading="lazy"
+                        onerror="this.style.display='none'; document.querySelector('.gh-fallback').style.display='flex';">
+                    <div class="gh-fallback" style="display:none;">
+                        <div class="gh-graph-grid" id="ghGrid"></div>
+                        <p>Visit <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener">github.com/Amitnayak01</a> to see contributions</p>
+                    </div>
+                </div>
+                <div class="github-stats-row">
+                    <div class="gh-stat">
+                        <span class="gh-stat-num" data-count="7" data-suffix="+"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
+                        <span class="gh-stat-label">Repositories</span>
+                    </div>
+                    <div class="gh-stat">
+                        <span class="gh-stat-num" data-count="3" data-suffix="+"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
+                        <span class="gh-stat-label">Years Active</span>
+                    </div>
+                    <div class="gh-stat">
+                        <span class="gh-stat-num">Full</span>
+                        <span class="gh-stat-label">Stack Focus</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Contact Section -->
-      <!-- Contact Section -->
-<section id="contact">
-    <h2>Get In Touch</h2>
-    <div class="contact-grid">
-        <a href="mailto:amitkumarnayak330@gmail.com" class="contact-card">
-            <h3>📧 Email</h3>
-            <span>amitkumarnayak330@gmail.com</span>
-        </a>
-        <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank" class="contact-card">
-            <h3>💼 LinkedIn</h3>
-            <span>linkedin.com/in/amit-nayak-738024344</span>
-        </a>
-        <a href="https://github.com/Amitnayak01" target="_blank" class="contact-card">
-            <h3>💻 GitHub</h3>
-            <span>github.com/Amitnayak01</span>
-        </a>
-    </div>
-</section>
-    </div>
+        <!-- ════════════════════════════════════════════
+             CONTACT
+        ════════════════════════════════════════════ -->
+        <section id="contact">
+            <div class="section-header">
+                <span class="section-tag">Contact</span>
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-sub">Open to new opportunities — let's build something great together.</p>
+            </div>
+            <div class="contact-grid">
+                <a href="mailto:amitkumarnayak330@gmail.com" class="contact-card reveal">
+                    <div class="cc-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>Email</h3>
+                        <span>amitkumarnayak330@gmail.com</span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+                <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank" rel="noopener" class="contact-card reveal">
+                    <div class="cc-icon-wrap linkedin-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>LinkedIn</h3>
+                        <span>amit-nayak-738024344</span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+                <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="contact-card reveal">
+                    <div class="cc-icon-wrap github-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>GitHub</h3>
+                        <span>github.com/Amitnayak01</span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+            </div>
+        </section>
+
+    </div><!-- /container -->
 
     <footer>
-        <p>&copy; 2025 Amit Kumar Nayak. All rights reserved. | Languages: Odia, Hindi, English</p>
+        <div class="footer-inner">
+            <div class="footer-brand">AKN</div>
+            <p>© 2025 Amit Kumar Nayak · Full Stack Developer · Sambalpur, Odisha</p>
+            <p class="footer-langs">Odia · Hindi · English</p>
+        </div>
     </footer>
 
     <script>
-        // Create animated particles
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = window.innerWidth < 768 ? 10 : 20;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            const size = Math.random() * 100 + 50;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 20 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-            particlesContainer.appendChild(particle);
-        }
+    /* ════════════════════════════════════════════════════
+       AMIT KUMAR NAYAK — PORTFOLIO JS (PREMIUM EDITION)
+    ════════════════════════════════════════════════════ */
 
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const navMenu = document.getElementById('navMenu');
-        const navLinks = document.querySelectorAll('nav a');
+    'use strict';
 
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            navMenu.classList.toggle('active');
-            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+    /* ── Utility: throttle ─────────────────────────── */
+    function throttle(fn, limit) {
+        let last = 0;
+        return function(...args) {
+            const now = Date.now();
+            if (now - last >= limit) { last = now; fn.apply(this, args); }
+        };
+    }
+
+    /* ── Utility: RAF wrapper ─────────────────────── */
+    function rafCall(fn) { return requestAnimationFrame(fn); }
+
+    /* ── DOM refs ──────────────────────────────────── */
+    const scrollProgressEl = document.getElementById('scrollProgress');
+    const cursorGlowEl     = document.getElementById('cursorGlow');
+    const navbar           = document.getElementById('navbar');
+    const menuToggle       = document.getElementById('menuToggle');
+    const navMenu          = document.getElementById('navMenu');
+    const themeToggle      = document.getElementById('themeToggle');
+    const cmdTrigger       = document.getElementById('cmdTrigger');
+    const cmdOverlay       = document.getElementById('cmdOverlay');
+    const cmdInput         = document.getElementById('cmdInput');
+    const cmdResults       = document.getElementById('cmdResults');
+    const hireFloat        = document.getElementById('hireFloat');
+    const html             = document.documentElement;
+
+    /* ════════════════════════════════════════════════
+       1. SCROLL PROGRESS + NAVBAR + HIRE BTN
+    ════════════════════════════════════════════════ */
+    let lastScrollY = 0;
+    const handleScroll = throttle(() => {
+        const scrollY   = window.scrollY;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const pct       = (scrollY / maxScroll) * 100;
+
+        rafCall(() => {
+            scrollProgressEl.style.width = pct + '%';
+            navbar.classList.toggle('scrolled', scrollY > 60);
+            // Hide hire btn near top
+            hireFloat.classList.toggle('hidden', scrollY < 400);
         });
 
-        // Close menu when clicking on a link
+        lastScrollY = scrollY;
+    }, 16);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    /* ════════════════════════════════════════════════
+       2. ACTIVE NAV ON SCROLL
+    ════════════════════════════════════════════════ */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks  = document.querySelectorAll('nav a[href^="#"]');
+
+    const updateActiveNav = throttle(() => {
+        let current = '';
+        sections.forEach(s => {
+            if (window.scrollY >= s.offsetTop - 240) current = s.id;
+        });
         navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-                document.body.style.overflow = '';
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+        });
+    }, 50);
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+    /* ════════════════════════════════════════════════
+       3. CURSOR GLOW — DYNAMIC SIZE & INTENSITY
+    ════════════════════════════════════════════════ */
+    let mouseX = 0, mouseY = 0, prevMouseX = 0, prevMouseY = 0;
+    let cursorRaf = null;
+
+    document.addEventListener('mousemove', (e) => {
+        const dx = e.clientX - prevMouseX;
+        const dy = e.clientY - prevMouseY;
+        const speed = Math.sqrt(dx*dx + dy*dy);
+        mouseX = e.clientX; mouseY = e.clientY;
+        prevMouseX = e.clientX; prevMouseY = e.clientY;
+
+        if (cursorRaf) cancelAnimationFrame(cursorRaf);
+        cursorRaf = rafCall(() => {
+            cursorGlowEl.style.left = mouseX + 'px';
+            cursorGlowEl.style.top  = mouseY + 'px';
+            cursorGlowEl.classList.toggle('fast', speed > 18);
+        });
+    });
+
+    /* ════════════════════════════════════════════════
+       4. PARTICLES
+    ════════════════════════════════════════════════ */
+    const particlesContainer = document.getElementById('particles');
+    function spawnParticles(n) {
+        particlesContainer.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < n; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const sz = Math.random() * 130 + 50;
+            Object.assign(p.style, {
+                width:  sz + 'px', height: sz + 'px',
+                left:   Math.random() * 100 + '%',
+                top:    Math.random() * 100 + '%',
+                animationDelay:    Math.random() * 20 + 's',
+                animationDuration: (Math.random() * 10 + 18) + 's'
+            });
+            frag.appendChild(p);
+        }
+        particlesContainer.appendChild(frag);
+    }
+    spawnParticles(window.innerWidth < 768 ? 8 : 18);
+    window.addEventListener('resize', throttle(() => {
+        spawnParticles(window.innerWidth < 768 ? 8 : 18);
+    }, 300));
+
+    /* ════════════════════════════════════════════════
+       5. MOBILE MENU
+    ════════════════════════════════════════════════ */
+    menuToggle.addEventListener('click', () => {
+        const open = navMenu.classList.toggle('active');
+        menuToggle.classList.toggle('active', open);
+        menuToggle.setAttribute('aria-expanded', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+    });
+    document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        });
+    });
+    document.addEventListener('click', (e) => {
+        if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+            navMenu.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+    });
+
+    /* ════════════════════════════════════════════════
+       6. THEME TOGGLE 🌙 / ☀️
+    ════════════════════════════════════════════════ */
+    function getTheme() { return html.getAttribute('data-theme') || 'dark'; }
+    function setTheme(t) {
+        html.setAttribute('data-theme', t);
+        themeToggle.textContent = t === 'dark' ? '🌙' : '☀️';
+        themeToggle.setAttribute('title', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        try { localStorage.setItem('akn-theme', t); } catch(e){}
+    }
+    // Init theme
+    try {
+        const saved = localStorage.getItem('akn-theme');
+        if (saved) setTheme(saved);
+    } catch(e) {}
+    themeToggle.addEventListener('click', () => {
+        setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    });
+
+    /* ════════════════════════════════════════════════
+       7. COMMAND PALETTE (Ctrl+K)
+    ════════════════════════════════════════════════ */
+    const commands = [
+        { group: 'Navigation', items: [
+            { label: 'Home',       icon: '🏠', action: () => scrollToSection('hero'),       shortcut: 'H' },
+            { label: 'About',      icon: '👤', action: () => scrollToSection('about'),      shortcut: 'A' },
+            { label: 'Skills',     icon: '⚡', action: () => scrollToSection('skills'),     shortcut: 'S' },
+            { label: 'Experience', icon: '💼', action: () => scrollToSection('experience'), shortcut: 'E' },
+            { label: 'Projects',   icon: '🗂', action: () => scrollToSection('projects'),   shortcut: 'P' },
+            { label: 'Contact',    icon: '📧', action: () => scrollToSection('contact'),    shortcut: 'C' },
+        ]},
+        { group: 'Quick Actions', items: [
+            { label: 'Download Resume',  icon: '📄', action: () => window.open('Amit Nayak-Resume.pdf', '_blank') },
+            { label: 'View GitHub',      icon: '⑂',  action: () => window.open('https://github.com/Amitnayak01', '_blank') },
+            { label: 'View LinkedIn',    icon: '🔗', action: () => window.open('https://linkedin.com/in/amit-nayak-738024344', '_blank') },
+            { label: 'Send Email',       icon: '✉️', action: () => window.open('mailto:amitkumarnayak330@gmail.com') },
+            { label: 'Toggle Theme',     icon: '🎨', action: () => { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); } },
+        ]},
+        { group: 'Projects', items: [
+            { label: 'Open V-Meet',          icon: '📹', action: () => window.open('https://v-meet2.vercel.app', '_blank') },
+            { label: 'Open E-Mart',          icon: '🛒', action: () => window.open('https://e-mart-gamma-three.vercel.app', '_blank') },
+            { label: 'Open ChessArena',      icon: '♟',  action: () => window.open('https://chessarena-w7fq.onrender.com', '_blank') },
+            { label: 'Open Cyber Tools',     icon: '🔐', action: () => window.open('https://cyber-security-tools-ruby.vercel.app', '_blank') },
+        ]},
+    ];
+
+    function scrollToSection(id) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    let cmdSelected = 0;
+    let filteredItems = [];
+
+    function buildCmdResults(query) {
+        cmdResults.innerHTML = '';
+        filteredItems = [];
+        const q = query.toLowerCase().trim();
+        const frag = document.createDocumentFragment();
+
+        commands.forEach(group => {
+            const filtered = group.items.filter(item =>
+                !q || item.label.toLowerCase().includes(q) || (item.shortcut && item.shortcut.toLowerCase() === q)
+            );
+            if (!filtered.length) return;
+
+            const label = document.createElement('div');
+            label.className = 'cmd-group-label';
+            label.textContent = group.group;
+            frag.appendChild(label);
+
+            filtered.forEach(item => {
+                const idx = filteredItems.length;
+                filteredItems.push(item);
+                const el = document.createElement('div');
+                el.className = 'cmd-item';
+                el.setAttribute('role', 'option');
+                el.dataset.idx = idx;
+                el.innerHTML = `<span class="cmd-item-icon">${item.icon}</span><span class="cmd-item-label">${item.label}</span>${item.shortcut ? `<span class="cmd-item-shortcut">${item.shortcut}</span>` : ''}`;
+                el.addEventListener('click', () => { execCmd(idx); });
+                frag.appendChild(el);
             });
         });
 
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-                menuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-                document.body.style.overflow = '';
+        cmdResults.appendChild(frag);
+        cmdSelected = 0;
+        highlightCmd(0);
+    }
+
+    function highlightCmd(idx) {
+        document.querySelectorAll('.cmd-item').forEach((el, i) => {
+            el.classList.toggle('selected', i === idx);
+            if (i === idx) el.scrollIntoView({ block: 'nearest' });
+        });
+    }
+
+    function execCmd(idx) {
+        const item = filteredItems[idx];
+        if (item) { item.action(); closeCmdPalette(); }
+    }
+
+    function openCmdPalette() {
+        cmdOverlay.classList.add('open');
+        cmdInput.value = '';
+        buildCmdResults('');
+        requestAnimationFrame(() => cmdInput.focus());
+    }
+    function closeCmdPalette() {
+        cmdOverlay.classList.remove('open');
+    }
+
+    cmdTrigger.addEventListener('click', openCmdPalette);
+    cmdOverlay.addEventListener('click', (e) => {
+        if (e.target === cmdOverlay) closeCmdPalette();
+    });
+    cmdInput.addEventListener('input', (e) => {
+        buildCmdResults(e.target.value);
+    });
+    cmdInput.addEventListener('keydown', (e) => {
+        const items = document.querySelectorAll('.cmd-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            cmdSelected = Math.min(cmdSelected + 1, items.length - 1);
+            highlightCmd(cmdSelected);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            cmdSelected = Math.max(cmdSelected - 1, 0);
+            highlightCmd(cmdSelected);
+        } else if (e.key === 'Enter') {
+            execCmd(cmdSelected);
+        } else if (e.key === 'Escape') {
+            closeCmdPalette();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            cmdOverlay.classList.contains('open') ? closeCmdPalette() : openCmdPalette();
+        }
+        if (e.key === 'Escape' && cmdOverlay.classList.contains('open')) closeCmdPalette();
+    });
+
+    /* ════════════════════════════════════════════════
+       8. TYPING ANIMATION
+    ════════════════════════════════════════════════ */
+    const roles = ['Full Stack Developer', 'React + Node.js Dev', 'WebRTC Specialist', 'Real-Time App Builder', 'Problem Solver'];
+    let roleIdx = 0, charIdx = 0, isDeleting = false;
+    const typingTarget = document.getElementById('typingTarget');
+
+    function typeLoop() {
+        const current = roles[roleIdx];
+        if (isDeleting) {
+            charIdx--;
+            typingTarget.textContent = current.slice(0, charIdx);
+            if (charIdx === 0) {
+                isDeleting = false;
+                roleIdx = (roleIdx + 1) % roles.length;
+                setTimeout(typeLoop, 400);
+                return;
+            }
+            setTimeout(typeLoop, 45);
+        } else {
+            charIdx++;
+            typingTarget.textContent = current.slice(0, charIdx);
+            if (charIdx === current.length) {
+                isDeleting = true;
+                setTimeout(typeLoop, 2200);
+                return;
+            }
+            setTimeout(typeLoop, 70);
+        }
+    }
+    setTimeout(typeLoop, 800);
+
+    /* ════════════════════════════════════════════════
+       9. SCROLL-REVEAL (staggered, blur-to-clear)
+    ════════════════════════════════════════════════ */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
             }
         });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
-        // Smooth scroll and active nav link
-        const sections = document.querySelectorAll('section');
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+        el.style.transitionDelay = (i % 6) * 0.07 + 's';
+        revealObserver.observe(el);
+    });
 
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= sectionTop - 200) {
-                    current = section.getAttribute('id');
-                }
+    /* ════════════════════════════════════════════════
+       10. COUNT-UP ANIMATION
+    ════════════════════════════════════════════════ */
+    function animateCount(el) {
+        const target  = parseInt(el.dataset.target) || 0;
+        const suffix  = el.dataset.suffix || '';
+        const dur     = 1400;
+        const start   = performance.now();
+        function step(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / dur, 1);
+            // Ease out cubic
+            const ease = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(ease * target) + (progress >= 1 ? suffix : '');
+            if (progress < 1) rafCall(step);
+        }
+        rafCall(step);
+    }
+
+    const countObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCount(entry.target);
+                countObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+    /* ════════════════════════════════════════════════
+       11. 3D TILT EFFECT ON PROJECT CARDS
+    ════════════════════════════════════════════════ */
+    function initTilt() {
+        if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch
+
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            let rect;
+            card.addEventListener('mouseenter', () => {
+                rect = card.getBoundingClientRect();
+                card.style.transition = 'transform 0.1s ease, border-color 0.28s ease, box-shadow 0.28s ease';
             });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href').slice(1) === current) {
-                    link.classList.add('active');
-                }
+            card.addEventListener('mousemove', throttle((e) => {
+                if (!rect) return;
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const cx = rect.width  / 2;
+                const cy = rect.height / 2;
+                const rotX = -((y - cy) / cy) * 6;  // max ±6deg
+                const rotY =  ((x - cx) / cx) * 6;
+                rafCall(() => {
+                    card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(8px)`;
+                });
+            }, 16));
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'transform 0.55s cubic-bezier(0.34,1.2,0.64,1), border-color 0.28s ease, box-shadow 0.28s ease';
+                rafCall(() => { card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateZ(0)'; });
             });
         });
+    }
+    initTilt();
 
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
+    /* ════════════════════════════════════════════════
+       12. MAGNETIC BUTTON EFFECT
+    ════════════════════════════════════════════════ */
+    function initMagnetic() {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+        document.querySelectorAll('.btn-magnetic').forEach(btn => {
+            btn.addEventListener('mousemove', throttle((e) => {
+                const rect = btn.getBoundingClientRect();
+                const dx = e.clientX - (rect.left + rect.width  / 2);
+                const dy = e.clientY - (rect.top  + rect.height / 2);
+                const mag = 0.28;
+                rafCall(() => {
+                    btn.style.transform = `translate(${dx*mag}px, ${dy*mag}px)`;
+                });
+            }, 16));
+            btn.addEventListener('mouseleave', () => {
+                rafCall(() => { btn.style.transform = ''; });
             });
-        }, observerOptions);
+        });
+    }
+    initMagnetic();
 
-        document.querySelectorAll('.project-card, .skill-category, .education-card, .contact-card, .experience-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'all 0.6s ease';
-            observer.observe(el);
+    /* ════════════════════════════════════════════════
+       13. HERO PARALLAX
+    ════════════════════════════════════════════════ */
+    const heroImgWrap  = document.getElementById('heroImgWrap');
+    const floatIcons   = document.querySelectorAll('.float-icon');
+
+    const heroParallax = throttle(() => {
+        const scrollY = window.scrollY;
+        if (scrollY > window.innerHeight) return;
+        rafCall(() => {
+            if (heroImgWrap) {
+                heroImgWrap.style.transform = `translateY(${scrollY * 0.04}px)`;
+            }
+            floatIcons.forEach((icon, i) => {
+                const dir = i % 2 === 0 ? 1 : -1;
+                icon.style.transform = `translateY(${scrollY * 0.06 * dir}px)`;
+            });
+        });
+    }, 16);
+    window.addEventListener('scroll', heroParallax, { passive: true });
+
+    /* ════════════════════════════════════════════════
+       14. SLIDESHOW LOGIC
+    ════════════════════════════════════════════════ */
+    function getSlideshow(btn) { return btn.closest('.pc-slideshow'); }
+    function getState(ss)      { return ss._idx || 0; }
+    function goToSlide(ss, idx) {
+        const total = parseInt(ss.dataset.slides);
+        idx = ((idx % total) + total) % total;
+        ss._idx = idx;
+        rafCall(() => {
+            ss.querySelector('.pc-slides-track').style.transform = `translateX(-${idx * 100}%)`;
+            ss.querySelectorAll('.ps-dot-ind').forEach((d, i) => d.classList.toggle('active', i === idx));
+        });
+    }
+    window.slideNext = (btn) => { const ss = getSlideshow(btn); goToSlide(ss, getState(ss) + 1); };
+    window.slidePrev = (btn) => { const ss = getSlideshow(btn); goToSlide(ss, getState(ss) - 1); };
+
+    // Touch/swipe support
+    document.querySelectorAll('.pc-slideshow').forEach((ss, i) => {
+        ss._idx = 0;
+        let tx = 0, startX = 0;
+        ss.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+        ss.addEventListener('touchend', (e) => {
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 40) goToSlide(ss, getState(ss) + (diff > 0 ? 1 : -1));
+        }, { passive: true });
+
+        // Auto-advance
+        setInterval(() => {
+            if (!ss.closest('.project-card').matches(':hover')) goToSlide(ss, getState(ss) + 1);
+        }, 3600 + i * 380);
+    });
+
+    // Dot click
+    document.querySelectorAll('.ps-dot-ind').forEach(dot => {
+        dot.addEventListener('click', () => {
+            const ss  = dot.closest('.pc-slideshow');
+            const idx = Array.from(dot.parentElement.children).indexOf(dot);
+            goToSlide(ss, idx);
+        });
+    });
+
+    /* ════════════════════════════════════════════════
+       15. GITHUB FALLBACK GRID (animated reveal)
+    ════════════════════════════════════════════════ */
+    const ghGrid = document.getElementById('ghGrid');
+    if (ghGrid) {
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < 364; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'gh-cell';
+            const level = Math.floor(Math.random() * 5);
+            if (level > 0) cell.setAttribute('data-level', level);
+            frag.appendChild(cell);
+        }
+        ghGrid.appendChild(frag);
+    }
+
+    /* ════════════════════════════════════════════════
+       16. SMOOTH SCROLL for anchor links
+    ════════════════════════════════════════════════ */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href === '#') return;
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    /* ════════════════════════════════════════════════
+       17. KEYBOARD HINT for CMD palette
+    ════════════════════════════════════════════════ */
+    // Show a brief toast hinting cmd palette on first visit
+    (function() {
+        try {
+            if (!sessionStorage.getItem('akn-hint-shown')) {
+                sessionStorage.setItem('akn-hint-shown', '1');
+                setTimeout(() => {
+                    const toast = document.createElement('div');
+                    Object.assign(toast.style, {
+                        position: 'fixed', bottom: '5.5rem', right: '1.5rem',
+                        background: 'rgba(22,22,22,0.9)',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(201,169,110,0.25)',
+                        borderRadius: '10px', padding: '0.55rem 1rem',
+                        fontSize: '0.78rem', color: '#a8a098',
+                        zIndex: '997', transition: 'opacity 0.4s ease',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+                    });
+                    toast.innerHTML = 'Press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-family:monospace;color:#c9a96e">Ctrl+K</kbd> for quick navigation';
+                    document.body.appendChild(toast);
+                    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
+                }, 2500);
+            }
+        } catch(e) {}
+    })();
+
+    /* ════════════════════════════════════════════
+       V-MEET MOSAIC LIGHTBOX
+    ════════════════════════════════════════════ */
+    (function() {
+        const gallery  = document.getElementById('vmGallery');
+        const lightbox = document.getElementById('vmgLightbox');
+        const stage    = document.getElementById('vmgLbStage');
+        const caption  = document.getElementById('vmgLbCaption');
+        const currEl   = document.getElementById('vmgLbCurr');
+        const totalEl  = document.getElementById('vmgLbTotal');
+        const dotsWrap = document.getElementById('vmgLbDots');
+        const btnClose = document.getElementById('vmgLbClose');
+        const btnPrev  = document.getElementById('vmgLbPrev');
+        const btnNext  = document.getElementById('vmgLbNext');
+        if (!gallery || !lightbox) return;
+
+        const cells    = Array.from(gallery.querySelectorAll('.vmg-cell'));
+        const captions = ['Zoom Grid Video Call', 'WhatsApp-Style Chat', 'Audio Conference', 'Group Call — Pinned Speaker', 'Meeting Dashboard'];
+        let   current  = 0;
+
+        totalEl.textContent = cells.length;
+
+        // Build dots
+        cells.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.className = 'vmg-lb-dot' + (i === 0 ? ' active' : '');
+            d.addEventListener('click', () => goTo(i));
+            dotsWrap.appendChild(d);
         });
 
-        // Optimize particle rendering on resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                const currentParticles = particlesContainer.children.length;
-                const targetParticles = window.innerWidth < 768 ? 10 : 20;
-                
-                if (currentParticles !== targetParticles) {
-                    particlesContainer.innerHTML = '';
-                    for (let i = 0; i < targetParticles; i++) {
-                        const particle = document.createElement('div');
-                        particle.className = 'particle';
-                        const size = Math.random() * 100 + 50;
-                        particle.style.width = size + 'px';
-                        particle.style.height = size + 'px';
-                        particle.style.left = Math.random() * 100 + '%';
-                        particle.style.top = Math.random() * 100 + '%';
-                        particle.style.animationDelay = Math.random() * 20 + 's';
-                        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
-                        particlesContainer.appendChild(particle);
-                    }
+        function updateDots(idx) {
+            dotsWrap.querySelectorAll('.vmg-lb-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === idx);
+            });
+        }
+
+        function renderSlide(idx) {
+            // Clone the screenshot element from gallery
+            const src = cells[idx].querySelector('.vmg-screenshot');
+            const clone = src.cloneNode(true);
+            stage.innerHTML = '';
+            stage.appendChild(clone);
+            caption.textContent  = captions[idx] || '';
+            currEl.textContent   = idx + 1;
+            updateDots(idx);
+        }
+
+        function goTo(idx, dir) {
+            const next = (idx + cells.length) % cells.length;
+            if (next === current && stage.innerHTML !== '') return;
+
+            // Slide out
+            if (dir) {
+                stage.classList.add(dir === 'left' ? 'vmg-slide-out-left' : 'vmg-slide-out-right');
+            }
+            setTimeout(() => {
+                stage.classList.remove('vmg-slide-out-left', 'vmg-slide-out-right');
+                current = next;
+                renderSlide(current);
+                stage.style.opacity = '0';
+                stage.style.transform = dir === 'left' ? 'translateX(5%)' : (dir === 'right' ? 'translateX(-5%)' : 'translateX(0)');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        stage.style.transition = 'opacity 0.32s ease, transform 0.32s ease';
+                        stage.style.opacity = '1';
+                        stage.style.transform = 'translateX(0)';
+                    });
+                });
+            }, dir ? 180 : 0);
+        }
+
+        function open(idx) {
+            current = idx;
+            renderSlide(current);
+            stage.style.opacity = '1';
+            stage.style.transform = 'translateX(0)';
+            stage.style.transition = '';
+            lightbox.classList.add('vmg-open');
+            document.body.style.overflow = 'hidden';
+            btnClose.focus();
+        }
+
+        function close() {
+            lightbox.classList.remove('vmg-open');
+            document.body.style.overflow = '';
+        }
+
+        // Click on cells
+        cells.forEach((cell, i) => {
+            cell.addEventListener('click', () => open(i));
+            cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i); } });
+        });
+
+        // Lightbox controls
+        btnClose.addEventListener('click', close);
+        btnPrev.addEventListener('click', () => goTo(current - 1, 'right'));
+        btnNext.addEventListener('click', () => goTo(current + 1, 'left'));
+        document.getElementById('vmgLightbox').querySelector('.vmg-lb-backdrop')
+            .addEventListener('click', close);
+
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if (!lightbox.classList.contains('vmg-open')) return;
+            if (e.key === 'Escape')      close();
+            if (e.key === 'ArrowLeft')   goTo(current - 1, 'right');
+            if (e.key === 'ArrowRight')  goTo(current + 1, 'left');
+        });
+
+        // Touch/swipe
+        let touchX = 0;
+        lightbox.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+        lightbox.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchX;
+            if (Math.abs(dx) > 45) dx < 0 ? goTo(current + 1, 'left') : goTo(current - 1, 'right');
+        }, { passive: true });
+    })();
+
+    /* ════════════════════════════════════════════
+       MOSAIC SLIDESHOW — top-to-bottom wipe with
+       coloured gradient overlay per cell accent
+    ════════════════════════════════════════════ */
+    (function() {
+        const gallery = document.getElementById('vmGallery');
+        if (!gallery) return;
+
+        /* ── Screen definitions ── */
+        const SCREENS = [
+            {
+                label: 'Zoom Grid Call',
+                build: () => {
+                    const el = document.createElement('div');
+                    el.className = 'vmg-screenshot vmg-s0';
+                    el.innerHTML = `
+                        <div class="vmg-s-topbar"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet2.vercel.app</span><span class="vmg-s-rec">⬤ REC</span></div>
+                        <div class="vmg-s-body">
+                            <div class="vmg-grid4">
+                                <div class="vmg-vcell vmg-active"><div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div><div class="vmg-vname">Amit<span class="vmg-host">Host</span></div><div class="vmg-vring"></div><div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div></div>
+                                <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-vname">Remote</div></div>
+                                <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div><div class="vmg-vname">Sarah</div></div>
+                                <div class="vmg-vcell vmg-screenshare"><div class="vmg-ss-label">🖥️ Sharing</div><div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div></div>
+                            </div>
+                            <div class="vmg-ctrl-row">
+                                <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg></button>
+                                <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
+                                <button class="vmg-cb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></button>
+                                <button class="vmg-cb vmg-cb-end"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
+                            </div>
+                        </div>`;
+                    return el;
                 }
-            }, 250);
+            },
+            {
+                label: 'WhatsApp Chat',
+                build: () => {
+                    const el = document.createElement('div');
+                    el.className = 'vmg-screenshot vmg-s1';
+                    el.innerHTML = `
+                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Chat</span></div>
+                        <div class="vmg-s-body">
+                            <div class="vmg-chat-mini" style="height:100%">
+                                <div class="vmg-chat-sb">
+                                    <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
+                                    <div class="vmg-csb-item"><div class="vmg-cav" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div><div><div class="vmg-cn">Remote</div><div class="vmg-cl">Joining...</div></div><span class="vmg-badge">2</span></div>
+                                    <div class="vmg-csb-item"><div class="vmg-cav vmg-grp">👥</div><div><div class="vmg-cn">Dev Team</div><div class="vmg-cl">Sarah: pushed</div></div><span class="vmg-badge">5</span></div>
+                                </div>
+                                <div class="vmg-chat-msgs">
+                                    <div class="vmg-msg in">Can we start? 👋<span>10:42</span></div>
+                                    <div class="vmg-msg out">Yes! Starting...<span>10:43 ✓✓</span></div>
+                                    <div class="vmg-msg in vmg-file"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> design.pdf<span>10:44</span></div>
+                                    <div class="vmg-msg out">Got it! 😊<span>10:44 ✓✓</span></div>
+                                    <div class="vmg-typing"><span></span><span></span><span></span><em>typing…</em></div>
+                                </div>
+                            </div>
+                        </div>`;
+                    return el;
+                }
+            },
+            {
+                label: 'Audio Conference',
+                build: () => {
+                    const el = document.createElement('div');
+                    el.className = 'vmg-screenshot vmg-s2';
+                    el.innerHTML = `
+                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Audio Conference</span><span class="vmg-s-rec">● LIVE</span></div>
+                        <div class="vmg-s-body">
+                            <div class="vmg-audio-mini">
+                                <div class="vmg-audio-center-mini"><div class="vmg-pulse-ring"></div><div class="vmg-pulse-ring vmg-pr2"></div><div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div class="vmg-speak-label">Speaking</div></div>
+                                <div class="vmg-orb-row">
+                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
+                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
+                                    <div class="vmg-mini-orb vmg-orb-muted" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div>
+                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div>
+                                </div>
+                                <div class="vmg-audio-stat">🎙 3 speaking · 🔇 2 muted</div>
+                            </div>
+                        </div>`;
+                    return el;
+                }
+            },
+            {
+                label: 'Group Call',
+                build: () => {
+                    const el = document.createElement('div');
+                    el.className = 'vmg-screenshot vmg-s3';
+                    el.innerHTML = `
+                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Dev Team · 6 members</span><span class="vmg-s-rec">⬤ REC</span></div>
+                        <div class="vmg-s-body">
+                            <div class="vmg-group-mini">
+                                <div class="vmg-pin-stage"><div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div><div class="vmg-pin-tag">📌 Pinned · Speaking</div></div>
+                                <div class="vmg-strip-mini">
+                                    <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
+                                    <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
+                                    <div class="vmg-sm-cell vmg-muted"><div class="vmg-av sm" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div><small>John🔇</small></div>
+                                    <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div><small>Maya</small></div>
+                                </div>
+                            </div>
+                        </div>`;
+                    return el;
+                }
+            },
+            {
+                label: 'Meeting Dashboard',
+                build: () => {
+                    const el = document.createElement('div');
+                    el.className = 'vmg-screenshot vmg-s4';
+                    el.innerHTML = `
+                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Dashboard</span></div>
+                        <div class="vmg-s-body">
+                            <div class="vmg-dash-mini">
+                                <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
+                                <div class="vmg-dash-row">
+                                    <div class="vmg-dash-btn vmg-new-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> New Meeting</div>
+                                    <div class="vmg-dash-btn vmg-join-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Join Room</div>
+                                </div>
+                                <div class="vmg-input-mini"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Enter meeting ID…</div>
+                                <div class="vmg-recent-label">Recent Rooms</div>
+                                <div class="vmg-recent-row">
+                                    <div class="vmg-recent-item">vm-x9k2p</div>
+                                    <div class="vmg-recent-item">vm-8x3tz</div>
+                                    <div class="vmg-recent-item">vm-dev21</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    return el;
+                }
+            }
+        ];
+
+        /* ── Per-cell accent colour in RGB for JS gradient ── */
+        const ACCENTS = [
+            '201,169,110',   // large cell — gold
+            '90,155,110',    // small 1   — green
+            '110,141,201',   // small 2   — blue
+            '201,155,90',    // small 3   — amber
+            '201,110,155'    // small 4   — pink
+        ];
+
+        function shuffled(arr, exclude) {
+            let pool = arr.filter(i => i !== exclude);
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            return pool;
+        }
+
+        const SLIDE_DUR = 780;   // ms — slide travel time
+        const EASE      = 'cubic-bezier(0.76, 0, 0.24, 1)'; // strong ease-in-out
+        const cells     = Array.from(gallery.querySelectorAll('.vmg-cell'));
+
+        cells.forEach((cell, cellIdx) => {
+            let currentIdx = cellIdx < SCREENS.length ? cellIdx : cellIdx % SCREENS.length;
+            let queue      = shuffled(Array.from({length: SCREENS.length}, (_, i) => i), currentIdx);
+            let queuePos   = 0;
+            let busy       = false;
+            const accent   = ACCENTS[cellIdx] || ACCENTS[0];
+
+            const interval = 3600 + cellIdx * 400 + Math.random() * 700;
+
+            function swapContent() {
+                if (document.hidden || busy) return;
+                busy = true;
+
+                const nextIdx = queue[queuePos % queue.length];
+                queuePos++;
+                if (queuePos >= queue.length) {
+                    queue = shuffled(Array.from({length: SCREENS.length}, (_, i) => i), nextIdx);
+                    queuePos = 0;
+                }
+
+                const existing = cell.querySelector('.vmg-screenshot');
+                if (!existing) { busy = false; return; }
+
+                const h = existing.offsetHeight || cell.offsetHeight;
+
+                /* ── Soft border glow ── */
+                cell.classList.add('vmg-swapping');
+                setTimeout(() => cell.classList.remove('vmg-swapping'), 1400);
+
+                /* ── Build incoming: start ABOVE the cell (negative Y) ── */
+                const incoming = SCREENS[nextIdx].build();
+                Object.assign(incoming.style, {
+                    position:  'absolute',
+                    inset:     '0',
+                    width:     '100%',
+                    height:    '100%',
+                    zIndex:    '3',
+                    transform: `translateY(-${h}px)`,
+                    transition:'none',
+                    willChange:'transform'
+                });
+
+                /* ── Coloured gradient wipe bar that rides the seam ── */
+                const wipe = document.createElement('div');
+                Object.assign(wipe.style, {
+                    position:   'absolute',
+                    left:       '0',
+                    right:      '0',
+                    height:     '60px',
+                    zIndex:     '4',
+                    transform:  `translateY(-${h}px)`,
+                    transition: 'none',
+                    pointerEvents: 'none',
+                    background: `linear-gradient(
+                        to bottom,
+                        transparent 0%,
+                        rgba(${accent},0.15) 20%,
+                        rgba(${accent},0.55) 45%,
+                        rgba(${accent},0.85) 50%,
+                        rgba(${accent},0.55) 55%,
+                        rgba(${accent},0.15) 80%,
+                        transparent 100%
+                    )`,
+                    willChange: 'transform'
+                });
+
+                const parent = existing.parentNode;
+                parent.style.position = 'relative';
+                // existing stays at z-index 2, incoming slides over it
+                existing.style.zIndex = '2';
+                parent.appendChild(incoming);
+                parent.appendChild(wipe);
+
+                /* ── One rAF → both start moving at identical time ── */
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const t = `transform ${SLIDE_DUR}ms ${EASE}`;
+                        existing.style.transition = t;
+                        incoming.style.transition  = t;
+                        wipe.style.transition      = t;
+
+                        // Existing slides OUT to bottom, incoming slides IN from top
+                        existing.style.transform = `translateY(${h}px)`;
+                        incoming.style.transform = 'translateY(0)';
+                        wipe.style.transform     = `translateY(${h}px)`; // rides with the seam
+
+                        setTimeout(() => {
+                            existing.remove();
+                            wipe.remove();
+                            incoming.style.cssText = '';
+
+                            const lbl = cell.querySelector('.vmg-label');
+                            if (lbl) lbl.textContent = SCREENS[nextIdx].label;
+                            cell.dataset.index = nextIdx;
+                            currentIdx = nextIdx;
+                            busy = false;
+                        }, SLIDE_DUR + 40);
+                    });
+                });
+            }
+
+            /* Stagger first swap so all 5 don't fire together */
+            setTimeout(() => {
+                swapContent();
+                setInterval(swapContent, interval);
+            }, 2000 + cellIdx * 900);
         });
+
+        /* Pause while lightbox is open */
+        const lightbox = document.getElementById('vmgLightbox');
+        if (lightbox) {
+            const obs = new MutationObserver(() => {
+                gallery.dataset.paused = lightbox.classList.contains('vmg-open') ? '1' : '0';
+            });
+            obs.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
+        }
+    })();
+
     </script>
 </body>
 </html>
