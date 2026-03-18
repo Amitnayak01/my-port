@@ -9,8 +9,232 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ── Image slot styles ── */
+.pc-img-slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    transition: transform 0.55s ease;
+}y
+        .pc-img-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed rgba(201,169,110,0.25);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 1rem;
+            pointer-events: none;
+        }
+        .pc-img-placeholder svg { opacity: 0.4; }
+        .pc-img-placeholder span { opacity: 0.55; font-family: monospace; font-size: 0.7rem; }
+
+        /* ── Project image click cursor ── */
+        .pc-img-slide { cursor: zoom-in; }
+
+        /* ══════════════════════════════════════════
+           PROJECT IMAGE FULLSCREEN LIGHTBOX
+        ══════════════════════════════════════════ */
+        #projLightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 11000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #projLightbox.proj-lb-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #projLightbox .proj-lb-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.93);
+            backdrop-filter: blur(18px) saturate(120%);
+        }
+        /* inner wrapper */
+        #projLightbox .proj-lb-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            padding: 60px 80px;
+            box-sizing: border-box;
+        }
+        /* image */
+        #projLightbox .proj-lb-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,169,110,0.15);
+            display: block;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        #projLightbox .proj-lb-img.proj-img-fade {
+            opacity: 0;
+            transform: scale(0.97);
+        }
+        /* close button */
+        #projLightbox .proj-lb-close {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.22s ease;
+            flex-shrink: 0;
+        }
+        #projLightbox .proj-lb-close:hover {
+            background: rgba(255,59,48,0.3);
+            border-color: rgba(255,59,48,0.6);
+            color: #ff5f57;
+            transform: scale(1.1) rotate(90deg);
+        }
+        /* nav buttons */
+        #projLightbox .proj-lb-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.22s ease;
+        }
+        #projLightbox .proj-lb-nav:hover {
+            background: rgba(201,169,110,0.22);
+            border-color: rgba(201,169,110,0.55);
+            color: #c9a96e;
+            transform: translateY(-50%) scale(1.1);
+        }
+        #projLightbox .proj-lb-prev { left: 20px; }
+        #projLightbox .proj-lb-next { right: 20px; }
+        /* counter pill */
+        #projLightbox .proj-lb-counter {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 0.3rem 0.9rem;
+            z-index: 2;
+            white-space: nowrap;
+        }
+        /* dot indicators */
+        #projLightbox .proj-lb-dots {
+            position: fixed;
+            bottom: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 7px;
+            z-index: 2;
+        }
+        #projLightbox .proj-lb-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            cursor: pointer;
+            transition: all 0.22s ease;
+            border: none;
+            padding: 0;
+        }
+        #projLightbox .proj-lb-dot.active {
+            background: #c9a96e;
+            transform: scale(1.45);
+        }
+        /* project title badge */
+        #projLightbox .proj-lb-title {
+            position: fixed;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 0.3rem 1rem;
+            z-index: 2;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+        }
+        @media (max-width: 600px) {
+            #projLightbox .proj-lb-inner { padding: 52px 16px 80px; }
+            #projLightbox .proj-lb-prev { left: 8px; }
+            #projLightbox .proj-lb-next { right: 8px; }
+            #projLightbox .proj-lb-nav { width: 40px; height: 40px; }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- ══════════════════════════════════════════
+         PROJECT IMAGE FULLSCREEN LIGHTBOX
+    ══════════════════════════════════════════ -->
+    <div id="projLightbox" role="dialog" aria-modal="true" aria-label="Project screenshot viewer">
+        <div class="proj-lb-backdrop" id="projLbBackdrop"></div>
+        <div class="proj-lb-inner">
+            <img class="proj-lb-img" id="projLbImg" src="" alt="Project screenshot" draggable="false">
+        </div>
+        <div class="proj-lb-title" id="projLbTitle"></div>
+        <button class="proj-lb-close" id="projLbClose" aria-label="Close fullscreen">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="proj-lb-nav proj-lb-prev" id="projLbPrev" aria-label="Previous image">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="proj-lb-nav proj-lb-next" id="projLbNext" aria-label="Next image">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="proj-lb-dots" id="projLbDots"></div>
+        <div class="proj-lb-counter" id="projLbCounter">1 / 5</div>
+    </div>
 
     <!-- ── Scroll Progress Bar ── -->
     <div class="scroll-progress" id="scrollProgress"></div>
@@ -37,9 +261,7 @@
                 <input type="text" class="cmd-input" id="cmdInput" placeholder="Search… type a command" autocomplete="off" spellcheck="false">
                 <span class="cmd-kbd">ESC</span>
             </div>
-            <div class="cmd-results" id="cmdResults" role="listbox">
-                <!-- Populated by JS -->
-            </div>
+            <div class="cmd-results" id="cmdResults" role="listbox"></div>
             <div class="cmd-footer">
                 <span class="cmd-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
                 <span class="cmd-hint"><kbd>↵</kbd> select</span>
@@ -74,7 +296,7 @@
     </nav>
 
     <!-- ── Floating Hire Me Button ── -->
-    <a href="mailto:amitkumarnayak330@gmail.com" class="hire-float" id="hireFloat" aria-label="Hire Amit">
+    <a href="/cdn-cgi/l/email-protection#bedfd3d7cad5cbd3dfccd0dfc7dfd58d8d8efed9d3dfd7d290ddd1d3" class="hire-float" id="hireFloat" aria-label="Hire Amit">
         <span class="hf-dot"></span>
         Hire Me
     </a>
@@ -85,21 +307,17 @@
              HERO
         ════════════════════════════════════════════ -->
         <section id="hero" class="hero">
-            <!-- Subtle grid lines in background -->
             <div class="hero-parallax-bg" aria-hidden="true">
                 <div class="hero-grid-line hero-grid-h"></div>
                 <div class="hero-grid-line hero-grid-h"></div>
                 <div class="hero-grid-line hero-grid-v"></div>
                 <div class="hero-grid-line hero-grid-v"></div>
             </div>
-
-            <!-- Floating tech icon decoration -->
             <div class="hero-float-icons" aria-hidden="true">
                 <span class="float-icon" style="color:#61dafb">⚛</span>
                 <span class="float-icon" style="color:#68a063">⬡</span>
                 <span class="float-icon" style="color:#c9a96e">◈</span>
             </div>
-
             <div class="hero-text">
                 <div class="avail-badge">
                     <span class="avail-dot"></span>
@@ -274,10 +492,7 @@
             </div>
             <div class="skills-container">
                 <div class="skill-category reveal">
-                    <div class="skill-cat-header">
-                        <span class="skill-cat-icon">💻</span>
-                        <h3>Programming Languages</h3>
-                    </div>
+                    <div class="skill-cat-header"><span class="skill-cat-icon">💻</span><h3>Programming Languages</h3></div>
                     <div class="skill-tags">
                         <span class="skill-tag"><span class="st-icon">☕</span>Java</span>
                         <span class="skill-tag"><span class="st-icon">©</span>C</span>
@@ -287,10 +502,7 @@
                     </div>
                 </div>
                 <div class="skill-category reveal">
-                    <div class="skill-cat-header">
-                        <span class="skill-cat-icon">🎨</span>
-                        <h3>Frontend Development</h3>
-                    </div>
+                    <div class="skill-cat-header"><span class="skill-cat-icon">🎨</span><h3>Frontend Development</h3></div>
                     <div class="skill-tags">
                         <span class="skill-tag"><span class="st-icon ht">H5</span>HTML5</span>
                         <span class="skill-tag"><span class="st-icon cs">C3</span>CSS3</span>
@@ -300,10 +512,7 @@
                     </div>
                 </div>
                 <div class="skill-category reveal">
-                    <div class="skill-cat-header">
-                        <span class="skill-cat-icon">⚙️</span>
-                        <h3>Backend Development</h3>
-                    </div>
+                    <div class="skill-cat-header"><span class="skill-cat-icon">⚙️</span><h3>Backend Development</h3></div>
                     <div class="skill-tags">
                         <span class="skill-tag"><span class="st-icon no">⬡</span>Node.js</span>
                         <span class="skill-tag"><span class="st-icon">Ex</span>Express.js</span>
@@ -313,10 +522,7 @@
                     </div>
                 </div>
                 <div class="skill-category reveal">
-                    <div class="skill-cat-header">
-                        <span class="skill-cat-icon">🔧</span>
-                        <h3>Tools &amp; Technologies</h3>
-                    </div>
+                    <div class="skill-cat-header"><span class="skill-cat-icon">🔧</span><h3>Tools &amp; Technologies</h3></div>
                     <div class="skill-tags">
                         <span class="skill-tag"><span class="st-icon">⑂</span>Git</span>
                         <span class="skill-tag"><span class="st-icon">◉</span>GitHub</span>
@@ -366,17 +572,9 @@
                 <span class="section-tag">Featured</span>
                 <h2 class="section-title">Spotlight Project</h2>
             </div>
-
-            <!-- ── Main Card ───────────────────────────── -->
             <div class="featured-card reveal blur-reveal">
-
-                <!-- LEFT: Animated multi-screen preview -->
                 <div class="featured-preview-wrap">
-
-                    <!-- ── Mosaic Photo Gallery ─────────────── -->
                     <div class="vmg-mosaic" id="vmGallery">
-
-                        <!-- LARGE left: Video grid call -->
                         <div class="vmg-cell vmg-large" data-index="0" role="button" tabindex="0" aria-label="Open screenshot 1 fullscreen">
                             <div class="vmg-screenshot vmg-s0">
                                 <div class="vmg-s-topbar">
@@ -386,61 +584,26 @@
                                 </div>
                                 <div class="vmg-s-body">
                                     <div class="vmg-grid4">
-                                        <div class="vmg-vcell vmg-active">
-                                            <div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div>
-                                            <div class="vmg-vname">Amit<span class="vmg-host">Host</span></div>
-                                            <div class="vmg-vring"></div>
-                                            <div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div>
-                                        </div>
-                                        <div class="vmg-vcell">
-                                            <div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div>
-                                            <div class="vmg-vname">Remote</div>
-                                        </div>
-                                        <div class="vmg-vcell">
-                                            <div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div>
-                                            <div class="vmg-vname">Sarah</div>
-                                        </div>
-                                        <div class="vmg-vcell vmg-screenshare">
-                                            <div class="vmg-ss-label">🖥️ Sharing</div>
-                                            <div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div>
-                                        </div>
+                                        <div class="vmg-vcell vmg-active"><div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div><div class="vmg-vname">Amit<span class="vmg-host">Host</span></div><div class="vmg-vring"></div><div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div></div>
+                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-vname">Remote</div></div>
+                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div><div class="vmg-vname">Sarah</div></div>
+                                        <div class="vmg-vcell vmg-screenshare"><div class="vmg-ss-label">🖥️ Sharing</div><div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div></div>
                                     </div>
                                     <div class="vmg-ctrl-row">
-                                        <button class="vmg-cb vmg-cb-on">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg>
-                                        </button>
-                                        <button class="vmg-cb vmg-cb-on">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                                        </button>
-                                        <button class="vmg-cb">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
-                                        </button>
-                                        <button class="vmg-cb">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                        </button>
-                                        <button class="vmg-cb vmg-cb-end">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-                                        </button>
+                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg></button>
+                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
+                                        <button class="vmg-cb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></button>
+                                        <button class="vmg-cb vmg-cb-end"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="vmg-overlay">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                                <span>Fullscreen</span>
-                            </div>
+                            <div class="vmg-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span>Fullscreen</span></div>
                             <div class="vmg-label">Zoom Grid Call</div>
                         </div>
-
-                        <!-- Right column: 4 smaller cells -->
                         <div class="vmg-right-col">
-
-                            <!-- WhatsApp Chat -->
                             <div class="vmg-cell vmg-small" data-index="1" role="button" tabindex="0" aria-label="Open screenshot 2">
                                 <div class="vmg-screenshot vmg-s1">
-                                    <div class="vmg-s-topbar sm">
-                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
-                                        <span class="vmg-s-url">v-meet — Chat</span>
-                                    </div>
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Chat</span></div>
                                     <div class="vmg-chat-mini">
                                         <div class="vmg-chat-sb">
                                             <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
@@ -459,22 +622,11 @@
                                 <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                                 <div class="vmg-label">WhatsApp Chat</div>
                             </div>
-
-                            <!-- Audio Conference -->
                             <div class="vmg-cell vmg-small" data-index="2" role="button" tabindex="0" aria-label="Open screenshot 3">
                                 <div class="vmg-screenshot vmg-s2">
-                                    <div class="vmg-s-topbar sm">
-                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
-                                        <span class="vmg-s-url">Audio Conference</span>
-                                        <span class="vmg-s-rec">● LIVE</span>
-                                    </div>
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Audio Conference</span><span class="vmg-s-rec">● LIVE</span></div>
                                     <div class="vmg-audio-mini">
-                                        <div class="vmg-audio-center-mini">
-                                            <div class="vmg-pulse-ring"></div>
-                                            <div class="vmg-pulse-ring vmg-pr2"></div>
-                                            <div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div>
-                                            <div class="vmg-speak-label">Speaking</div>
-                                        </div>
+                                        <div class="vmg-audio-center-mini"><div class="vmg-pulse-ring"></div><div class="vmg-pulse-ring vmg-pr2"></div><div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div class="vmg-speak-label">Speaking</div></div>
                                         <div class="vmg-orb-row">
                                             <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
                                             <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
@@ -487,21 +639,11 @@
                                 <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                                 <div class="vmg-label">Audio Conference</div>
                             </div>
-
-                            <!-- Group Call pinned -->
                             <div class="vmg-cell vmg-small" data-index="3" role="button" tabindex="0" aria-label="Open screenshot 4">
                                 <div class="vmg-screenshot vmg-s3">
-                                    <div class="vmg-s-topbar sm">
-                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
-                                        <span class="vmg-s-url">Dev Team · 6 members</span>
-                                        <span class="vmg-s-rec">⬤ REC</span>
-                                    </div>
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Dev Team · 6 members</span><span class="vmg-s-rec">⬤ REC</span></div>
                                     <div class="vmg-group-mini">
-                                        <div class="vmg-pin-stage">
-                                            <div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div>
-                                            <div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div>
-                                            <div class="vmg-pin-tag">📌 Pinned · Speaking</div>
-                                        </div>
+                                        <div class="vmg-pin-stage"><div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div><div class="vmg-pin-tag">📌 Pinned · Speaking</div></div>
                                         <div class="vmg-strip-mini">
                                             <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
                                             <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
@@ -513,30 +655,16 @@
                                 <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                                 <div class="vmg-label">Group Call</div>
                             </div>
-
-                            <!-- Meeting Dashboard -->
                             <div class="vmg-cell vmg-small" data-index="4" role="button" tabindex="0" aria-label="Open screenshot 5">
                                 <div class="vmg-screenshot vmg-s4">
-                                    <div class="vmg-s-topbar sm">
-                                        <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
-                                        <span class="vmg-s-url">v-meet — Dashboard</span>
-                                    </div>
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Dashboard</span></div>
                                     <div class="vmg-dash-mini">
                                         <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
                                         <div class="vmg-dash-row">
-                                            <div class="vmg-dash-btn vmg-new-meet">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                                                New Meeting
-                                            </div>
-                                            <div class="vmg-dash-btn vmg-join-meet">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                                                Join Room
-                                            </div>
+                                            <div class="vmg-dash-btn vmg-new-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> New Meeting</div>
+                                            <div class="vmg-dash-btn vmg-join-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Join Room</div>
                                         </div>
-                                        <div class="vmg-input-mini">
-                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                            Enter meeting ID…
-                                        </div>
+                                        <div class="vmg-input-mini"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Enter meeting ID…</div>
                                         <div class="vmg-recent-label">Recent Rooms</div>
                                         <div class="vmg-recent-row">
                                             <div class="vmg-recent-item">vm-x9k2p</div>
@@ -548,60 +676,42 @@
                                 <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
                                 <div class="vmg-label">Meeting Dashboard</div>
                             </div>
-
-                        </div><!-- /vmg-right-col -->
-                    </div><!-- /vmg-mosaic -->
-
-                    <!-- Feature pills -->
+                        </div>
+                    </div>
                     <div class="vm-feature-pills">
                         <span class="vm-pill">🔒 E2E Encrypted</span>
                         <span class="vm-pill">⚡ &lt;50ms latency</span>
                         <span class="vm-pill">🌐 No install needed</span>
                         <span class="vm-pill">📸 5 screens · tap to expand</span>
                     </div>
+                </div>
 
-                </div><!-- /featured-preview-wrap -->
-
-                <!-- ── FULLSCREEN LIGHTBOX ─────────────── -->
+                <!-- LIGHTBOX (unchanged) -->
                 <div class="vmg-lightbox" id="vmgLightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
                     <div class="vmg-lb-backdrop"></div>
                     <div class="vmg-lb-inner">
-                        <!-- Counter -->
                         <div class="vmg-lb-counter"><span id="vmgLbCurr">1</span> / <span id="vmgLbTotal">5</span></div>
-                        <!-- Close -->
-                        <button class="vmg-lb-close" id="vmgLbClose" aria-label="Close">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                        <!-- Prev -->
-                        <button class="vmg-lb-nav vmg-lb-prev" id="vmgLbPrev" aria-label="Previous screenshot">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-                        </button>
-                        <!-- Content area -->
+                        <button class="vmg-lb-close" id="vmgLbClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                        <button class="vmg-lb-nav vmg-lb-prev" id="vmgLbPrev" aria-label="Previous screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
                         <div class="vmg-lb-stage" id="vmgLbStage"></div>
-                        <!-- Caption -->
                         <div class="vmg-lb-caption" id="vmgLbCaption"></div>
-                        <!-- Next -->
-                        <button class="vmg-lb-nav vmg-lb-next" id="vmgLbNext" aria-label="Next screenshot">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-                        </button>
-                        <!-- Dot indicators -->
+                        <button class="vmg-lb-nav vmg-lb-next" id="vmgLbNext" aria-label="Next screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
                         <div class="vmg-lb-dots" id="vmgLbDots"></div>
                     </div>
                 </div>
 
-                <!-- RIGHT: Info -->
+                <!-- RIGHT INFO -->
                 <div class="featured-info">
                     <span class="featured-number">01</span>
                     <h3 class="featured-title">V-Meet</h3>
                     <p class="featured-subtitle">Real-Time Video, Audio &amp; Chat Platform</p>
-                    <p class="featured-desc">Built V-Meet — a full-featured real-time communication platform powered by WebRTC peer connections. Supports Zoom-style grid video conferencing and WhatsApp-style 1-on-1 messaging in one unified app. Features a complete audio conferencing system with noise suppression and push-to-talk, a robust group calling engine with dynamic speaker pinning, and a chat system with message delivery receipts (✓✓), emoji reactions, typing indicators, file sharing, and group rooms — all with secure JWT auth, unique meeting IDs, and sub-50 ms signaling via Socket.io.</p>
+                    <p class="featured-desc">Built V-Meet — a full-featured real-time communication platform powered by WebRTC peer connections. Supports Zoom-style grid video conferencing and WhatsApp-style 1-on-1 messaging in one unified app.</p>
                     <div class="featured-features">
                         <div class="ff-item"><span class="ff-check">✓</span> Zoom-style grid layout + pinned speaker mode</div>
                         <div class="ff-item"><span class="ff-check">✓</span> WhatsApp-style chat — read receipts, emoji, file sharing</div>
                         <div class="ff-item"><span class="ff-check">✓</span> Audio conference with mute, noise suppression &amp; push-to-talk</div>
                         <div class="ff-item"><span class="ff-check">✓</span> Group calling — dynamic pin, strip view, 6+ participants</div>
                         <div class="ff-item"><span class="ff-check">✓</span> Screen sharing with live annotation overlay</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> Real-time typing indicators &amp; presence signals</div>
                         <div class="ff-item"><span class="ff-check">✓</span> WebRTC E2E encryption + JWT-secured auth</div>
                     </div>
                     <div class="featured-stack">
@@ -618,12 +728,11 @@
                         </a>
                     </div>
                 </div>
-
-            </div><!-- /featured-card -->
+            </div>
         </section>
 
         <!-- ════════════════════════════════════════════
-             PROJECTS GRID
+             PROJECTS GRID  ← ONLY SLIDESHOWS CHANGED
         ════════════════════════════════════════════ -->
         <section id="projects">
             <div class="section-header">
@@ -631,52 +740,83 @@
                 <h2 class="section-title">Featured Projects</h2>
                 <p class="section-sub">A collection of real-world applications built with modern stacks</p>
             </div>
+<div class="projects-scroll-wrap">
+
             <div class="projects-grid">
 
-                <!-- E-Mart -->
+                <!-- ══════════════════════════════
+                     E-MART  — 5 real image slots
+                ══════════════════════════════ -->
                 <div class="project-card reveal tilt-card">
                     <div class="pc-metric"><span class="pc-metric-dot"></span>Production Live</div>
-                    <div class="pc-slideshow" data-slides="3">
+
+                    <!-- ▼ REPLACE src="images/emart-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
                         <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart-gamma-three.vercel.app</span></div>
-                                    <div class="ps-body emart-home">
-                                        <div class="ps-nav-strip"><span class="ps-logo">🛒 E-Mart</span><span class="ps-search">🔍 Search products...</span><span class="ps-cart">🛍 Cart</span></div>
-                                        <div class="ps-hero-strip"><div class="ps-banner">🎉 New Arrivals — Shop Now</div></div>
-                                        <div class="ps-card-row"><div class="ps-pcard">📱<br><small>Phones</small></div><div class="ps-pcard">👕<br><small>Fashion</small></div><div class="ps-pcard">🪑<br><small>Home</small></div><div class="ps-pcard">💻<br><small>Tech</small></div></div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-1.png" alt="E-Mart — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-1.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d1117 0%,#161b22 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart — Chat</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-chat-window">
-                                            <div class="ps-chat-header">💬 Live Chat with Seller</div>
-                                            <div class="ps-messages"><div class="ps-msg them">Is this still available?</div><div class="ps-msg me">Yes! Ready to ship 📦</div><div class="ps-msg them">Great, I'll take it!</div></div>
-                                            <div class="ps-chat-input">Type a message...</div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-2.png" alt="E-Mart — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-2.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b69 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">e-mart — Dashboard</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-dashboard">
-                                            <div class="ps-dash-title">📊 Seller Dashboard</div>
-                                            <div class="ps-stats-row"><div class="ps-stat-box"><span>42</span><small>Listings</small></div><div class="ps-stat-box"><span>18</span><small>Sold</small></div><div class="ps-stat-box gold"><span>★4.8</span><small>Rating</small></div></div>
-                                            <div class="ps-bar-row"><div class="ps-bar" style="width:80%">Electronics 80%</div><div class="ps-bar" style="width:55%">Fashion 55%</div><div class="ps-bar" style="width:35%">Home 35%</div></div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-3.png" alt="E-Mart — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-3.png</span>
                                 </div>
                             </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-4.png" alt="E-Mart — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-5.png" alt="E-Mart — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-5.png</span>
+                                </div>
+                            </div>
+
                         </div>
                         <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
                         <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
                     </div>
+                    <!-- ▲ END E-MART IMAGE SLOTS ▲ -->
+
                     <div class="pc-body">
                         <div class="pc-title-row">
                             <div><h3>E-Mart</h3><p class="pc-sub">Full Stack Marketplace Web App</p></div>
@@ -695,55 +835,79 @@
                     </div>
                 </div>
 
-                <!-- V-Meet -->
+                <!-- ══════════════════════════════
+                     V-MEET  — 5 real image slots
+                ══════════════════════════════ -->
                 <div class="project-card reveal tilt-card">
                     <div class="pc-metric"><span class="pc-metric-dot"></span>WebRTC · Low-Latency</div>
-                    <div class="pc-slideshow" data-slides="3">
+
+                    <!-- ▼ REPLACE src="images/vmeet-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
                         <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet2.vercel.app</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-vmeet-grid">
-                                            <div class="ps-video-cell active"><div class="ps-vcam">A</div><div class="ps-vname">You</div></div>
-                                            <div class="ps-video-cell"><div class="ps-vcam">R</div><div class="ps-vname">Remote</div></div>
-                                            <div class="ps-video-cell"><div class="ps-vcam">S</div><div class="ps-vname">Screen</div></div>
-                                            <div class="ps-video-cell"><div class="ps-vcam">C</div><div class="ps-vname">Guest</div></div>
-                                        </div>
-                                        <div class="ps-controls-bar"><span>🎤</span><span class="red-ctrl">📵</span><span>📹</span><span>🖥</span></div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-1.png" alt="V-Meet — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-1.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f1923 0%,#1a2744 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet — Live Chat</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-chat-window">
-                                            <div class="ps-chat-header">💬 Meeting Chat</div>
-                                            <div class="ps-messages"><div class="ps-msg them">Can everyone hear me?</div><div class="ps-msg me">Yes, loud and clear! 👍</div><div class="ps-msg them typing">typing...</div></div>
-                                            <div class="ps-chat-input">Send a message...</div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-2.png" alt="V-Meet — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-2.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d1520 0%,#162030 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">v-meet — New Meeting</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-join-room">
-                                            <div class="ps-room-icon">◈</div>
-                                            <div class="ps-room-title">Start or Join a Meeting</div>
-                                            <div class="ps-room-input">Meeting ID: VMT-2024-LIVE</div>
-                                            <div class="ps-room-btn">Join Now</div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-3.png" alt="V-Meet — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-3.png</span>
                                 </div>
                             </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-4.png" alt="V-Meet — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-5.png" alt="V-Meet — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-5.png</span>
+                                </div>
+                            </div>
+
                         </div>
                         <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
                         <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
                     </div>
+                    <!-- ▲ END V-MEET IMAGE SLOTS ▲ -->
+
                     <div class="pc-body">
                         <div class="pc-title-row">
                             <div><h3>V-Meet</h3><p class="pc-sub">Real-Time Video Meeting Platform</p></div>
@@ -762,128 +926,80 @@
                     </div>
                 </div>
 
-                <!-- Cyber Security Tools -->
-                <div class="project-card reveal tilt-card">
-                    <div class="pc-metric"><span class="pc-metric-dot"></span>AES-256 · RBAC</div>
-                    <div class="pc-slideshow" data-slides="3">
-                        <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a1628 0%,#0f2647 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">cyber-security-tools-ruby.vercel.app</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-cyber-dash">
-                                            <div class="ps-cyber-title">🔐 Security Dashboard</div>
-                                            <div class="ps-tool-grid">
-                                                <div class="ps-tool-btn">🔑 Password</div>
-                                                <div class="ps-tool-btn">⚙️ Hash Gen</div>
-                                                <div class="ps-tool-btn active">🔒 AES Enc</div>
-                                                <div class="ps-tool-btn">🌐 URL Scan</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#050d1a 0%,#0a1f35 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Encryption Tool</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-enc-tool">
-                                            <div class="ps-enc-label">AES-256 Encryption</div>
-                                            <div class="ps-enc-input">Plain text: Hello World</div>
-                                            <div class="ps-enc-output">Encrypted: U2FsdGVkX1...</div>
-                                            <div class="ps-enc-bar"><div class="ps-strength-bar" style="width:90%">Strong ✓</div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0c1020 0%,#141c34 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Hash Generator</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-hash-tool">
-                                            <div class="ps-hash-label">Hash Generator</div>
-                                            <div class="ps-hash-row"><span class="ps-hash-type">MD5</span><span class="ps-hash-val">5d41402abc...</span></div>
-                                            <div class="ps-hash-row"><span class="ps-hash-type">SHA-256</span><span class="ps-hash-val">2cf24dba5f...</span></div>
-                                            <div class="ps-hash-row"><span class="ps-hash-type">SHA-512</span><span class="ps-hash-val">9b71d224bd...</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
-                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
-                    </div>
-                    <div class="pc-body">
-                        <div class="pc-title-row">
-                            <div><h3>Cyber Security Tools</h3><p class="pc-sub">Security Utility Platform</p></div>
-                            <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                Live
-                            </a>
-                        </div>
-                        <p class="pc-duration">Jul 2025 – Sep 2025</p>
-                        <p class="pc-desc">Security utility platform with password analysis, hash generation (MD5/SHA-256), AES encryption/decryption, URL &amp; port scanning. Role-based access with JWT and refresh tokens.</p>
-                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>JWT</span><span>RBAC</span><span>AES-256</span></div>
-                        <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
-                    </div>
-                    <div class="pc-hover-detail">
-                        <p class="pc-highlight">🔒 <strong>Security:</strong> AES-256, bcrypt hashing, refresh token rotation, RBAC middleware</p>
-                    </div>
-                </div>
 
-                <!-- ChessArena -->
+                <!-- ══════════════════════════════
+                     CHESS ARENA  — 5 real image slots
+                ══════════════════════════════ -->
                 <div class="project-card reveal tilt-card">
                     <div class="pc-metric"><span class="pc-metric-dot"></span>50+ Rooms · 100+ Players</div>
-                    <div class="pc-slideshow" data-slides="3">
+
+                    <!-- ▼ REPLACE src="images/chess-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
                         <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#1a1206 0%,#2d200a 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">chessarena-w7fq.onrender.com</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-chess-board">
-                                            <div class="ps-board-grid">
-                                                <div class="ps-cell dark">♜</div><div class="ps-cell light">♞</div><div class="ps-cell dark">♝</div><div class="ps-cell light">♛</div>
-                                                <div class="ps-cell light">♟</div><div class="ps-cell dark">♟</div><div class="ps-cell light">♟</div><div class="ps-cell dark">♟</div>
-                                                <div class="ps-cell dark"></div><div class="ps-cell light"></div><div class="ps-cell dark highlight">♘</div><div class="ps-cell light"></div>
-                                                <div class="ps-cell light">♙</div><div class="ps-cell dark">♙</div><div class="ps-cell light">♙</div><div class="ps-cell dark">♙</div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-1.png" alt="ChessArena — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-1.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#120d00 0%,#241a00 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">ChessArena — Lobby</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-lobby">
-                                            <div class="ps-lobby-title">♟ Active Rooms</div>
-                                            <div class="ps-room-row"><span class="ps-room-id">Room #1042</span><span class="ps-room-players">2/2</span><span class="ps-room-live">● LIVE</span></div>
-                                            <div class="ps-room-row"><span class="ps-room-id">Room #1043</span><span class="ps-room-players">1/2</span><span class="ps-room-wait">Waiting</span></div>
-                                            <div class="ps-room-row"><span class="ps-room-id">Room #1044</span><span class="ps-room-players">2/2</span><span class="ps-room-live">● LIVE</span></div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-2.png" alt="ChessArena — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-2.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0e0800 0%,#1e1200 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">ChessArena — Stats</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-chess-stats">
-                                            <div class="ps-cs-title">⚡ Live Statistics</div>
-                                            <div class="ps-cs-row"><span>Active Rooms</span><span class="ps-cs-val">50+</span></div>
-                                            <div class="ps-cs-row"><span>Online Players</span><span class="ps-cs-val">100+</span></div>
-                                            <div class="ps-cs-row"><span>Avg Latency</span><span class="ps-cs-val green">&lt;100ms</span></div>
-                                            <div class="ps-cs-row"><span>Uptime</span><span class="ps-cs-val green">99.8%</span></div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-3.png" alt="ChessArena — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-3.png</span>
                                 </div>
                             </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-4.png" alt="ChessArena — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-5.png" alt="ChessArena — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-5.png</span>
+                                </div>
+                            </div>
+
                         </div>
                         <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
                         <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
                     </div>
+                    <!-- ▲ END CHESS ARENA IMAGE SLOTS ▲ -->
+
                     <div class="pc-body">
                         <div class="pc-title-row">
                             <div><h3>ChessArena</h3><p class="pc-sub">Real-Time Multiplayer Chess</p></div>
@@ -902,45 +1018,79 @@
                     </div>
                 </div>
 
-                <!-- Seven Wonders -->
+                <!-- ══════════════════════════════
+                     SEVEN WONDERS  — 5 real image slots
+                ══════════════════════════════ -->
                 <div class="project-card reveal tilt-card">
                     <div class="pc-metric"><span class="pc-metric-dot"></span>Full CRUD · JWT</div>
-                    <div class="pc-slideshow" data-slides="2">
+
+                    <!-- ▼ REPLACE src="images/seven-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
                         <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f1a0f 0%,#1a2e1a 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">the-7.onrender.com</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-travel-home">
-                                            <div class="ps-travel-hero">✈️ Seven Wonders of the World</div>
-                                            <div class="ps-wonder-grid">
-                                                <div class="ps-wonder-card">🏛️<br><small>Colosseum</small></div>
-                                                <div class="ps-wonder-card">🗿<br><small>Chichen Itza</small></div>
-                                                <div class="ps-wonder-card">🕌<br><small>Taj Mahal</small></div>
-                                                <div class="ps-wonder-card">🗼<br><small>Machu Picchu</small></div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-1.png" alt="Seven Wonders — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-1.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0a1510 0%,#12251a 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">seven-wonders — Reviews</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-review-section">
-                                            <div class="ps-rev-title">⭐ User Reviews</div>
-                                            <div class="ps-review"><span class="ps-rev-user">John D.</span><span class="ps-rev-stars">★★★★★</span><span class="ps-rev-text">Amazing experience!</span></div>
-                                            <div class="ps-review"><span class="ps-rev-user">Sara K.</span><span class="ps-rev-stars">★★★★☆</span><span class="ps-rev-text">Loved the Colosseum tour</span></div>
-                                            <div class="ps-review"><span class="ps-rev-user">Alex M.</span><span class="ps-rev-stars">★★★★★</span><span class="ps-rev-text">Must visit the Taj Mahal</span></div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-2.png" alt="Seven Wonders — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-2.png</span>
                                 </div>
                             </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-3.png" alt="Seven Wonders — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-4.png" alt="Seven Wonders — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-5.png" alt="Seven Wonders — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-5.png</span>
+                                </div>
+                            </div>
+
                         </div>
                         <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
                         <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
                     </div>
+                    <!-- ▲ END SEVEN WONDERS IMAGE SLOTS ▲ -->
+
                     <div class="pc-body">
                         <div class="pc-title-row">
                             <div><h3>Seven Wonders</h3><p class="pc-sub">Comprehensive Travel Platform</p></div>
@@ -958,107 +1108,79 @@
                         <p class="pc-highlight">🌍 <strong>Features:</strong> CRUD reviews, RESTful API design, bcrypt password hashing, RBAC</p>
                     </div>
                 </div>
-
-                <!-- Chat App -->
-                <div class="project-card reveal tilt-card">
-                    <div class="pc-metric"><span class="pc-metric-dot"></span>Socket.io · Real-Time</div>
-                    <div class="pc-slideshow" data-slides="2">
-                        <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0d0d1a 0%,#1a1a30 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">chatapp-drt5.onrender.com</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-chatapp">
-                                            <div class="ps-sidebar-mini">
-                                                <div class="ps-contact active">💬 General</div>
-                                                <div class="ps-contact">👤 Rohan</div>
-                                                <div class="ps-contact">👤 Priya</div>
-                                            </div>
-                                            <div class="ps-chat-main">
-                                                <div class="ps-msg them">Hey everyone! 👋</div>
-                                                <div class="ps-msg me">Hello! How's it going?</div>
-                                                <div class="ps-msg them">Working on a new project!</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#080812 0%,#14142a 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Chat App — Online</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-online-users">
-                                            <div class="ps-online-title">🟢 Online Users</div>
-                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Rohan Kumar</div>
-                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Priya Sharma</div>
-                                            <div class="ps-user-row"><span class="ps-online-dot"></span>Dev Singh</div>
-                                            <div class="ps-user-count">3 users online</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
-                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
-                    </div>
-                    <div class="pc-body">
-                        <div class="pc-title-row">
-                            <div><h3>Chat Application</h3><p class="pc-sub">Full-Stack Real-Time Messaging</p></div>
-                            <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                Live
-                            </a>
-                        </div>
-                        <p class="pc-duration">Jun 2023 – Aug 2023</p>
-                        <p class="pc-desc">Full-stack chat application with RESTful APIs, real-time communication via Socket.io, and a responsive UI for seamless user experience. Deployed on Render with MongoDB backend.</p>
-                        <div class="pc-stack"><span>React</span><span>Express.js</span><span>MongoDB</span><span>Socket.io</span></div>
-                        <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
-                    </div>
-                    <div class="pc-hover-detail">
-                        <p class="pc-highlight">💬 <strong>Features:</strong> Real-time presence, group rooms, persistent message history, responsive UI</p>
-                    </div>
-                </div>
-
-                <!-- Quiz Master -->
+        <!-- ══════════════════════════════
+                     QUIZ MASTER  — 5 real image slots
+                ══════════════════════════════ -->
                 <div class="project-card reveal tilt-card">
                     <div class="pc-metric"><span class="pc-metric-dot"></span>Live Timer · Leaderboard</div>
-                    <div class="pc-slideshow" data-slides="2">
+
+                    <!-- ▼ REPLACE src="images/quiz-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
                         <div class="pc-slides-track">
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0f0a1e 0%,#1e1440 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">quiz-master-zoo7.onrender.com</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-quiz-ui">
-                                            <div class="ps-quiz-header">📝 Quiz Master <span class="ps-timer">⏱ 00:45</span></div>
-                                            <div class="ps-question">Q3. What is the time complexity of binary search?</div>
-                                            <div class="ps-options">
-                                                <div class="ps-option">A. O(n)</div>
-                                                <div class="ps-option correct">B. O(log n) ✓</div>
-                                                <div class="ps-option">C. O(n²)</div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-1.png" alt="Quiz Master — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-1.png</span>
                                 </div>
                             </div>
-                            <div class="pc-slide" style="background:linear-gradient(135deg,#0c0820 0%,#18103a 100%)">
-                                <div class="ps-mockup">
-                                    <div class="ps-topbar"><span class="ps-dot r"></span><span class="ps-dot y"></span><span class="ps-dot g"></span><span class="ps-url">Quiz Master — Leaderboard</span></div>
-                                    <div class="ps-body">
-                                        <div class="ps-leaderboard">
-                                            <div class="ps-lb-title">🏆 Leaderboard</div>
-                                            <div class="ps-lb-row gold-row"><span>1.</span><span>Amit K.</span><span>98/100</span></div>
-                                            <div class="ps-lb-row silver-row"><span>2.</span><span>Rohan S.</span><span>92/100</span></div>
-                                            <div class="ps-lb-row bronze-row"><span>3.</span><span>Priya M.</span><span>88/100</span></div>
-                                        </div>
-                                    </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-2.png" alt="Quiz Master — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-2.png</span>
                                 </div>
                             </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-3.png" alt="Quiz Master — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-4.png" alt="Quiz Master — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-5.png" alt="Quiz Master — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-5.png</span>
+                                </div>
+                            </div>
+
                         </div>
                         <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
                         <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
-                        <div class="ps-dots" role="tablist"><span class="ps-dot-ind active" role="tab"></span><span class="ps-dot-ind" role="tab"></span></div>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
                     </div>
+                    <!-- ▲ END QUIZ MASTER IMAGE SLOTS ▲ -->
+
                     <div class="pc-body">
                         <div class="pc-title-row">
                             <div><h3>Quiz Master</h3><p class="pc-sub">Online Assessment Platform</p></div>
@@ -1077,7 +1199,245 @@
                     </div>
                 </div>
 
-            </div>
+                <!-- ══════════════════════════════
+                     CYBER SECURITY TOOLS  — 5 slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>AES-256 · RBAC</div>
+
+                    <!-- ▼ REPLACE src="images/cyber-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-1.png" alt="Cyber Security Tools — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-2.png" alt="Cyber Security Tools — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-2.png</span>
+                                </div>
+                            </div>
+
+                            <!-- <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-3.png" alt="Cyber Security Tools — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-4.png" alt="Cyber Security Tools — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-5.png" alt="Cyber Security Tools — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-5.png</span>
+                                </div>
+                            </div> -->
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END CYBER TOOLS IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Cyber Security Tools</h3><p class="pc-sub">Security Utility Platform</p></div>
+                            <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jul 2025 – Sep 2025</p>
+                        <p class="pc-desc">Security utility platform with password analysis, hash generation (MD5/SHA-256), AES encryption/decryption, URL &amp; port scanning. Role-based access with JWT and refresh tokens.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>JWT</span><span>RBAC</span><span>AES-256</span></div>
+                        <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🔒 <strong>Security:</strong> AES-256, bcrypt hashing, refresh token rotation, RBAC middleware</p>
+                    </div>
+                </div>
+                <!-- ══════════════════════════════
+                     CHAT APP  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Socket.io · Real-Time</div>
+
+                    <!-- ▼ REPLACE src="images/chat-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="/profile.jpg" alt="Chat App — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-2.png" alt="Chat App — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-3.png" alt="Chat App — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-4.png" alt="Chat App — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-5.png" alt="Chat App — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END CHAT APP IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Chat Application</h3><p class="pc-sub">Full-Stack Real-Time Messaging</p></div>
+                            <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jun 2023 – Aug 2023</p>
+                        <p class="pc-desc">Full-stack chat application with RESTful APIs, real-time communication via Socket.io, and a responsive UI for seamless user experience. Deployed on Render with MongoDB backend.</p>
+                        <div class="pc-stack"><span>React</span><span>Express.js</span><span>MongoDB</span><span>Socket.io</span></div>
+                        <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">💬 <strong>Features:</strong> Real-time presence, group rooms, persistent message history, responsive UI</p>
+                    </div>
+                </div>
+
+        
+            </div><!-- /projects-grid -->
+
+            
+            <div class="carousel-nav">
+    <button class="carousel-btn carousel-prev" id="carouselPrev" aria-label="Previous projects">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="carousel-counter">
+        <span id="carouselCurrent">1</span>
+        <span class="carousel-sep">—</span>
+        <span id="carouselTotal">7</span>
+    </div>
+    <div class="carousel-progress-track">
+        <div class="carousel-progress-fill" id="carouselFill"></div>
+    </div>
+    <button class="carousel-btn carousel-next" id="carouselNext" aria-label="Next projects">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+
+
+<!-- 3D Roll Nav — mobile only -->
+<div class="roll-nav" id="rollNav">
+    <button class="roll-btn" id="rollPrev" aria-label="Previous">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="roll-counter-wrap">
+        <div class="roll-counter">
+            <span id="rollCurr">1</span> / <span id="rollTot">7</span>
+        </div>
+        <div class="roll-dots" id="rollDots"></div>
+    </div>
+    <button class="roll-btn" id="rollNext" aria-label="Next">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+
+<!-- 3D Fan Nav — desktop only -->
+<div class="fan-nav" id="fanNav">
+    <button class="fan-btn" id="fanPrev" aria-label="Previous project">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="fan-counter-wrap">
+        <div class="fan-counter">
+            <span id="fanCurr">1</span> / <span id="fanTot">7</span>
+        </div>
+        <div class="fan-dots" id="fanDots"></div>
+    </div>
+    <button class="fan-btn" id="fanNext" aria-label="Next project">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+<p class="fan-hint" id="fanHint">
+    <kbd>←</kbd> <kbd>→</kbd> keyboard · click side cards · drag to rotate
+</p>
+</div>
+
         </section>
 
         <!-- ════════════════════════════════════════════
@@ -1114,11 +1474,11 @@
                 </div>
                 <div class="github-stats-row">
                     <div class="gh-stat">
-                        <span class="gh-stat-num" data-count="7" data-suffix="+"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
+                        <span class="gh-stat-num"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
                         <span class="gh-stat-label">Repositories</span>
                     </div>
                     <div class="gh-stat">
-                        <span class="gh-stat-num" data-count="3" data-suffix="+"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
+                        <span class="gh-stat-num"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
                         <span class="gh-stat-label">Years Active</span>
                     </div>
                     <div class="gh-stat">
@@ -1139,13 +1499,13 @@
                 <p class="section-sub">Open to new opportunities — let's build something great together.</p>
             </div>
             <div class="contact-grid">
-                <a href="mailto:amitkumarnayak330@gmail.com" class="contact-card reveal">
+                <a href="/cdn-cgi/l/email-protection#e0818d89948b958d81928e8199818bd3d3d0a0878d81898cce838f8d" class="contact-card reveal">
                     <div class="cc-icon-wrap">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     </div>
                     <div class="cc-info">
                         <h3>Email</h3>
-                        <span>amitkumarnayak330@gmail.com</span>
+                        <span><span class="__cf_email__" data-cfemail="6d0c0004190618000c1f030c140c065e5e5d2d0a000c0401430e0200">[email&#160;protected]</span></span>
                     </div>
                     <div class="cc-arrow" aria-hidden="true">→</div>
                 </a>
@@ -1182,936 +1542,9 @@
         </div>
     </footer>
 
-    <script>
-    /* ════════════════════════════════════════════════════
-       AMIT KUMAR NAYAK — PORTFOLIO JS (PREMIUM EDITION)
-    ════════════════════════════════════════════════════ */
-
-    'use strict';
-
-    /* ── Utility: throttle ─────────────────────────── */
-    function throttle(fn, limit) {
-        let last = 0;
-        return function(...args) {
-            const now = Date.now();
-            if (now - last >= limit) { last = now; fn.apply(this, args); }
-        };
-    }
-
-    /* ── Utility: RAF wrapper ─────────────────────── */
-    function rafCall(fn) { return requestAnimationFrame(fn); }
-
-    /* ── DOM refs ──────────────────────────────────── */
-    const scrollProgressEl = document.getElementById('scrollProgress');
-    const cursorGlowEl     = document.getElementById('cursorGlow');
-    const navbar           = document.getElementById('navbar');
-    const menuToggle       = document.getElementById('menuToggle');
-    const navMenu          = document.getElementById('navMenu');
-    const themeToggle      = document.getElementById('themeToggle');
-    const cmdTrigger       = document.getElementById('cmdTrigger');
-    const cmdOverlay       = document.getElementById('cmdOverlay');
-    const cmdInput         = document.getElementById('cmdInput');
-    const cmdResults       = document.getElementById('cmdResults');
-    const hireFloat        = document.getElementById('hireFloat');
-    const html             = document.documentElement;
-
-    /* ════════════════════════════════════════════════
-       1. SCROLL PROGRESS + NAVBAR + HIRE BTN
-    ════════════════════════════════════════════════ */
-    let lastScrollY = 0;
-    const handleScroll = throttle(() => {
-        const scrollY   = window.scrollY;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        const pct       = (scrollY / maxScroll) * 100;
-
-        rafCall(() => {
-            scrollProgressEl.style.width = pct + '%';
-            navbar.classList.toggle('scrolled', scrollY > 60);
-            // Hide hire btn near top
-            hireFloat.classList.toggle('hidden', scrollY < 400);
-        });
-
-        lastScrollY = scrollY;
-    }, 16);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    /* ════════════════════════════════════════════════
-       2. ACTIVE NAV ON SCROLL
-    ════════════════════════════════════════════════ */
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks  = document.querySelectorAll('nav a[href^="#"]');
-
-    const updateActiveNav = throttle(() => {
-        let current = '';
-        sections.forEach(s => {
-            if (window.scrollY >= s.offsetTop - 240) current = s.id;
-        });
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) link.classList.add('active');
-        });
-    }, 50);
-    window.addEventListener('scroll', updateActiveNav, { passive: true });
-
-    /* ════════════════════════════════════════════════
-       3. CURSOR GLOW — DYNAMIC SIZE & INTENSITY
-    ════════════════════════════════════════════════ */
-    let mouseX = 0, mouseY = 0, prevMouseX = 0, prevMouseY = 0;
-    let cursorRaf = null;
-
-    document.addEventListener('mousemove', (e) => {
-        const dx = e.clientX - prevMouseX;
-        const dy = e.clientY - prevMouseY;
-        const speed = Math.sqrt(dx*dx + dy*dy);
-        mouseX = e.clientX; mouseY = e.clientY;
-        prevMouseX = e.clientX; prevMouseY = e.clientY;
-
-        if (cursorRaf) cancelAnimationFrame(cursorRaf);
-        cursorRaf = rafCall(() => {
-            cursorGlowEl.style.left = mouseX + 'px';
-            cursorGlowEl.style.top  = mouseY + 'px';
-            cursorGlowEl.classList.toggle('fast', speed > 18);
-        });
-    });
-
-    /* ════════════════════════════════════════════════
-       4. PARTICLES
-    ════════════════════════════════════════════════ */
-    const particlesContainer = document.getElementById('particles');
-    function spawnParticles(n) {
-        particlesContainer.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < n; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const sz = Math.random() * 130 + 50;
-            Object.assign(p.style, {
-                width:  sz + 'px', height: sz + 'px',
-                left:   Math.random() * 100 + '%',
-                top:    Math.random() * 100 + '%',
-                animationDelay:    Math.random() * 20 + 's',
-                animationDuration: (Math.random() * 10 + 18) + 's'
-            });
-            frag.appendChild(p);
-        }
-        particlesContainer.appendChild(frag);
-    }
-    spawnParticles(window.innerWidth < 768 ? 8 : 18);
-    window.addEventListener('resize', throttle(() => {
-        spawnParticles(window.innerWidth < 768 ? 8 : 18);
-    }, 300));
-
-    /* ════════════════════════════════════════════════
-       5. MOBILE MENU
-    ════════════════════════════════════════════════ */
-    menuToggle.addEventListener('click', () => {
-        const open = navMenu.classList.toggle('active');
-        menuToggle.classList.toggle('active', open);
-        menuToggle.setAttribute('aria-expanded', open);
-        document.body.style.overflow = open ? 'hidden' : '';
-    });
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            menuToggle.classList.remove('active');
-            menuToggle.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        });
-    });
-    document.addEventListener('click', (e) => {
-        if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-            navMenu.classList.remove('active');
-            menuToggle.classList.remove('active');
-            menuToggle.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        }
-    });
-
-    /* ════════════════════════════════════════════════
-       6. THEME TOGGLE 🌙 / ☀️
-    ════════════════════════════════════════════════ */
-    function getTheme() { return html.getAttribute('data-theme') || 'dark'; }
-    function setTheme(t) {
-        html.setAttribute('data-theme', t);
-        themeToggle.textContent = t === 'dark' ? '🌙' : '☀️';
-        themeToggle.setAttribute('title', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-        try { localStorage.setItem('akn-theme', t); } catch(e){}
-    }
-    // Init theme
-    try {
-        const saved = localStorage.getItem('akn-theme');
-        if (saved) setTheme(saved);
-    } catch(e) {}
-    themeToggle.addEventListener('click', () => {
-        setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-    });
-
-    /* ════════════════════════════════════════════════
-       7. COMMAND PALETTE (Ctrl+K)
-    ════════════════════════════════════════════════ */
-    const commands = [
-        { group: 'Navigation', items: [
-            { label: 'Home',       icon: '🏠', action: () => scrollToSection('hero'),       shortcut: 'H' },
-            { label: 'About',      icon: '👤', action: () => scrollToSection('about'),      shortcut: 'A' },
-            { label: 'Skills',     icon: '⚡', action: () => scrollToSection('skills'),     shortcut: 'S' },
-            { label: 'Experience', icon: '💼', action: () => scrollToSection('experience'), shortcut: 'E' },
-            { label: 'Projects',   icon: '🗂', action: () => scrollToSection('projects'),   shortcut: 'P' },
-            { label: 'Contact',    icon: '📧', action: () => scrollToSection('contact'),    shortcut: 'C' },
-        ]},
-        { group: 'Quick Actions', items: [
-            { label: 'Download Resume',  icon: '📄', action: () => window.open('Amit Nayak-Resume.pdf', '_blank') },
-            { label: 'View GitHub',      icon: '⑂',  action: () => window.open('https://github.com/Amitnayak01', '_blank') },
-            { label: 'View LinkedIn',    icon: '🔗', action: () => window.open('https://linkedin.com/in/amit-nayak-738024344', '_blank') },
-            { label: 'Send Email',       icon: '✉️', action: () => window.open('mailto:amitkumarnayak330@gmail.com') },
-            { label: 'Toggle Theme',     icon: '🎨', action: () => { setTheme(getTheme() === 'dark' ? 'light' : 'dark'); } },
-        ]},
-        { group: 'Projects', items: [
-            { label: 'Open V-Meet',          icon: '📹', action: () => window.open('https://v-meet2.vercel.app', '_blank') },
-            { label: 'Open E-Mart',          icon: '🛒', action: () => window.open('https://e-mart-gamma-three.vercel.app', '_blank') },
-            { label: 'Open ChessArena',      icon: '♟',  action: () => window.open('https://chessarena-w7fq.onrender.com', '_blank') },
-            { label: 'Open Cyber Tools',     icon: '🔐', action: () => window.open('https://cyber-security-tools-ruby.vercel.app', '_blank') },
-        ]},
-    ];
-
-    function scrollToSection(id) {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    let cmdSelected = 0;
-    let filteredItems = [];
-
-    function buildCmdResults(query) {
-        cmdResults.innerHTML = '';
-        filteredItems = [];
-        const q = query.toLowerCase().trim();
-        const frag = document.createDocumentFragment();
-
-        commands.forEach(group => {
-            const filtered = group.items.filter(item =>
-                !q || item.label.toLowerCase().includes(q) || (item.shortcut && item.shortcut.toLowerCase() === q)
-            );
-            if (!filtered.length) return;
-
-            const label = document.createElement('div');
-            label.className = 'cmd-group-label';
-            label.textContent = group.group;
-            frag.appendChild(label);
-
-            filtered.forEach(item => {
-                const idx = filteredItems.length;
-                filteredItems.push(item);
-                const el = document.createElement('div');
-                el.className = 'cmd-item';
-                el.setAttribute('role', 'option');
-                el.dataset.idx = idx;
-                el.innerHTML = `<span class="cmd-item-icon">${item.icon}</span><span class="cmd-item-label">${item.label}</span>${item.shortcut ? `<span class="cmd-item-shortcut">${item.shortcut}</span>` : ''}`;
-                el.addEventListener('click', () => { execCmd(idx); });
-                frag.appendChild(el);
-            });
-        });
-
-        cmdResults.appendChild(frag);
-        cmdSelected = 0;
-        highlightCmd(0);
-    }
-
-    function highlightCmd(idx) {
-        document.querySelectorAll('.cmd-item').forEach((el, i) => {
-            el.classList.toggle('selected', i === idx);
-            if (i === idx) el.scrollIntoView({ block: 'nearest' });
-        });
-    }
-
-    function execCmd(idx) {
-        const item = filteredItems[idx];
-        if (item) { item.action(); closeCmdPalette(); }
-    }
-
-    function openCmdPalette() {
-        cmdOverlay.classList.add('open');
-        cmdInput.value = '';
-        buildCmdResults('');
-        requestAnimationFrame(() => cmdInput.focus());
-    }
-    function closeCmdPalette() {
-        cmdOverlay.classList.remove('open');
-    }
-
-    cmdTrigger.addEventListener('click', openCmdPalette);
-    cmdOverlay.addEventListener('click', (e) => {
-        if (e.target === cmdOverlay) closeCmdPalette();
-    });
-    cmdInput.addEventListener('input', (e) => {
-        buildCmdResults(e.target.value);
-    });
-    cmdInput.addEventListener('keydown', (e) => {
-        const items = document.querySelectorAll('.cmd-item');
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            cmdSelected = Math.min(cmdSelected + 1, items.length - 1);
-            highlightCmd(cmdSelected);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            cmdSelected = Math.max(cmdSelected - 1, 0);
-            highlightCmd(cmdSelected);
-        } else if (e.key === 'Enter') {
-            execCmd(cmdSelected);
-        } else if (e.key === 'Escape') {
-            closeCmdPalette();
-        }
-    });
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            cmdOverlay.classList.contains('open') ? closeCmdPalette() : openCmdPalette();
-        }
-        if (e.key === 'Escape' && cmdOverlay.classList.contains('open')) closeCmdPalette();
-    });
-
-    /* ════════════════════════════════════════════════
-       8. TYPING ANIMATION
-    ════════════════════════════════════════════════ */
-    const roles = ['Full Stack Developer', 'React + Node.js Dev', 'WebRTC Specialist', 'Real-Time App Builder', 'Problem Solver'];
-    let roleIdx = 0, charIdx = 0, isDeleting = false;
-    const typingTarget = document.getElementById('typingTarget');
-
-    function typeLoop() {
-        const current = roles[roleIdx];
-        if (isDeleting) {
-            charIdx--;
-            typingTarget.textContent = current.slice(0, charIdx);
-            if (charIdx === 0) {
-                isDeleting = false;
-                roleIdx = (roleIdx + 1) % roles.length;
-                setTimeout(typeLoop, 400);
-                return;
-            }
-            setTimeout(typeLoop, 45);
-        } else {
-            charIdx++;
-            typingTarget.textContent = current.slice(0, charIdx);
-            if (charIdx === current.length) {
-                isDeleting = true;
-                setTimeout(typeLoop, 2200);
-                return;
-            }
-            setTimeout(typeLoop, 70);
-        }
-    }
-    setTimeout(typeLoop, 800);
-
-    /* ════════════════════════════════════════════════
-       9. SCROLL-REVEAL (staggered, blur-to-clear)
-    ════════════════════════════════════════════════ */
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                revealObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-        el.style.transitionDelay = (i % 6) * 0.07 + 's';
-        revealObserver.observe(el);
-    });
-
-    /* ════════════════════════════════════════════════
-       10. COUNT-UP ANIMATION
-    ════════════════════════════════════════════════ */
-    function animateCount(el) {
-        const target  = parseInt(el.dataset.target) || 0;
-        const suffix  = el.dataset.suffix || '';
-        const dur     = 1400;
-        const start   = performance.now();
-        function step(now) {
-            const elapsed = now - start;
-            const progress = Math.min(elapsed / dur, 1);
-            // Ease out cubic
-            const ease = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.floor(ease * target) + (progress >= 1 ? suffix : '');
-            if (progress < 1) rafCall(step);
-        }
-        rafCall(step);
-    }
-
-    const countObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCount(entry.target);
-                countObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
-
-    /* ════════════════════════════════════════════════
-       11. 3D TILT EFFECT ON PROJECT CARDS
-    ════════════════════════════════════════════════ */
-    function initTilt() {
-        if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch
-
-        document.querySelectorAll('.tilt-card').forEach(card => {
-            let rect;
-            card.addEventListener('mouseenter', () => {
-                rect = card.getBoundingClientRect();
-                card.style.transition = 'transform 0.1s ease, border-color 0.28s ease, box-shadow 0.28s ease';
-            });
-            card.addEventListener('mousemove', throttle((e) => {
-                if (!rect) return;
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const cx = rect.width  / 2;
-                const cy = rect.height / 2;
-                const rotX = -((y - cy) / cy) * 6;  // max ±6deg
-                const rotY =  ((x - cx) / cx) * 6;
-                rafCall(() => {
-                    card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(8px)`;
-                });
-            }, 16));
-            card.addEventListener('mouseleave', () => {
-                card.style.transition = 'transform 0.55s cubic-bezier(0.34,1.2,0.64,1), border-color 0.28s ease, box-shadow 0.28s ease';
-                rafCall(() => { card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) translateZ(0)'; });
-            });
-        });
-    }
-    initTilt();
-
-    /* ════════════════════════════════════════════════
-       12. MAGNETIC BUTTON EFFECT
-    ════════════════════════════════════════════════ */
-    function initMagnetic() {
-        if (window.matchMedia('(pointer: coarse)').matches) return;
-        document.querySelectorAll('.btn-magnetic').forEach(btn => {
-            btn.addEventListener('mousemove', throttle((e) => {
-                const rect = btn.getBoundingClientRect();
-                const dx = e.clientX - (rect.left + rect.width  / 2);
-                const dy = e.clientY - (rect.top  + rect.height / 2);
-                const mag = 0.28;
-                rafCall(() => {
-                    btn.style.transform = `translate(${dx*mag}px, ${dy*mag}px)`;
-                });
-            }, 16));
-            btn.addEventListener('mouseleave', () => {
-                rafCall(() => { btn.style.transform = ''; });
-            });
-        });
-    }
-    initMagnetic();
-
-    /* ════════════════════════════════════════════════
-       13. HERO PARALLAX
-    ════════════════════════════════════════════════ */
-    const heroImgWrap  = document.getElementById('heroImgWrap');
-    const floatIcons   = document.querySelectorAll('.float-icon');
-
-    const heroParallax = throttle(() => {
-        const scrollY = window.scrollY;
-        if (scrollY > window.innerHeight) return;
-        rafCall(() => {
-            if (heroImgWrap) {
-                heroImgWrap.style.transform = `translateY(${scrollY * 0.04}px)`;
-            }
-            floatIcons.forEach((icon, i) => {
-                const dir = i % 2 === 0 ? 1 : -1;
-                icon.style.transform = `translateY(${scrollY * 0.06 * dir}px)`;
-            });
-        });
-    }, 16);
-    window.addEventListener('scroll', heroParallax, { passive: true });
-
-    /* ════════════════════════════════════════════════
-       14. SLIDESHOW LOGIC
-    ════════════════════════════════════════════════ */
-    function getSlideshow(btn) { return btn.closest('.pc-slideshow'); }
-    function getState(ss)      { return ss._idx || 0; }
-    function goToSlide(ss, idx) {
-        const total = parseInt(ss.dataset.slides);
-        idx = ((idx % total) + total) % total;
-        ss._idx = idx;
-        rafCall(() => {
-            ss.querySelector('.pc-slides-track').style.transform = `translateX(-${idx * 100}%)`;
-            ss.querySelectorAll('.ps-dot-ind').forEach((d, i) => d.classList.toggle('active', i === idx));
-        });
-    }
-    window.slideNext = (btn) => { const ss = getSlideshow(btn); goToSlide(ss, getState(ss) + 1); };
-    window.slidePrev = (btn) => { const ss = getSlideshow(btn); goToSlide(ss, getState(ss) - 1); };
-
-    // Touch/swipe support
-    document.querySelectorAll('.pc-slideshow').forEach((ss, i) => {
-        ss._idx = 0;
-        let tx = 0, startX = 0;
-        ss.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-        ss.addEventListener('touchend', (e) => {
-            const diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 40) goToSlide(ss, getState(ss) + (diff > 0 ? 1 : -1));
-        }, { passive: true });
-
-        // Auto-advance
-        setInterval(() => {
-            if (!ss.closest('.project-card').matches(':hover')) goToSlide(ss, getState(ss) + 1);
-        }, 3600 + i * 380);
-    });
-
-    // Dot click
-    document.querySelectorAll('.ps-dot-ind').forEach(dot => {
-        dot.addEventListener('click', () => {
-            const ss  = dot.closest('.pc-slideshow');
-            const idx = Array.from(dot.parentElement.children).indexOf(dot);
-            goToSlide(ss, idx);
-        });
-    });
-
-    /* ════════════════════════════════════════════════
-       15. GITHUB FALLBACK GRID (animated reveal)
-    ════════════════════════════════════════════════ */
-    const ghGrid = document.getElementById('ghGrid');
-    if (ghGrid) {
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < 364; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'gh-cell';
-            const level = Math.floor(Math.random() * 5);
-            if (level > 0) cell.setAttribute('data-level', level);
-            frag.appendChild(cell);
-        }
-        ghGrid.appendChild(frag);
-    }
-
-    /* ════════════════════════════════════════════════
-       16. SMOOTH SCROLL for anchor links
-    ════════════════════════════════════════════════ */
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href');
-            if (href === '#') return;
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-
-    /* ════════════════════════════════════════════════
-       17. KEYBOARD HINT for CMD palette
-    ════════════════════════════════════════════════ */
-    // Show a brief toast hinting cmd palette on first visit
-    (function() {
-        try {
-            if (!sessionStorage.getItem('akn-hint-shown')) {
-                sessionStorage.setItem('akn-hint-shown', '1');
-                setTimeout(() => {
-                    const toast = document.createElement('div');
-                    Object.assign(toast.style, {
-                        position: 'fixed', bottom: '5.5rem', right: '1.5rem',
-                        background: 'rgba(22,22,22,0.9)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(201,169,110,0.25)',
-                        borderRadius: '10px', padding: '0.55rem 1rem',
-                        fontSize: '0.78rem', color: '#a8a098',
-                        zIndex: '997', transition: 'opacity 0.4s ease',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
-                    });
-                    toast.innerHTML = 'Press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-family:monospace;color:#c9a96e">Ctrl+K</kbd> for quick navigation';
-                    document.body.appendChild(toast);
-                    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
-                }, 2500);
-            }
-        } catch(e) {}
-    })();
-
-    /* ════════════════════════════════════════════
-       V-MEET MOSAIC LIGHTBOX
-    ════════════════════════════════════════════ */
-    (function() {
-        const gallery  = document.getElementById('vmGallery');
-        const lightbox = document.getElementById('vmgLightbox');
-        const stage    = document.getElementById('vmgLbStage');
-        const caption  = document.getElementById('vmgLbCaption');
-        const currEl   = document.getElementById('vmgLbCurr');
-        const totalEl  = document.getElementById('vmgLbTotal');
-        const dotsWrap = document.getElementById('vmgLbDots');
-        const btnClose = document.getElementById('vmgLbClose');
-        const btnPrev  = document.getElementById('vmgLbPrev');
-        const btnNext  = document.getElementById('vmgLbNext');
-        if (!gallery || !lightbox) return;
-
-        const cells    = Array.from(gallery.querySelectorAll('.vmg-cell'));
-        const captions = ['Zoom Grid Video Call', 'WhatsApp-Style Chat', 'Audio Conference', 'Group Call — Pinned Speaker', 'Meeting Dashboard'];
-        let   current  = 0;
-
-        totalEl.textContent = cells.length;
-
-        // Build dots
-        cells.forEach((_, i) => {
-            const d = document.createElement('div');
-            d.className = 'vmg-lb-dot' + (i === 0 ? ' active' : '');
-            d.addEventListener('click', () => goTo(i));
-            dotsWrap.appendChild(d);
-        });
-
-        function updateDots(idx) {
-            dotsWrap.querySelectorAll('.vmg-lb-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === idx);
-            });
-        }
-
-        function renderSlide(idx) {
-            // Clone the screenshot element from gallery
-            const src = cells[idx].querySelector('.vmg-screenshot');
-            const clone = src.cloneNode(true);
-            stage.innerHTML = '';
-            stage.appendChild(clone);
-            caption.textContent  = captions[idx] || '';
-            currEl.textContent   = idx + 1;
-            updateDots(idx);
-        }
-
-        function goTo(idx, dir) {
-            const next = (idx + cells.length) % cells.length;
-            if (next === current && stage.innerHTML !== '') return;
-
-            // Slide out
-            if (dir) {
-                stage.classList.add(dir === 'left' ? 'vmg-slide-out-left' : 'vmg-slide-out-right');
-            }
-            setTimeout(() => {
-                stage.classList.remove('vmg-slide-out-left', 'vmg-slide-out-right');
-                current = next;
-                renderSlide(current);
-                stage.style.opacity = '0';
-                stage.style.transform = dir === 'left' ? 'translateX(5%)' : (dir === 'right' ? 'translateX(-5%)' : 'translateX(0)');
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        stage.style.transition = 'opacity 0.32s ease, transform 0.32s ease';
-                        stage.style.opacity = '1';
-                        stage.style.transform = 'translateX(0)';
-                    });
-                });
-            }, dir ? 180 : 0);
-        }
-
-        function open(idx) {
-            current = idx;
-            renderSlide(current);
-            stage.style.opacity = '1';
-            stage.style.transform = 'translateX(0)';
-            stage.style.transition = '';
-            lightbox.classList.add('vmg-open');
-            document.body.style.overflow = 'hidden';
-            btnClose.focus();
-        }
-
-        function close() {
-            lightbox.classList.remove('vmg-open');
-            document.body.style.overflow = '';
-        }
-
-        // Click on cells
-        cells.forEach((cell, i) => {
-            cell.addEventListener('click', () => open(i));
-            cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i); } });
-        });
-
-        // Lightbox controls
-        btnClose.addEventListener('click', close);
-        btnPrev.addEventListener('click', () => goTo(current - 1, 'right'));
-        btnNext.addEventListener('click', () => goTo(current + 1, 'left'));
-        document.getElementById('vmgLightbox').querySelector('.vmg-lb-backdrop')
-            .addEventListener('click', close);
-
-        // Keyboard
-        document.addEventListener('keydown', e => {
-            if (!lightbox.classList.contains('vmg-open')) return;
-            if (e.key === 'Escape')      close();
-            if (e.key === 'ArrowLeft')   goTo(current - 1, 'right');
-            if (e.key === 'ArrowRight')  goTo(current + 1, 'left');
-        });
-
-        // Touch/swipe
-        let touchX = 0;
-        lightbox.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
-        lightbox.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - touchX;
-            if (Math.abs(dx) > 45) dx < 0 ? goTo(current + 1, 'left') : goTo(current - 1, 'right');
-        }, { passive: true });
-    })();
-
-    /* ════════════════════════════════════════════
-       MOSAIC SLIDESHOW — top-to-bottom wipe with
-       coloured gradient overlay per cell accent
-    ════════════════════════════════════════════ */
-    (function() {
-        const gallery = document.getElementById('vmGallery');
-        if (!gallery) return;
-
-        /* ── Screen definitions ── */
-        const SCREENS = [
-            {
-                label: 'Zoom Grid Call',
-                build: () => {
-                    const el = document.createElement('div');
-                    el.className = 'vmg-screenshot vmg-s0';
-                    el.innerHTML = `
-                        <div class="vmg-s-topbar"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet2.vercel.app</span><span class="vmg-s-rec">⬤ REC</span></div>
-                        <div class="vmg-s-body">
-                            <div class="vmg-grid4">
-                                <div class="vmg-vcell vmg-active"><div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div><div class="vmg-vname">Amit<span class="vmg-host">Host</span></div><div class="vmg-vring"></div><div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div></div>
-                                <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-vname">Remote</div></div>
-                                <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div><div class="vmg-vname">Sarah</div></div>
-                                <div class="vmg-vcell vmg-screenshare"><div class="vmg-ss-label">🖥️ Sharing</div><div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div></div>
-                            </div>
-                            <div class="vmg-ctrl-row">
-                                <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg></button>
-                                <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
-                                <button class="vmg-cb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></button>
-                                <button class="vmg-cb vmg-cb-end"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
-                            </div>
-                        </div>`;
-                    return el;
-                }
-            },
-            {
-                label: 'WhatsApp Chat',
-                build: () => {
-                    const el = document.createElement('div');
-                    el.className = 'vmg-screenshot vmg-s1';
-                    el.innerHTML = `
-                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Chat</span></div>
-                        <div class="vmg-s-body">
-                            <div class="vmg-chat-mini" style="height:100%">
-                                <div class="vmg-chat-sb">
-                                    <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
-                                    <div class="vmg-csb-item"><div class="vmg-cav" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div><div><div class="vmg-cn">Remote</div><div class="vmg-cl">Joining...</div></div><span class="vmg-badge">2</span></div>
-                                    <div class="vmg-csb-item"><div class="vmg-cav vmg-grp">👥</div><div><div class="vmg-cn">Dev Team</div><div class="vmg-cl">Sarah: pushed</div></div><span class="vmg-badge">5</span></div>
-                                </div>
-                                <div class="vmg-chat-msgs">
-                                    <div class="vmg-msg in">Can we start? 👋<span>10:42</span></div>
-                                    <div class="vmg-msg out">Yes! Starting...<span>10:43 ✓✓</span></div>
-                                    <div class="vmg-msg in vmg-file"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> design.pdf<span>10:44</span></div>
-                                    <div class="vmg-msg out">Got it! 😊<span>10:44 ✓✓</span></div>
-                                    <div class="vmg-typing"><span></span><span></span><span></span><em>typing…</em></div>
-                                </div>
-                            </div>
-                        </div>`;
-                    return el;
-                }
-            },
-            {
-                label: 'Audio Conference',
-                build: () => {
-                    const el = document.createElement('div');
-                    el.className = 'vmg-screenshot vmg-s2';
-                    el.innerHTML = `
-                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Audio Conference</span><span class="vmg-s-rec">● LIVE</span></div>
-                        <div class="vmg-s-body">
-                            <div class="vmg-audio-mini">
-                                <div class="vmg-audio-center-mini"><div class="vmg-pulse-ring"></div><div class="vmg-pulse-ring vmg-pr2"></div><div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div class="vmg-speak-label">Speaking</div></div>
-                                <div class="vmg-orb-row">
-                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
-                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
-                                    <div class="vmg-mini-orb vmg-orb-muted" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div>
-                                    <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div>
-                                </div>
-                                <div class="vmg-audio-stat">🎙 3 speaking · 🔇 2 muted</div>
-                            </div>
-                        </div>`;
-                    return el;
-                }
-            },
-            {
-                label: 'Group Call',
-                build: () => {
-                    const el = document.createElement('div');
-                    el.className = 'vmg-screenshot vmg-s3';
-                    el.innerHTML = `
-                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Dev Team · 6 members</span><span class="vmg-s-rec">⬤ REC</span></div>
-                        <div class="vmg-s-body">
-                            <div class="vmg-group-mini">
-                                <div class="vmg-pin-stage"><div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div><div class="vmg-pin-tag">📌 Pinned · Speaking</div></div>
-                                <div class="vmg-strip-mini">
-                                    <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
-                                    <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
-                                    <div class="vmg-sm-cell vmg-muted"><div class="vmg-av sm" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div><small>John🔇</small></div>
-                                    <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div><small>Maya</small></div>
-                                </div>
-                            </div>
-                        </div>`;
-                    return el;
-                }
-            },
-            {
-                label: 'Meeting Dashboard',
-                build: () => {
-                    const el = document.createElement('div');
-                    el.className = 'vmg-screenshot vmg-s4';
-                    el.innerHTML = `
-                        <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Dashboard</span></div>
-                        <div class="vmg-s-body">
-                            <div class="vmg-dash-mini">
-                                <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
-                                <div class="vmg-dash-row">
-                                    <div class="vmg-dash-btn vmg-new-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> New Meeting</div>
-                                    <div class="vmg-dash-btn vmg-join-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Join Room</div>
-                                </div>
-                                <div class="vmg-input-mini"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Enter meeting ID…</div>
-                                <div class="vmg-recent-label">Recent Rooms</div>
-                                <div class="vmg-recent-row">
-                                    <div class="vmg-recent-item">vm-x9k2p</div>
-                                    <div class="vmg-recent-item">vm-8x3tz</div>
-                                    <div class="vmg-recent-item">vm-dev21</div>
-                                </div>
-                            </div>
-                        </div>`;
-                    return el;
-                }
-            }
-        ];
-
-        /* ── Per-cell accent colour in RGB for JS gradient ── */
-        const ACCENTS = [
-            '201,169,110',   // large cell — gold
-            '90,155,110',    // small 1   — green
-            '110,141,201',   // small 2   — blue
-            '201,155,90',    // small 3   — amber
-            '201,110,155'    // small 4   — pink
-        ];
-
-        function shuffled(arr, exclude) {
-            let pool = arr.filter(i => i !== exclude);
-            for (let i = pool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pool[i], pool[j]] = [pool[j], pool[i]];
-            }
-            return pool;
-        }
-
-        const SLIDE_DUR = 780;   // ms — slide travel time
-        const EASE      = 'cubic-bezier(0.76, 0, 0.24, 1)'; // strong ease-in-out
-        const cells     = Array.from(gallery.querySelectorAll('.vmg-cell'));
-
-        cells.forEach((cell, cellIdx) => {
-            let currentIdx = cellIdx < SCREENS.length ? cellIdx : cellIdx % SCREENS.length;
-            let queue      = shuffled(Array.from({length: SCREENS.length}, (_, i) => i), currentIdx);
-            let queuePos   = 0;
-            let busy       = false;
-            const accent   = ACCENTS[cellIdx] || ACCENTS[0];
-
-            const interval = 3600 + cellIdx * 400 + Math.random() * 700;
-
-            function swapContent() {
-                if (document.hidden || busy) return;
-                busy = true;
-
-                const nextIdx = queue[queuePos % queue.length];
-                queuePos++;
-                if (queuePos >= queue.length) {
-                    queue = shuffled(Array.from({length: SCREENS.length}, (_, i) => i), nextIdx);
-                    queuePos = 0;
-                }
-
-                const existing = cell.querySelector('.vmg-screenshot');
-                if (!existing) { busy = false; return; }
-
-                const h = existing.offsetHeight || cell.offsetHeight;
-
-                /* ── Soft border glow ── */
-                cell.classList.add('vmg-swapping');
-                setTimeout(() => cell.classList.remove('vmg-swapping'), 1400);
-
-                /* ── Build incoming: start ABOVE the cell (negative Y) ── */
-                const incoming = SCREENS[nextIdx].build();
-                Object.assign(incoming.style, {
-                    position:  'absolute',
-                    inset:     '0',
-                    width:     '100%',
-                    height:    '100%',
-                    zIndex:    '3',
-                    transform: `translateY(-${h}px)`,
-                    transition:'none',
-                    willChange:'transform'
-                });
-
-                /* ── Coloured gradient wipe bar that rides the seam ── */
-                const wipe = document.createElement('div');
-                Object.assign(wipe.style, {
-                    position:   'absolute',
-                    left:       '0',
-                    right:      '0',
-                    height:     '60px',
-                    zIndex:     '4',
-                    transform:  `translateY(-${h}px)`,
-                    transition: 'none',
-                    pointerEvents: 'none',
-                    background: `linear-gradient(
-                        to bottom,
-                        transparent 0%,
-                        rgba(${accent},0.15) 20%,
-                        rgba(${accent},0.55) 45%,
-                        rgba(${accent},0.85) 50%,
-                        rgba(${accent},0.55) 55%,
-                        rgba(${accent},0.15) 80%,
-                        transparent 100%
-                    )`,
-                    willChange: 'transform'
-                });
-
-                const parent = existing.parentNode;
-                parent.style.position = 'relative';
-                // existing stays at z-index 2, incoming slides over it
-                existing.style.zIndex = '2';
-                parent.appendChild(incoming);
-                parent.appendChild(wipe);
-
-                /* ── One rAF → both start moving at identical time ── */
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        const t = `transform ${SLIDE_DUR}ms ${EASE}`;
-                        existing.style.transition = t;
-                        incoming.style.transition  = t;
-                        wipe.style.transition      = t;
-
-                        // Existing slides OUT to bottom, incoming slides IN from top
-                        existing.style.transform = `translateY(${h}px)`;
-                        incoming.style.transform = 'translateY(0)';
-                        wipe.style.transform     = `translateY(${h}px)`; // rides with the seam
-
-                        setTimeout(() => {
-                            existing.remove();
-                            wipe.remove();
-                            incoming.style.cssText = '';
-
-                            const lbl = cell.querySelector('.vmg-label');
-                            if (lbl) lbl.textContent = SCREENS[nextIdx].label;
-                            cell.dataset.index = nextIdx;
-                            currentIdx = nextIdx;
-                            busy = false;
-                        }, SLIDE_DUR + 40);
-                    });
-                });
-            }
-
-            /* Stagger first swap so all 5 don't fire together */
-            setTimeout(() => {
-                swapContent();
-                setInterval(swapContent, interval);
-            }, 2000 + cellIdx * 900);
-        });
-
-        /* Pause while lightbox is open */
-        const lightbox = document.getElementById('vmgLightbox');
-        if (lightbox) {
-            const obs = new MutationObserver(() => {
-                gallery.dataset.paused = lightbox.classList.contains('vmg-open') ? '1' : '0';
-            });
-            obs.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
-        }
-    })();
-
-    </script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+ <script src="script.js" defer></script>
+ <script src="sound.js" defer></script>
+</body>
 </body>
 </html>
