@@ -482,15 +482,11 @@
     updateUI();
 })();
 
-/* ════════════════════════════════════════════════════
-   3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
-════════════════════════════════════════════════════ */
+
 /* ════════════════════════════════════════════════════
    3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
 ════════════════════════════════════════════════════ */
 (function() {
-        if (window.innerWidth <= 768) return; // ← ADD THIS LINE
-
 
     function isMobile() { return window.innerWidth <= 768; }
 
@@ -753,25 +749,28 @@
         goTo(current + 1);
     });
 
+    /* ── Clear all inline styles (used on mobile) ── */
+    function clearInlineStyles() {
+        isSnapping = false;
+        cancelAnimationFrame(rafId);
+        cards.forEach(c => {
+            c.style.cssText = '';
+            c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
+        });
+    }
+
     /* ── Resize ── */
     window.addEventListener('resize', throttle(() => {
         if (!isMobile()) {
-            isSnapping = false;
-            cancelAnimationFrame(rafId);
-            cards.forEach(c => {
-                c.style.cssText = '';
-                c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
-            });
+            clearInlineStyles();
         } else {
-            renderAt(current);
-            updateUI();
+            clearInlineStyles();
         }
     }, 200));
 
     /* ── Init ── */
     if (isMobile()) {
-        renderAt(current);
-        updateUI();
+        clearInlineStyles();
     }
 
 })();
