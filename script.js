@@ -575,9 +575,10 @@
     }
 
     /* ── Spring ease ── */
-    function easeOutSpring(t) {
-        return 1 - Math.pow(2, -10 * t) * Math.cos(t * Math.PI * 2.2);
-    }
+function easeOutSpring(t) {
+    const decay = Math.pow(2, -9 * t);
+    return 1 - decay * Math.cos(t * Math.PI * 1.8);
+}
 
     /* ── Snap state ── */
     let snapFrom   = 0;
@@ -625,7 +626,7 @@
         snapFrom   = currentPos;
         snapTarget = virtualTarget;
         snapStart  = performance.now();
-snapDur = Math.min(900, Math.max(300, Math.abs(diff) * 130));
+snapDur = Math.min(650, Math.max(260, 260 + Math.abs(diff) * 75));
         isSnapping = true;
         cards.forEach(c => c.classList.add('is-snapping'));
         animateSnap();
@@ -648,10 +649,10 @@ snapDur = Math.min(900, Math.max(300, Math.abs(diff) * 130));
     /* ── Drag base position ── */
     let dragBasePos = 0;
 
-    function getDragPos(dx) {
-        const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
-        return dragBasePos + (-dx / (cardWidth * DRAG_SENS * 2.2));
-    }
+function getDragPos(dx) {
+    const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
+    return dragBasePos + (-dx / (cardWidth * 0.52));
+}
 
     /* ── Touch start ── */
     function onTouchStart(e) {
@@ -707,32 +708,38 @@ snapDur = Math.min(900, Math.max(300, Math.abs(diff) * 130));
     }
 
     /* ── Touch end — infinite: NO clamping ── */
+    
     function onTouchEnd() {
-        if (!isMobile() || !dragActive) return;
-        dragActive = false;
-        cards.forEach(c => c.classList.remove('is-dragging'));
+    if (!isMobile() || !dragActive) return;
+    dragActive = false;
+    cards.forEach(c => c.classList.remove('is-dragging'));
 
-        if (!isHorizontal) return;
+    if (!isHorizontal) return;
 
-        const dx        = dragCurrentX - dragStartX;
-        const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
-        const threshold = cardWidth * 0.22;
-        const velThresh = 0.4;
+    const dx        = dragCurrentX - dragStartX;
+    const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
+    const threshold = cardWidth * 0.13;   // lower threshold = easier to trigger
+    const velThresh = 0.25;              // lower threshold = easier to trigger flick
 
-        let targetIdx;
-        if (Math.abs(velocity) > velThresh) {
-            const throwCards = Math.min(total - 1, Math.round(Math.abs(velocity) * 5));
-            targetIdx = current + (velocity < 0 ? throwCards : -throwCards);
-        } else if (Math.abs(dx) > threshold) {
-            targetIdx = current + (dx < 0 ? 1 : -1);
-        } else {
-            targetIdx = current;
-        }
+    let targetIdx;
 
-        /* NO Math.max/Math.min clamp — snapTo handles infinite wrap */
-        if (targetIdx !== current && typeof playCardChange === 'function') playCardChange();
-        goTo(targetIdx);
+    if (Math.abs(velocity) > velThresh) {
+        // Momentum throw — scale cards by velocity, no cap
+        const rawThrow  = Math.abs(velocity) * 6.5;
+        const throwCards = Math.max(1, Math.round(rawThrow));
+        targetIdx = current + (velocity < 0 ? throwCards : -throwCards);
+    } else if (Math.abs(dx) > threshold) {
+        // Slow drag — snap by how many card-widths were covered
+        const draggedCards = Math.max(1, Math.round(Math.abs(dx) / (cardWidth * 0.6)));
+        targetIdx = current + (dx < 0 ? draggedCards : -draggedCards);
+    } else {
+        // Tiny movement — snap back
+        targetIdx = current;
     }
+
+    if (targetIdx !== current && typeof playCardChange === 'function') playCardChange();
+    goTo(targetIdx);
+}
 
     /* ── Bind touch events ── */
     grid.addEventListener('touchstart',  onTouchStart, { passive: true  });
