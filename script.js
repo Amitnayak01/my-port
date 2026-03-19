@@ -489,6 +489,8 @@
    3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
 ════════════════════════════════════════════════════ */
 (function() {
+        if (window.innerWidth <= 768) return; // ← ADD THIS LINE
+
 
     function isMobile() { return window.innerWidth <= 768; }
 

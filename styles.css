@@ -2309,16 +2309,14 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
 
 
 /* ═══════════════════════════════════════════════════
-   SPOTLIGHT PROJECT — MOBILE FIX (replace previous)
+   SPOTLIGHT PROJECT — MOBILE FIX
    Paste at the very bottom of styles.css
    ═══════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
 
-    /* ── Section padding ── */
     #featured { padding: 2.5rem 0 2rem; }
 
-    /* ── Card: single column ── */
     .featured-card {
         grid-template-columns: 1fr !important;
         gap: 1.25rem !important;
@@ -2326,162 +2324,203 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
         border-radius: 18px;
     }
 
-    /* ══════════════════════════════════
-       MOSAIC: stack large on top,
-       2×2 grid of small cells below
-    ══════════════════════════════════ */
+    /* ── Mosaic: horizontal, slimmer borders ── */
     .vmg-mosaic {
-        grid-template-columns: 1fr !important;
-        gap: 4px;
-        padding: 4px;
+        grid-template-columns: 1.1fr 0.9fr !important;
+        gap: 2px !important;
+        padding: 2px !important;
         border-radius: 14px;
+        border-width: 1px !important;
     }
 
-    /* Large cell: full width, fixed height */
     .vmg-cell.vmg-large {
-        min-height: 220px !important;
-        grid-column: auto !important;
+        min-height: 280px !important;
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        border-width: 1px !important;
+        border-radius: 10px !important;
     }
 
-    /* Right col: 2x2 grid of small cells */
     .vmg-right-col {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: 1fr 1fr !important;
+        gap: 2px !important;
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+
+    .vmg-right-col .vmg-cell {
+        border-width: 1px !important;
+        border-radius: 10px !important;
+    }
+
+    .vmg-right-col .vmg-cell:nth-child(1),
+    .vmg-right-col .vmg-cell:nth-child(2) {
+        display: flex !important;
+        min-height: 136px !important;
+    }
+
+    .vmg-right-col .vmg-cell:nth-child(3),
+    .vmg-right-col .vmg-cell:nth-child(4) {
+        display: none !important;
+    }
+
+    /* ── Cell inner borders ── */
+    .vmg-s-topbar, .vmg-s-topbar.sm {
+        padding: 4px 6px !important;
+        border-bottom-width: 1px !important;
+    }
+
+    .vmg-ctrl-row {
         gap: 4px;
+        padding: 5px 6px !important;
+        border-top-width: 1px !important;
     }
 
-    .vmg-small {
-        min-height: 140px !important;
-    }
-
-    /* ── Mosaic label ── */
+    /* ── Label ── */
     .vmg-label {
-        font-size: 0.52rem !important;
-        padding: 1px 5px !important;
+        font-size: 0.5rem !important;
+        padding: 1px 4px !important;
     }
 
-    /* ── Video grid inside large cell ── */
+    /* ── Video grid ── */
     .vmg-grid4 {
-        gap: 5px;
-        padding: 8px 8px 3px !important;
+        gap: 4px;
+        padding: 6px 6px 2px !important;
     }
 
     .vmg-vcell {
-        min-height: 72px;
-        padding: 8px 5px !important;
+        min-height: 68px;
+        padding: 6px 4px !important;
+        border-width: 1px !important;
+        border-radius: 8px !important;
     }
 
-    .vmg-vname { font-size: 0.6rem !important; }
-
-    .vmg-ctrl-row {
-        gap: 5px;
-        padding: 6px 8px !important;
-    }
+    .vmg-vname { font-size: 0.56rem !important; }
 
     .vmg-cb {
-        width: 26px !important;
-        height: 26px !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-width: 1px !important;
     }
 
     /* ── Avatars ── */
     .vmg-av {
-        width: 34px !important;
-        height: 34px !important;
-        font-size: 0.78rem !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 0.7rem !important;
     }
 
     .vmg-av.sm {
-        width: 22px !important;
-        height: 22px !important;
-        font-size: 0.55rem !important;
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 0.48rem !important;
     }
 
     .vmg-av-large {
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 0.88rem !important;
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 0.8rem !important;
     }
 
-    /* ── Chat in small cells ── */
+    /* ── Chat ── */
     .vmg-chat-mini {
-        grid-template-columns: 72px 1fr !important;
+        grid-template-columns: 60px 1fr !important;
     }
 
-    .vmg-cn { font-size: 0.56rem !important; }
+    .vmg-chat-sb { border-right-width: 1px !important; }
+
+    .vmg-csb-item { border-bottom-width: 1px !important; }
+
+    .vmg-cn { font-size: 0.52rem !important; }
     .vmg-cl {
-        font-size: 0.48rem !important;
-        max-width: 32px !important;
+        font-size: 0.44rem !important;
+        max-width: 28px !important;
     }
 
     .vmg-msg span:first-child {
-        font-size: 0.56rem !important;
-        padding: 3px 5px !important;
+        font-size: 0.52rem !important;
+        padding: 2px 4px !important;
+        border-width: 1px !important;
     }
 
-    .vmg-typing em { font-size: 0.46rem !important; }
+    .vmg-typing em { font-size: 0.42rem !important; }
 
     /* ── Audio mini ── */
     .vmg-audio-mini {
-        gap: 5px;
-        padding: 5px !important;
-    }
-
-    .vmg-mini-orb {
-        width: 22px !important;
-        height: 22px !important;
-        font-size: 0.52rem !important;
-    }
-
-    .vmg-orb-row { gap: 4px; }
-    .vmg-audio-stat { font-size: 0.48rem !important; }
-    .vmg-speak-label { font-size: 0.52rem !important; }
-
-    /* ── Group mini ── */
-    .vmg-pin-stage { gap: 3px; }
-
-    .vmg-strip-mini {
-        gap: 2px;
+        gap: 4px;
         padding: 4px !important;
     }
 
-    .vmg-sm-cell { padding: 3px !important; }
-    .vmg-sm-cell small { font-size: 0.43rem !important; }
+    .vmg-mini-orb {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 0.48rem !important;
+        border-width: 1px !important;
+    }
+
+    .vmg-pulse-ring { border-width: 1px !important; }
+    .vmg-av-large   { border-width: 1px !important; }
+
+    .vmg-orb-row { gap: 3px; }
+    .vmg-audio-stat { font-size: 0.44rem !important; }
+    .vmg-speak-label { font-size: 0.48rem !important; }
 
     /* ── Dashboard mini ── */
     .vmg-dash-mini {
-        gap: 4px;
-        padding: 6px !important;
+        gap: 3px;
+        padding: 5px !important;
     }
 
-    .vmg-dash-welcome { font-size: 0.56rem !important; }
+    .vmg-dash-welcome { font-size: 0.5rem !important; }
 
     .vmg-dash-btn {
-        font-size: 0.53rem !important;
-        padding: 4px 3px !important;
-        gap: 3px;
+        font-size: 0.48rem !important;
+        padding: 3px 2px !important;
+        gap: 2px;
+        border-width: 1px !important;
     }
 
-    .vmg-recent-label { font-size: 0.46rem !important; }
+    .vmg-recent-label { font-size: 0.42rem !important; }
     .vmg-recent-item {
-        font-size: 0.46rem !important;
-        padding: 2px 4px !important;
+        font-size: 0.42rem !important;
+        padding: 1px 3px !important;
+        border-width: 1px !important;
     }
 
     .vmg-input-mini {
-        font-size: 0.5rem !important;
-        padding: 3px 6px !important;
+        font-size: 0.44rem !important;
+        padding: 2px 5px !important;
+        border-width: 1px !important;
     }
 
-    /* ── Topbar text ── */
+    /* ── Group mini ── */
+    .vmg-pin-stage { gap: 2px; }
+    .vmg-strip-mini {
+        gap: 2px;
+        padding: 3px !important;
+        border-top-width: 1px !important;
+    }
+
+    .vmg-sm-cell {
+        padding: 2px !important;
+        border-width: 1px !important;
+        border-radius: 5px !important;
+    }
+
+    .vmg-sm-cell small { font-size: 0.4rem !important; }
+
+    /* ── Topbar dots ── */
+    .vmg-dot { width: 5px !important; height: 5px !important; }
     .vmg-s-url {
-        font-size: 0.54rem !important;
-        max-width: 80px;
+        font-size: 0.5rem !important;
+        max-width: 55px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-
-    .vmg-s-rec { font-size: 0.54rem !important; }
+    .vmg-s-rec { font-size: 0.5rem !important; }
 
     /* ── Feature pills ── */
     .vm-feature-pills {
@@ -2495,20 +2534,13 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
         padding: 0.2rem 0.5rem !important;
     }
 
-    /* ══════════════════════════════════
+    /* ══════════════════════════
        FEATURED INFO BLOCK
-    ══════════════════════════════════ */
+    ══════════════════════════ */
     .featured-info { padding: 0 0.25rem; }
 
-    .featured-number {
-        font-size: 1.8rem !important;
-        line-height: 1;
-    }
-
-    .featured-title {
-        font-size: 1.5rem !important;
-        margin-top: -0.2rem !important;
-    }
+    .featured-number { font-size: 1.8rem !important; line-height: 1; }
+    .featured-title  { font-size: 1.5rem !important; margin-top: -0.2rem !important; }
 
     .featured-subtitle {
         font-size: 0.8rem !important;
@@ -2521,29 +2553,16 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
         margin-bottom: 0.9rem !important;
     }
 
-    .featured-features {
-        gap: 0.32rem;
-        margin-bottom: 0.9rem !important;
-    }
-
+    .featured-features { gap: 0.32rem; margin-bottom: 0.9rem !important; }
     .ff-item { font-size: 0.78rem !important; }
 
-    .featured-stack {
-        gap: 0.3rem;
-        margin-bottom: 1rem !important;
-    }
-
+    .featured-stack { gap: 0.3rem; margin-bottom: 1rem !important; }
     .featured-stack span {
         font-size: 0.67rem !important;
         padding: 0.18rem 0.48rem !important;
     }
 
-    /* ── Action buttons: full-width row ── */
-    .featured-actions {
-        gap: 0.6rem;
-        flex-wrap: nowrap;
-    }
-
+    .featured-actions { gap: 0.6rem; flex-wrap: nowrap; }
     .featured-actions .btn {
         flex: 1;
         justify-content: center;
@@ -2557,22 +2576,17 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
     .vmg-lb-prev  { left: 4px !important; }
     .vmg-lb-next  { right: 4px !important; }
     .vmg-lb-close { top: -42px !important; }
-    .vmg-lb-stage .vmg-screenshot { min-height: 340px !important; }
+    .vmg-lb-stage .vmg-screenshot { min-height: 300px !important; }
 }
 
-/* ── Very small phones ── */
 @media (max-width: 380px) {
 
-    .vmg-cell.vmg-large { min-height: 190px !important; }
-    .vmg-small          { min-height: 118px !important; }
+    .vmg-mosaic { grid-template-columns: 1fr 0.85fr !important; }
+    .vmg-cell.vmg-large { min-height: 240px !important; }
+
+    .vmg-right-col .vmg-cell:nth-child(1),
+    .vmg-right-col .vmg-cell:nth-child(2) { min-height: 114px !important; }
 
     .featured-title { font-size: 1.3rem !important; }
-
-    .featured-actions .btn {
-        font-size: 0.76rem;
-        padding: 0.5rem 0.6rem;
-    }
-
-    .vmg-grid4 { padding: 5px 5px 2px !important; }
-    .vmg-vcell { min-height: 58px; padding: 5px 3px !important; }
+    .featured-actions .btn { font-size: 0.76rem; padding: 0.5rem 0.6rem; }
 }
