@@ -485,6 +485,9 @@
 /* ════════════════════════════════════════════════════
    3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
 ════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════
+   3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
+════════════════════════════════════════════════════ */
 (function() {
 
     function isMobile() { return window.innerWidth <= 768; }
@@ -539,10 +542,13 @@
         });
     });
 
-    /* ── Render fractional position ── */
+    /* ── Render fractional position on cylinder ── */
     function renderAt(centerOffset) {
+        /* Normalize centerOffset for infinite rendering */
         cards.forEach((card, i) => {
-            const offset = i - centerOffset;
+            /* Find shortest angular distance */
+            let offset = i - centerOffset;
+            offset = offset - Math.round(offset / total) * total;
             const absOff = Math.abs(offset);
             const angle  = offset * ANGLE_STEP;
             const rad    = angle * Math.PI / 180;
@@ -559,23 +565,26 @@
             }
 
             card.style.transform     = `translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg)`;
-            card.style.opacity       = Math.max(0, 1 - absOff * 0.32);
-            card.style.zIndex        = Math.round(10 - absOff * 3).toString();
+            card.style.opacity       = String(Math.max(0, 1 - absOff * 0.32));
+            card.style.zIndex        = String(Math.round(10 - absOff * 3));
             card.style.pointerEvents = absOff < 1.5 ? 'auto' : 'none';
-            card.classList.toggle('roll-active', Math.round(centerOffset) === i);
+
+            const normalizedCenter = ((Math.round(centerOffset) % total) + total) % total;
+            card.classList.toggle('roll-active', i === normalizedCenter);
         });
     }
 
-    /* ── Spring snap animation ── */
+    /* ── Spring ease ── */
+    function easeOutSpring(t) {
+        return 1 - Math.pow(2, -10 * t) * Math.cos(t * Math.PI * 2.2);
+    }
+
+    /* ── Snap state ── */
     let snapFrom   = 0;
     let snapTarget = 0;
     let snapStart  = 0;
     let snapDur    = 480;
     let isSnapping = false;
-
-    function easeOutSpring(t) {
-        return 1 - Math.pow(2, -10 * t) * Math.cos(t * Math.PI * 2.2);
-    }
 
     function animateSnap() {
         if (!isSnapping) return;
@@ -590,14 +599,15 @@
             rafId = requestAnimationFrame(animateSnap);
         } else {
             isSnapping = false;
-            current    = snapTarget;
+            current    = ((Math.round(snapTarget) % total) + total) % total;
             renderAt(current);
             cards.forEach(c => c.classList.remove('is-snapping'));
             updateUI();
         }
     }
 
-    function snapTo(idx, isAuto) {
+    /* ── snapTo — handles infinite wrap via shortest path ── */
+    function snapTo(idx) {
         idx = ((idx % total) + total) % total;
 
         const currentPos = isSnapping
@@ -606,14 +616,16 @@
 
         if (rafId) cancelAnimationFrame(rafId);
 
-        snapFrom   = currentPos;
-        snapTarget = idx;
-        snapStart  = performance.now();
+        /* Shortest path for infinite wrap */
+        let diff = idx - currentPos;
+        if (diff > total / 2)  diff -= total;
+        if (diff < -total / 2) diff += total;
+        const virtualTarget = currentPos + diff;
 
-        /* Auto = slow + smooth, manual = fast spring */
-        snapDur = isAuto
-            ? 900
-            : Math.min(550, Math.max(280, Math.abs(idx - currentPos) * 200));
+        snapFrom   = currentPos;
+        snapTarget = virtualTarget;
+        snapStart  = performance.now();
+        snapDur    = Math.min(520, Math.max(280, Math.abs(diff) * 180));
 
         isSnapping = true;
         cards.forEach(c => c.classList.add('is-snapping'));
@@ -621,9 +633,10 @@
     }
 
     function goTo(idx) {
-        snapTo(idx, false);
+        snapTo(idx);
     }
 
+    /* ── Update counter + dots ── */
     function updateUI() {
         if (currEl) currEl.textContent = current + 1;
         if (dotsWrap) {
@@ -633,7 +646,7 @@
         }
     }
 
-    /* ── Touch drag — cards follow finger ── */
+    /* ── Drag base position ── */
     let dragBasePos = 0;
 
     function getDragPos(dx) {
@@ -641,11 +654,12 @@
         return dragBasePos + (-dx / (cardWidth * DRAG_SENS * 2.2));
     }
 
+    /* ── Touch start ── */
     function onTouchStart(e) {
         if (!isMobile() || e.touches.length !== 1) return;
 
         if (isSnapping) {
-            isSnapping  = false;
+            isSnapping = false;
             cancelAnimationFrame(rafId);
             const elapsed  = performance.now() - snapStart;
             const progress = Math.min(elapsed / snapDur, 1);
@@ -663,9 +677,13 @@
         velocity     = 0;
         isHorizontal = null;
 
-        cards.forEach(c => { c.classList.add('is-dragging'); c.classList.remove('is-snapping'); });
+        cards.forEach(c => {
+            c.classList.add('is-dragging');
+            c.classList.remove('is-snapping');
+        });
     }
 
+    /* ── Touch move ── */
     function onTouchMove(e) {
         if (!isMobile() || !dragActive || e.touches.length !== 1) return;
 
@@ -689,6 +707,7 @@
         renderAt(getDragPos(dragCurrentX - dragStartX));
     }
 
+    /* ── Touch end — infinite: NO clamping ── */
     function onTouchEnd() {
         if (!isMobile() || !dragActive) return;
         dragActive = false;
@@ -711,54 +730,26 @@
             targetIdx = current;
         }
 
-        targetIdx = Math.max(0, Math.min(total - 1, targetIdx));
-
+        /* NO Math.max/Math.min clamp — snapTo handles infinite wrap */
         if (targetIdx !== current && typeof playCardChange === 'function') playCardChange();
         goTo(targetIdx);
     }
 
-    grid.addEventListener('touchstart', onTouchStart, { passive: true });
-    grid.addEventListener('touchmove',  onTouchMove,  { passive: false });
-    grid.addEventListener('touchend',   onTouchEnd,   { passive: true });
-    grid.addEventListener('touchcancel', onTouchEnd,  { passive: true });
+    /* ── Bind touch events ── */
+    grid.addEventListener('touchstart',  onTouchStart, { passive: true  });
+    grid.addEventListener('touchmove',   onTouchMove,  { passive: false });
+    grid.addEventListener('touchend',    onTouchEnd,   { passive: true  });
+    grid.addEventListener('touchcancel', onTouchEnd,   { passive: true  });
 
     /* ── Arrow buttons ── */
     btnPrev.addEventListener('click', () => {
         if (typeof playCardChange === 'function') playCardChange();
         goTo(current - 1);
-        stopAuto();
-        setTimeout(startAuto, 4000);
     });
     btnNext.addEventListener('click', () => {
         if (typeof playCardChange === 'function') playCardChange();
         goTo(current + 1);
-        stopAuto();
-        setTimeout(startAuto, 4000);
     });
-
-    /* ── Auto-advance — slow + gentle ── */
-    let autoRoll = null;
-
-    function startAuto() {
-        if (!isMobile() || autoRoll) return;
-        autoRoll = setInterval(() => {
-            if (!dragActive) {
-                const next = ((current + 1) % total);
-                snapTo(next, true);   /* isAuto = true → 900ms smooth */
-                current = next;
-                updateUI();
-            }
-        }, 6000);  /* 6 seconds between each auto-slide */
-    }
-
-    function stopAuto() {
-        clearInterval(autoRoll);
-        autoRoll = null;
-    }
-
-    /* Pause while user is touching */
-    grid.addEventListener('touchstart', stopAuto,  { passive: true });
-    grid.addEventListener('touchend',   () => setTimeout(startAuto, 4000), { passive: true });
 
     /* ── Resize ── */
     window.addEventListener('resize', throttle(() => {
@@ -769,7 +760,6 @@
                 c.style.cssText = '';
                 c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
             });
-            stopAuto();
         } else {
             renderAt(current);
             updateUI();
@@ -780,7 +770,6 @@
     if (isMobile()) {
         renderAt(current);
         updateUI();
-        setTimeout(startAuto, 4000);  /* wait 4s before first auto-slide */
     }
 
 })();

@@ -2375,3 +2375,110 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
             transform  0.3s ease !important;
     }
 }
+
+
+/* ═══════════════════════════════════════════════════
+   MOBILE FONT SIZE FIXES
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* ── Section titles — all sections ── */
+    .section-title {
+        font-size: 1.6rem !important;
+        line-height: 1.25;
+    }
+
+    /* ── Experience section specifically ── */
+    #experience .section-title {
+        font-size: 1.5rem !important;
+    }
+
+    /* ── Featured / Spotlight section ── */
+    #featured .section-title {
+        font-size: 1.5rem !important;
+    }
+
+    .featured-title {
+        font-size: 1.4rem !important;
+        margin-top: -0.25rem;
+    }
+
+    .featured-subtitle {
+        font-size: 0.82rem !important;
+        margin: 0.3rem 0 0.75rem;
+    }
+
+    .featured-desc {
+        font-size: 0.85rem !important;
+        line-height: 1.72;
+    }
+
+    .featured-number {
+        font-size: 2rem !important;
+    }
+
+    /* ── Timeline ── */
+    .tl-header h3 {
+        font-size: 0.98rem !important;
+    }
+
+    .tl-content > p {
+        font-size: 0.85rem !important;
+        line-height: 1.7;
+    }
+
+    .tl-date {
+        font-size: 0.72rem !important;
+    }
+
+    /* ── Section tags (pill labels) ── */
+    .section-tag {
+        font-size: 0.65rem !important;
+    }
+
+    /* ── Section sub ── */
+    .section-sub {
+        font-size: 0.85rem !important;
+    }
+
+    /* ── Featured feature list ── */
+    .ff-item {
+        font-size: 0.78rem !important;
+    }
+
+    /* ── Featured section padding ── */
+    .featured-card {
+        padding: 1rem !important;
+        gap: 1rem !important;
+    }
+
+    /* ── Feature pills ── */
+    .vm-feature-pills {
+        gap: 0.35rem;
+    }
+    .vm-pill {
+        font-size: 0.6rem !important;
+        padding: 0.2rem 0.5rem !important;
+    }
+
+    /* ── Featured stack tags ── */
+    .featured-stack span {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.35rem !important;
+    }
+
+    #experience .section-title,
+    #featured .section-title {
+        font-size: 1.3rem !important;
+    }
+
+    .tl-header h3 {
+        font-size: 0.92rem !important;
+    }
+}
