@@ -1958,56 +1958,155 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
 
 
 /* ═══════════════════════════════════════════════════
-   MOBILE PROJECT CARDS — FREE SCROLL
-═══════════════════════════════════════════════════ */
+   3D ROLL CAROUSEL — MOBILE
+   ═══════════════════════════════════════════════════ */
 @media (max-width: 768px) {
 
+    /* Hide the flat scroll wrapper on mobile */
     .projects-scroll-wrap {
-        overflow: hidden;
+        overflow: visible;
+        background: transparent;
     }
     .projects-scroll-wrap::before,
     .projects-scroll-wrap::after { display: none; }
 
+    /* 3D stage */
     .projects-grid {
-        display: flex !important;
-        overflow-x: scroll !important;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
-        padding: 1rem 1rem 1.5rem !important;
-        gap: 1rem !important;
-        height: auto !important;
-        perspective: none !important;
-        position: relative !important;
-        scrollbar-width: none !important;
+        display: block;
+        overflow: visible;
+        padding: 0;
+        gap: 0;
+        scroll-snap-type: none;
+        perspective: 1000px;
+        perspective-origin: 50% 40%;
+        height: 520px;
+        position: relative;
     }
 
-    .projects-grid::-webkit-scrollbar { display: none; }
-
+    /* Each card is absolutely positioned on the cylinder */
     .project-card {
-        position: relative !important;
-        flex: 0 0 82vw !important;
-        width: 82vw !important;
-        height: auto !important;
-        margin-left: 0 !important;
-        left: auto !important;
-        top: auto !important;
-        transform: none !important;
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 280px !important;
+        flex: none !important;
+        transform-origin: center center;
+        transform-style: preserve-3d;
+        margin-left: -140px;
         opacity: 1 !important;
-        filter: none !important;
         scale: 1 !important;
-        scroll-snap-align: start;
-        transition: box-shadow 0.3s ease !important;
+        transition:
+            transform 0.55s cubic-bezier(0.34, 1.1, 0.64, 1),
+            opacity 0.55s ease,
+            box-shadow 0.55s ease,
+            filter 0.55s ease;
+        cursor: pointer;
+        will-change: transform, opacity;
+        height: 460px;
+        overflow: hidden;
     }
 
+    /* Slideshow fills full card width on mobile */
     .pc-slideshow {
         height: 180px !important;
         min-height: 180px !important;
     }
 
-    .roll-nav,
+    /* Active center card */
+    .project-card.roll-active {
+        z-index: 10;
+        box-shadow:
+            0 24px 60px rgba(0,0,0,0.7),
+            0 0 0 1px rgba(201,169,110,0.3),
+            0 0 40px rgba(201,169,110,0.12) !important;
+        filter: brightness(1) saturate(1.1);
+    }
+
+    /* Non-active cards dim + blur slightly */
+    .project-card:not(.roll-active) {
+        filter: brightness(0.65) saturate(0.7);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+    }
+
+    /* Tap hint on side cards */
+    .project-card:not(.roll-active)::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 50;
+        cursor: pointer;
+    }
+
+    /* ── Roll nav buttons ── */
+    .roll-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+        position: relative;
+        z-index: 20;
+    }
+    .roll-btn {
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.8);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.24s ease;
+        flex-shrink: 0;
+    }
+    .roll-btn:hover {
+        background: rgba(201,169,110,0.15);
+        border-color: rgba(201,169,110,0.4);
+        color: var(--gold);
+        transform: scale(1.1);
+    }
+    .roll-btn:active { transform: scale(0.94); }
+
+    /* ── Roll counter ── */
+    .roll-counter-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+    }
+    .roll-counter {
+        font-family: 'Syne', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gold);
+        letter-spacing: 0.06em;
+    }
+
+    /* ── Roll dots ── */
+    .roll-dots {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    .roll-dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.18);
+        cursor: pointer;
+        border: none;
+        padding: 0;
+        transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    .roll-dot.active {
+        background: var(--gold);
+        width: 18px;
+        border-radius: 3px;
+        box-shadow: 0 0 8px rgba(201,169,110,0.5);
+    }
+
+    /* ── Hide flat carousel nav on mobile ── */
     .carousel-nav,
-    .carousel-dots { display: none !important; }
+    .carousel-dots { display: none; }
 }
 
 /* Desktop — show flat nav, hide roll nav */

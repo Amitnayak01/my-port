@@ -482,7 +482,9 @@
     updateUI();
 })();
 
-
+/* ════════════════════════════════════════════════════
+   3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
+════════════════════════════════════════════════════ */
 /* ════════════════════════════════════════════════════
    3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
 ════════════════════════════════════════════════════ */
@@ -623,8 +625,7 @@
         snapFrom   = currentPos;
         snapTarget = virtualTarget;
         snapStart  = performance.now();
-        snapDur    = Math.min(520, Math.max(280, Math.abs(diff) * 180));
-
+snapDur = Math.min(900, Math.max(300, Math.abs(diff) * 130));
         isSnapping = true;
         cards.forEach(c => c.classList.add('is-snapping'));
         animateSnap();
@@ -720,7 +721,7 @@
 
         let targetIdx;
         if (Math.abs(velocity) > velThresh) {
-            const throwCards = Math.min(2, Math.round(Math.abs(velocity) * 1.4));
+            const throwCards = Math.min(total - 1, Math.round(Math.abs(velocity) * 5));
             targetIdx = current + (velocity < 0 ? throwCards : -throwCards);
         } else if (Math.abs(dx) > threshold) {
             targetIdx = current + (dx < 0 ? 1 : -1);
@@ -749,28 +750,25 @@
         goTo(current + 1);
     });
 
-    /* ── Clear all inline styles (used on mobile) ── */
-    function clearInlineStyles() {
-        isSnapping = false;
-        cancelAnimationFrame(rafId);
-        cards.forEach(c => {
-            c.style.cssText = '';
-            c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
-        });
-    }
-
     /* ── Resize ── */
     window.addEventListener('resize', throttle(() => {
         if (!isMobile()) {
-            clearInlineStyles();
+            isSnapping = false;
+            cancelAnimationFrame(rafId);
+            cards.forEach(c => {
+                c.style.cssText = '';
+                c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
+            });
         } else {
-            clearInlineStyles();
+            renderAt(current);
+            updateUI();
         }
     }, 200));
 
     /* ── Init ── */
     if (isMobile()) {
-        clearInlineStyles();
+        renderAt(current);
+        updateUI();
     }
 
 })();
