@@ -1,0 +1,250 @@
+/* ════════════════════════════════════════════════════
+   CYLINDER 3D CAROUSEL — UPGRADED CSS v2
+   Replace the old carousel-cylinder.css with this
+════════════════════════════════════════════════════ */
+
+/* ── Wrapper ── */
+.projects-scroll-wrap {
+    overflow:    visible !important;
+    padding:     3rem 0 5rem !important;
+    background:  transparent;
+    position:    relative;
+}
+.projects-scroll-wrap::before { display: none !important; }
+
+/* Ambient glow behind cylinder */
+.projects-scroll-wrap::after {
+    content:       '' !important;
+    display:       block !important;
+    position:      absolute !important;
+    left:          50%;
+    top:           46%;
+    transform:     translate(-50%,-50%);
+    width:         500px;
+    height:        500px;
+    border-radius: 50%;
+    background:    radial-gradient(circle,
+                     rgba(201,169,110,0.11) 0%,
+                     rgba(201,169,110,0.03) 50%,
+                     transparent 72%);
+    pointer-events: none;
+    z-index:        0;
+    animation:      cylGlow 4s ease-in-out infinite alternate;
+}
+@keyframes cylGlow {
+    from { opacity:.6; transform:translate(-50%,-50%) scale(.94); }
+    to   { opacity:1;  transform:translate(-50%,-50%) scale(1.06); }
+}
+
+/* ── Depth fog edges ── */
+.cyl-fog-left,
+.cyl-fog-right {
+    position:       absolute;
+    top:0; bottom:0;
+    width:          180px;
+    pointer-events: none;
+    z-index:        10;
+}
+.cyl-fog-left  { left:0;  background:linear-gradient(to right,var(--bg) 0%,transparent 100%); }
+.cyl-fog-right { right:0; background:linear-gradient(to left, var(--bg) 0%,transparent 100%); }
+@media (max-width:768px) { .cyl-fog-left,.cyl-fog-right { width:55px; } }
+
+/* ── Grid = rotating cylinder ── */
+.projects-grid {
+    display:          block         !important;
+    overflow:         visible       !important;
+    scroll-snap-type: none          !important;
+    padding:          0             !important;
+    gap:              0             !important;
+    transform-style:  preserve-3d;
+    cursor:           grab;
+    user-select:      none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position:         relative;
+    z-index:          1;
+}
+.projects-grid:active { cursor:grabbing; }
+
+/* ── Cards: cylinder faces ── */
+.project-card {
+    position:            absolute   !important;
+    left:0; top:0;
+    flex:                none       !important;
+    scroll-snap-align:   none       !important;
+    transform-style:     preserve-3d;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform, opacity, filter;
+    transition:  opacity .16s ease, filter .16s ease, box-shadow .16s ease;
+}
+
+/* ── Active card: pulsing gold ring ── */
+.project-card.cyl-active { cursor:default; }
+.project-card.cyl-active::after {
+    content:       '';
+    position:      absolute;
+    inset:         -3px;
+    border-radius: 23px;
+    border:        1.5px solid rgba(201,169,110,.5);
+    pointer-events:none;
+    z-index:       50;
+    animation:     activeRing 2.8s ease-in-out infinite;
+}
+@keyframes activeRing {
+    0%,100% { box-shadow:0 0 0 0 rgba(201,169,110,.0), 0 0 22px 0 rgba(201,169,110,.16); }
+    50%     { box-shadow:0 0 0 6px rgba(201,169,110,.06),0 0 44px 0 rgba(201,169,110,.30); }
+}
+
+/* Non-active: block nested clicks via ::before overlay */
+.project-card:not(.cyl-active)::before {
+    content:''; position:absolute; inset:0;
+    z-index:60; cursor:pointer; pointer-events:auto;
+    border-radius:20px;
+}
+.project-card:not(.cyl-active) .pc-ext-link,
+.project-card:not(.cyl-active) .pc-cta,
+.project-card:not(.cyl-active) .ps-prev,
+.project-card:not(.cyl-active) .ps-next,
+.project-card:not(.cyl-active) .ps-dot-ind { pointer-events:none; }
+
+/* ── Ground shadow under cylinder ── */
+.cyl-ground {
+    position:      absolute;
+    left:50%; bottom:-30px;
+    transform:     translateX(-50%);
+    width:         340px; height:32px;
+    border-radius: 50%;
+    background:    radial-gradient(ellipse at center,rgba(0,0,0,.52) 0%,transparent 72%);
+    filter:        blur(7px);
+    pointer-events:none;
+    z-index:       0;
+    animation:     gShadow 4s ease-in-out infinite alternate;
+}
+@keyframes gShadow {
+    from { opacity:.45; transform:translateX(-50%) scaleX(.88); }
+    to   { opacity:.78; transform:translateX(-50%) scaleX(1.06); }
+}
+
+/* ── Flat carousel nav — hidden ── */
+.carousel-nav { display:none !important; }
+
+/* ══════════════════════════════════
+   ROLL NAV — MOBILE
+══════════════════════════════════ */
+.roll-nav {
+    display:flex; align-items:center;
+    justify-content:center; gap:1.25rem;
+    margin-top:1rem; position:relative; z-index:20;
+}
+.roll-btn {
+    width:48px; height:48px; border-radius:50%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    color:rgba(255,255,255,.8);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; backdrop-filter:blur(8px);
+    transition:all .22s ease; flex-shrink:0;
+}
+.roll-btn:hover {
+    background:rgba(201,169,110,.18);
+    border-color:rgba(201,169,110,.5);
+    color:var(--gold); transform:scale(1.12);
+    box-shadow:0 0 20px rgba(201,169,110,.25);
+}
+.roll-btn:active { transform:scale(.9); }
+
+.roll-counter-wrap {
+    display:flex; flex-direction:column;
+    align-items:center; gap:8px;
+}
+.roll-counter {
+    font-family:'Syne',sans-serif; font-size:.9rem;
+    font-weight:700; color:var(--gold); letter-spacing:.1em;
+}
+.roll-counter em { font-style:normal; color:var(--text-muted); font-size:.72rem; }
+.roll-dots { display:flex; gap:6px; align-items:center; }
+.roll-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,.18);
+    cursor:pointer; border:none; padding:0;
+    transition:all .32s cubic-bezier(.34,1.2,.64,1);
+}
+.roll-dot:hover:not(.active) { background:rgba(201,169,110,.45); transform:scale(1.3); }
+.roll-dot.active {
+    background:var(--gold); width:22px; border-radius:3px;
+    box-shadow:0 0 10px rgba(201,169,110,.6);
+}
+
+/* ══════════════════════════════════
+   FAN NAV — DESKTOP
+══════════════════════════════════ */
+.fan-nav {
+    display:flex; align-items:center;
+    justify-content:center; gap:1.5rem;
+    margin-top:1.25rem; position:relative; z-index:30;
+}
+.fan-btn {
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.1);
+    color:rgba(255,255,255,.7);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; backdrop-filter:blur(10px);
+    transition:all .24s ease; flex-shrink:0; position:relative;
+}
+.fan-btn:hover {
+    background:rgba(201,169,110,.14);
+    border-color:rgba(201,169,110,.5);
+    color:var(--gold); transform:scale(1.12);
+    box-shadow:0 0 24px rgba(201,169,110,.25);
+}
+.fan-btn:active { transform:scale(.9); }
+
+.fan-counter-wrap {
+    display:flex; flex-direction:column;
+    align-items:center; gap:10px;
+}
+.fan-counter {
+    font-family:'Syne',sans-serif; font-size:.92rem;
+    font-weight:700; color:var(--gold); letter-spacing:.1em;
+}
+.fan-counter em { font-style:normal; color:var(--text-muted); font-size:.72rem; }
+.fan-dots { display:flex; gap:7px; align-items:center; }
+.fan-dot {
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(255,255,255,.15);
+    cursor:pointer; border:none; padding:0;
+    transition:all .32s cubic-bezier(.34,1.2,.64,1);
+}
+.fan-dot:hover:not(.active) { background:rgba(201,169,110,.45); transform:scale(1.4); }
+.fan-dot.active {
+    background:var(--gold); width:24px; border-radius:3px;
+    box-shadow:0 0 12px rgba(201,169,110,.65);
+}
+.fan-autoplay-ring {
+    position:absolute; inset:-3px; border-radius:50%;
+    pointer-events:none; z-index:-1; opacity:.7;
+}
+.fan-hint {
+    text-align:center; font-size:.68rem; color:var(--text-muted);
+    margin-top:.6rem; opacity:.55; letter-spacing:.04em;
+}
+.fan-hint kbd {
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:4px; padding:1px 6px;
+    font-family:monospace; font-size:.65rem; color:var(--text-dim);
+}
+
+/* ── Responsive visibility ── */
+@media (max-width:768px) {
+    .roll-nav { display:flex  !important; }
+    .fan-nav  { display:none  !important; }
+    .fan-hint { display:none  !important; }
+}
+@media (min-width:769px) {
+    .roll-nav { display:none  !important; }
+    .fan-nav  { display:flex  !important; }
+    .fan-hint { display:block !important; text-align:center; }
+}
