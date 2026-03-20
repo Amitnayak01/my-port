@@ -167,20 +167,7 @@
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', (e) => { const href = link.getAttribute('href'); if (href === '#') return; const target = document.querySelector(href); if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
     });
-    (function() {
-        try {
-            if (!sessionStorage.getItem('akn-hint-shown')) {
-                sessionStorage.setItem('akn-hint-shown', '1');
-                setTimeout(() => {
-                    const toast = document.createElement('div');
-                    Object.assign(toast.style, { position: 'fixed', bottom: '5.5rem', right: '1.5rem', background: 'rgba(22,22,22,0.9)', backdropFilter: 'blur(12px)', border: '1px solid rgba(201,169,110,0.25)', borderRadius: '10px', padding: '0.55rem 1rem', fontSize: '0.78rem', color: '#a8a098', zIndex: '997', transition: 'opacity 0.4s ease', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' });
-                    toast.innerHTML = 'Press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-family:monospace;color:#c9a96e">Ctrl+K</kbd> for quick navigation';
-                    document.body.appendChild(toast);
-                    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
-                }, 2500);
-            }
-        } catch(e) {}
-    })();
+
     /* ── V-Meet Mosaic Lightbox (unchanged) ── */
     (function() {
         const gallery = document.getElementById('vmGallery'), lightbox = document.getElementById('vmgLightbox'), stage = document.getElementById('vmgLbStage'), caption = document.getElementById('vmgLbCaption'), currEl = document.getElementById('vmgLbCurr'), totalEl = document.getElementById('vmgLbTotal'), dotsWrap = document.getElementById('vmgLbDots'), btnClose = document.getElementById('vmgLbClose'), btnPrev = document.getElementById('vmgLbPrev'), btnNext = document.getElementById('vmgLbNext');
