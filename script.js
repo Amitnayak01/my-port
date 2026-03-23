@@ -992,3 +992,272 @@ function getDragPos(dx) {
     setTimeout(startAuto, 2200);
 
 })();
+
+
+
+/* ══════════════════════════════════════════════════
+   PROJECT DETAIL MODAL
+   Paste at the bottom of script.js
+══════════════════════════════════════════════════ */
+
+(function () {
+
+    /* ── 1. Inject modal HTML into <body> ── */
+    const modalHTML = `
+    <div id="projectModal" role="dialog" aria-modal="true" aria-label="Project details">
+        <div class="pm-backdrop" id="pmBackdrop"></div>
+        <div class="pm-box" id="pmBox">
+            <div class="pm-close">
+                <button class="pm-close-btn" id="pmClose" aria-label="Close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="pm-inner" id="pmInner"></div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    /* ── 2. Project data map (keyed by card h3 text) ── */
+    const PROJECT_DATA = {
+        'E-Mart': {
+            subtitle:  'Full Stack Marketplace Web App',
+            duration:  'Jan 2026 – Feb 2026',
+            desc:      'Production-ready OLX-style marketplace with JWT authentication, real-time chat via Socket.IO, cloud image storage, and optimised MongoDB schemas for fast search, filtering, sorting & pagination. Built for scale with a clean component architecture and mobile-first responsive design.',
+            features:  [
+                'Real-time 1-on-1 chat with typing indicators (Socket.IO)',
+                'JWT + refresh token auth with role-based access',
+                'Cloud image upload (Cloudinary) for listings',
+                'Advanced search with filters, sort & pagination',
+                'Seller dashboard with listing management',
+                'Mobile-first responsive UI (Tailwind CSS)',
+            ],
+            stack:     ['React.js', 'Node.js', 'MongoDB', 'Socket.IO', 'Tailwind', 'JWT', 'Cloudinary', 'Express.js'],
+            highlight: '🏆 <strong>Highlights:</strong> Real-time messaging, optimised pagination, role-based auth, cloud storage integration',
+            liveUrl:   'https://e-mart-gamma-three.vercel.app',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'V-Meet': {
+            subtitle:  'Real-Time Video Meeting Platform',
+            duration:  'Nov 2025 – Dec 2025',
+            desc:      'Scalable video conferencing platform powered by WebRTC peer-to-peer connections. Supports Zoom-style grid layout, 1-on-1 calls, audio conferences, group calling with pinned speaker, and screen sharing with annotation overlay — all in a single unified app with WhatsApp-style chat.',
+            features:  [
+                'WebRTC P2P video — Zoom-style grid & pinned speaker',
+                'WhatsApp-style chat with read receipts & file sharing',
+                'Audio conference with mute, noise suppression & PTT',
+                'Screen sharing with live annotation overlay',
+                'Group calls — dynamic pin & strip view (6+ users)',
+                'JWT + E2E encryption for secure sessions',
+            ],
+            stack:     ['React.js', 'Node.js', 'WebRTC', 'Socket.io', 'MongoDB', 'JWT'],
+            highlight: '⚡ <strong>Tech:</strong> WebRTC P2P, Socket.io signaling, screen capture API, real-time presence',
+            liveUrl:   'https://v-meet2.vercel.app',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'ChessArena': {
+            subtitle:  'Real-Time Multiplayer Chess',
+            duration:  'Feb 2025 – Mar 2025',
+            desc:      'Multiplayer chess platform orchestrating 50+ concurrent game rooms with live board state synchronisation across 100+ players. Sub-100ms move latency achieved via optimised WebSocket event management. Includes a room lobby, spectator mode, and persistent game history.',
+            features:  [
+                '50+ concurrent game rooms with full board sync',
+                'Sub-100ms move latency via WebSocket optimisation',
+                'chess.js engine for legal move validation',
+                'Room lobby with live player count & status',
+                'Spectator mode — watch any active game',
+                '99.8% uptime on Render deployment',
+            ],
+            stack:     ['Node.js', 'Socket.IO', 'Express.js', 'chess.js', 'WebSocket'],
+            highlight: '♟ <strong>Scale:</strong> 50+ concurrent rooms, <100ms latency, 99.8% uptime',
+            liveUrl:   'https://chessarena-w7fq.onrender.com',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'Seven Wonders': {
+            subtitle:  'Comprehensive Travel Platform',
+            duration:  'Jan 2024 – Feb 2024',
+            desc:      'Travel web application showcasing the Seven Wonders of the World with secure JWT authentication, full CRUD review system, RESTful APIs for user management, and role-based access control for admins and regular users.',
+            features:  [
+                'JWT auth with bcrypt password hashing',
+                'Full CRUD reviews — add, edit, delete, rate',
+                'RESTful API design with proper status codes',
+                'Role-based access control (RBAC)',
+                'User management with profile pages',
+                'Responsive design across all devices',
+            ],
+            stack:     ['Node.js', 'Express.js', 'MongoDB', 'JWT', 'bcrypt', 'EJS'],
+            highlight: '🌍 <strong>Features:</strong> CRUD reviews, RESTful API design, bcrypt password hashing, RBAC',
+            liveUrl:   'https://the-7.onrender.com',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'Quiz Master': {
+            subtitle:  'Online Assessment Platform',
+            duration:  'Sep 2023 – Oct 2023',
+            desc:      'Online assessment platform with separate teacher and student portals secured by JWT authentication. Teachers create quiz categories and questions; students take timed quizzes with auto-submission and immediately see their rank on the live leaderboard.',
+            features:  [
+                'Teacher portal — create categories & questions',
+                'Student portal — take quizzes with live timer',
+                'Auto-submit on timer expiry',
+                'Real-time leaderboard across categories',
+                'Role-based JWT auth (teacher / student)',
+                'Score history & performance analytics',
+            ],
+            stack:     ['Node.js', 'MongoDB', 'JWT', 'Express.js', 'EJS'],
+            highlight: '📊 <strong>Features:</strong> Teacher/student portals, auto-submit timer, category filters, real-time leaderboard',
+            liveUrl:   'https://quiz-master-zoo7.onrender.com',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'Cyber Security Tools': {
+            subtitle:  'Security Utility Platform',
+            duration:  'Jul 2025 – Sep 2025',
+            desc:      'Security utility platform providing a suite of cryptographic and network analysis tools. Features password strength analysis, multi-algorithm hash generation, AES-256 encryption/decryption, URL & port scanning — all protected by role-based access with JWT and refresh token rotation.',
+            features:  [
+                'AES-256 encryption & decryption tool',
+                'Hash generation — MD5, SHA-256, SHA-512',
+                'Password strength analyser with scoring',
+                'URL & basic port scanner',
+                'RBAC middleware — admin & user roles',
+                'JWT with refresh token rotation',
+            ],
+            stack:     ['React.js', 'Node.js', 'JWT', 'RBAC', 'AES-256', 'Express.js'],
+            highlight: '🔒 <strong>Security:</strong> AES-256, bcrypt hashing, refresh token rotation, RBAC middleware',
+            liveUrl:   'https://cyber-security-tools-ruby.vercel.app',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+        'Chat Application': {
+            subtitle:  'Full-Stack Real-Time Messaging',
+            duration:  'Jun 2023 – Aug 2023',
+            desc:      'Full-stack chat application with RESTful APIs and real-time bidirectional communication via Socket.io. Features user authentication, multiple chat rooms, persistent message history stored in MongoDB, and a responsive UI for seamless cross-device use.',
+            features:  [
+                'Real-time messaging with Socket.io',
+                'Multiple chat rooms & online presence',
+                'Persistent message history (MongoDB)',
+                'User authentication & profile setup',
+                'Typing indicators & read status',
+                'Responsive UI for mobile & desktop',
+            ],
+            stack:     ['React', 'Express.js', 'MongoDB', 'Socket.io', 'Node.js'],
+            highlight: '💬 <strong>Features:</strong> Real-time presence, group rooms, persistent message history, responsive UI',
+            liveUrl:   'https://chatapp-drt5.onrender.com',
+            codeUrl:   'https://github.com/Amitnayak01',
+        },
+    };
+
+    /* ── 3. Inject "click to expand" hint into each card body ── */
+    document.querySelectorAll('.project-card').forEach(card => {
+        const body = card.querySelector('.pc-body');
+        if (!body) return;
+
+        const hint = document.createElement('div');
+        hint.className = 'pc-expand-hint';
+        hint.innerHTML = `
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3
+                         m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+            Click for full details`;
+        body.appendChild(hint);
+
+        /* Clicking pc-body (not the live link) opens modal */
+        body.addEventListener('click', e => {
+            if (e.target.closest('a')) return; /* let links through */
+            const title = card.querySelector('h3')?.textContent.trim();
+            openModal(title);
+        });
+    });
+
+    /* ── 4. Build & open modal ── */
+    const modal   = document.getElementById('projectModal');
+    const pmInner = document.getElementById('pmInner');
+    const pmClose = document.getElementById('pmClose');
+    const pmBdrop = document.getElementById('pmBackdrop');
+
+    function openModal(title) {
+        const d = PROJECT_DATA[title];
+        if (!d) return;
+
+        const featuresHTML = d.features.map(f => `
+            <div class="pm-feature-item">
+                <span class="pm-feature-check">✓</span>
+                <span>${f}</span>
+            </div>`).join('');
+
+        const stackHTML = d.stack.map(s => `<span>${s}</span>`).join('');
+
+        pmInner.innerHTML = `
+            <div class="pm-header">
+                <div>
+                    <h2 class="pm-title">${title}</h2>
+                    <p class="pm-subtitle">${d.subtitle}</p>
+                </div>
+                <span class="pm-duration-badge">${d.duration}</span>
+            </div>
+
+            <p class="pm-desc">${d.desc}</p>
+
+            <div class="pm-divider"></div>
+
+            <div class="pm-stack-label">Key Features</div>
+            <div class="pm-features">${featuresHTML}</div>
+
+            <div class="pm-divider"></div>
+
+            <div class="pm-stack-label">Tech Stack</div>
+            <div class="pm-stack">${stackHTML}</div>
+
+            <div class="pm-highlight">${d.highlight}</div>
+
+            <div class="pm-actions">
+                <a href="${d.liveUrl}" target="_blank" rel="noopener"
+                   class="btn btn-primary btn-magnetic">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Live Demo
+                </a>
+                <a href="${d.codeUrl}" target="_blank" rel="noopener"
+                   class="btn btn-outline">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8
+                                 8.207 11.387.599.111.793-.261.793-.577v-2.234
+                                 c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387
+                                 -1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729
+                                 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807
+                                 1.304 3.492.997.107-.775.418-1.305.762-1.604
+                                 -2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381
+                                 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0
+                                 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404
+                                 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23
+                                 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235
+                                 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921
+                                 .43.372.823 1.102.823 2.222v3.293c0 .319.192.694
+                                 .801.576 4.765-1.589 8.199-6.086 8.199-11.386
+                                 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View Code
+                </a>
+            </div>`;
+
+        document.getElementById('pmBox').scrollTop = 0;
+        modal.classList.add('pm-open');
+        document.body.style.overflow = 'hidden';
+        pmClose.focus();
+    }
+
+    function closeModal() {
+        modal.classList.remove('pm-open');
+        document.body.style.overflow = '';
+    }
+
+    pmClose.addEventListener('click', closeModal);
+    pmBdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('pm-open')) closeModal();
+    });
+
+})();
