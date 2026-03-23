@@ -407,67 +407,7 @@
     })();
 
     /* ── Carousel Nav (arrows + progress bar) ── */
-(function() {
-    const grid    = document.querySelector('.projects-grid');
-    const btnPrev = document.getElementById('carouselPrev');
-    const btnNext = document.getElementById('carouselNext');
-    const curr    = document.getElementById('carouselCurrent');
-    const total   = document.getElementById('carouselTotal');
-    const fill    = document.getElementById('carouselFill');
-    if (!grid || !btnPrev || !btnNext) return;
 
-    const cards = grid.querySelectorAll('.project-card');
-    const count = cards.length;
-    if (total) total.textContent = count;
-
-    function getCardWidth() {
-        const c = cards[0];
-        if (!c) return 360;
-        return c.offsetWidth + parseInt(getComputedStyle(grid).gap || 20);
-    }
-
-    function updateUI() {
-        const scrollLeft = grid.scrollLeft;
-        const maxScroll  = grid.scrollWidth - grid.clientWidth;
-        const idx = Math.min(
-            Math.round(scrollLeft / getCardWidth()),
-            count - 1
-        );
-        if (curr) curr.textContent = idx + 1;
-        if (fill) fill.style.width = ((idx + 1) / count * 100) + '%';
-        if (btnPrev) btnPrev.style.opacity = scrollLeft <= 4 ? '0.35' : '1';
-        if (btnNext) btnNext.style.opacity = scrollLeft >= maxScroll - 4 ? '0.35' : '1';
-    }
-
-    btnNext.addEventListener('click', () => {
-        grid.scrollBy({ left: getCardWidth(), behavior: 'smooth' });
-    });
-    btnPrev.addEventListener('click', () => {
-        grid.scrollBy({ left: -getCardWidth(), behavior: 'smooth' });
-    });
-
-    grid.addEventListener('scroll', throttle(updateUI, 60), { passive: true });
-
-    /* drag-to-scroll */
-    let isDragging = false, dragStartX = 0, dragScrollLeft = 0;
-    grid.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        dragStartX = e.clientX;
-        dragScrollLeft = grid.scrollLeft;
-        grid.style.scrollBehavior = 'auto';
-    });
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        grid.style.scrollBehavior = 'smooth';
-    });
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        grid.scrollLeft = dragScrollLeft - (e.clientX - dragStartX);
-    });
-
-    updateUI();
-})();
 
 
 
