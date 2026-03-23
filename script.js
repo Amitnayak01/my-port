@@ -469,303 +469,199 @@
     updateUI();
 })();
 
-/* ════════════════════════════════════════════════════
-   3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
-════════════════════════════════════════════════════ */
-/* ════════════════════════════════════════════════════
-   3D ROLL CAROUSEL — MOBILE ONLY  ✦ SMOOTH
-════════════════════════════════════════════════════ */
-(function() {
 
-    function isMobile() { return window.innerWidth <= 768; }
 
-    const grid     = document.querySelector('.projects-grid');
-    const btnPrev  = document.getElementById('rollPrev');
-    const btnNext  = document.getElementById('rollNext');
-    const currEl   = document.getElementById('rollCurr');
-    const totEl    = document.getElementById('rollTot');
-    const dotsWrap = document.getElementById('rollDots');
-    if (!grid || !btnPrev) return;
 
-    const cards = Array.from(grid.querySelectorAll('.project-card'));
-    const total = cards.length;
-    if (totEl) totEl.textContent = total;
 
-    let current      = 0;
-    let dragActive   = false;
-    let dragStartX   = 0;
-    let dragStartY   = 0;
-    let dragCurrentX = 0;
-    let lastDragX    = 0;
-    let lastDragTime = 0;
-    let velocity     = 0;
-    let isHorizontal = null;
-    let rafId        = null;
 
-    const ANGLE_STEP = 38;
-    const RADIUS     = 360;
-    const DRAG_SENS  = 0.28;
 
-    /* ── Build dots ── */
-    if (dotsWrap) {
-        cards.forEach((_, i) => {
-            const d = document.createElement('button');
-            d.className = 'roll-dot' + (i === 0 ? ' active' : '');
-            d.setAttribute('aria-label', 'Go to ' + (i + 1));
-            d.addEventListener('click', () => {
-                if (typeof playButtonClick === 'function') playButtonClick();
-                goTo(i);
-            });
-            dotsWrap.appendChild(d);
-        });
-    }
 
-    /* ── Tap side cards ── */
+
+(function () {
+
+  function isMobile() { return window.innerWidth <= 768; }
+
+  const grid     = document.querySelector('.projects-grid');
+  const btnPrev  = document.getElementById('rollPrev');
+  const btnNext  = document.getElementById('rollNext');
+  const currEl   = document.getElementById('rollCurr');
+  const totEl    = document.getElementById('rollTot');
+  const dotsWrap = document.getElementById('rollDots');
+  if (!grid || !btnPrev) return;
+
+  const cards = Array.from(grid.querySelectorAll('.project-card'));
+  const total = cards.length;
+  if (totEl) totEl.textContent = total;
+
+  let current = 0;
+
+  /* Build dots */
+  if (dotsWrap) {
+    cards.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'roll-dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', 'Go to ' + (i + 1));
+      d.addEventListener('click', () => goTo(i));
+      dotsWrap.appendChild(d);
+    });
+  }
+
+  /* Apply stack positions */
+  function applyStack() {
+    if (!isMobile()) return;
     cards.forEach((card, i) => {
-        card.addEventListener('click', () => {
-            if (!isMobile() || i === current || dragActive) return;
-            if (typeof playCardChange === 'function') playCardChange();
-            goTo(i);
-        });
+      card.classList.remove(
+        'swipe-active','swipe-behind-1','swipe-behind-2',
+        'swipe-behind-3','swipe-hidden'
+      );
+      /* distance ahead in queue (wrap) */
+      const offset = ((i - current) % total + total) % total;
+      if (offset === 0)      card.classList.add('swipe-active');
+      else if (offset === 1) card.classList.add('swipe-behind-1');
+      else if (offset === 2) card.classList.add('swipe-behind-2');
+      else if (offset === 3) card.classList.add('swipe-behind-3');
+      else                   card.classList.add('swipe-hidden');
     });
+  }
 
-    /* ── Render fractional position on cylinder ── */
-    function renderAt(centerOffset) {
-        /* Normalize centerOffset for infinite rendering */
-        cards.forEach((card, i) => {
-            /* Find shortest angular distance */
-            let offset = i - centerOffset;
-            offset = offset - Math.round(offset / total) * total;
-            const absOff = Math.abs(offset);
-            const angle  = offset * ANGLE_STEP;
-            const rad    = angle * Math.PI / 180;
-            const x      = Math.sin(rad) * RADIUS;
-            const z      = Math.cos(rad) * RADIUS - RADIUS;
-            const rotY   = -angle;
+  function updateUI() {
+    if (currEl) currEl.textContent = current + 1;
+    if (dotsWrap) {
+      Array.from(dotsWrap.children).forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+  }
 
-            if (absOff > 3.5) {
-                card.style.opacity       = '0';
-                card.style.pointerEvents = 'none';
-                card.style.zIndex        = '0';
-                card.style.transform     = `translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg)`;
-                return;
-            }
+  function goTo(idx) {
+    current = ((idx % total) + total) % total;
+    applyStack();
+    updateUI();
+  }
 
-            card.style.transform     = `translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg)`;
-            card.style.opacity       = String(Math.max(0, 1 - absOff * 0.32));
-            card.style.zIndex        = String(Math.round(10 - absOff * 3));
-            card.style.pointerEvents = absOff < 1.5 ? 'auto' : 'none';
+  /* Swipe the active card off, advance */
+  function swipeCard(dir) {
+    const card = cards[current];
+    const outClass = dir === 'left' ? 'swipe-out-left' : 'swipe-out-right';
+    card.classList.add(outClass);
 
-            const normalizedCenter = ((Math.round(centerOffset) % total) + total) % total;
-            card.classList.toggle('roll-active', i === normalizedCenter);
+    setTimeout(() => {
+      card.classList.remove(outClass);
+      card.classList.add('swipe-in-back');
+      /* instantly send to back */
+      card.style.transform = 'translateY(44px) scale(0.78)';
+      card.style.opacity   = '0';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          card.classList.remove('swipe-in-back');
+          card.style.transform = '';
+          card.style.opacity   = '';
+          current = (current + 1) % total;
+          applyStack();
+          updateUI();
         });
+      });
+    }, 380);
+  }
+
+  /* Arrow buttons */
+  btnNext.addEventListener('click', () => swipeCard('left'));
+  btnPrev.addEventListener('click', () => {
+    current = (current - 1 + total) % total;
+    applyStack();
+    updateUI();
+  });
+
+  /* Touch swipe */
+  let touchStartX = 0, touchStartY = 0, swiping = false;
+
+  grid.addEventListener('touchstart', e => {
+    if (!isMobile()) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    swiping = false;
+  }, { passive: true });
+
+  grid.addEventListener('touchmove', e => {
+    if (!isMobile()) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (!swiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+      swiping = true;
     }
-
-    /* ── Spring ease ── */
-function easeOutSpring(t) {
-    const decay = Math.pow(2, -9 * t);
-    return 1 - decay * Math.cos(t * Math.PI * 1.8);
-}
-
-    /* ── Snap state ── */
-    let snapFrom   = 0;
-    let snapTarget = 0;
-    let snapStart  = 0;
-    let snapDur    = 480;
-    let isSnapping = false;
-
-    function animateSnap() {
-        if (!isSnapping) return;
-        const elapsed  = performance.now() - snapStart;
-        const progress = Math.min(elapsed / snapDur, 1);
-        const eased    = easeOutSpring(progress);
-        const pos      = snapFrom + (snapTarget - snapFrom) * eased;
-
-        renderAt(pos);
-
-        if (progress < 1) {
-            rafId = requestAnimationFrame(animateSnap);
-        } else {
-            isSnapping = false;
-            current    = ((Math.round(snapTarget) % total) + total) % total;
-            renderAt(current);
-            cards.forEach(c => c.classList.remove('is-snapping'));
-            updateUI();
-        }
+    if (swiping) {
+      /* Tilt top card while dragging */
+      const card = cards[current];
+      const rot  = dx * 0.06;
+      card.style.transform    = `translateX(${dx * 0.4}px) rotate(${rot}deg)`;
+      card.style.transition   = 'none';
     }
+  }, { passive: true });
 
-    /* ── snapTo — handles infinite wrap via shortest path ── */
-    function snapTo(idx) {
-        idx = ((idx % total) + total) % total;
+  grid.addEventListener('touchend', e => {
+    if (!isMobile() || !swiping) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const card = cards[current];
+    card.style.transform  = '';
+    card.style.transition = '';
+    swiping = false;
 
-        const currentPos = isSnapping
-            ? snapFrom + (snapTarget - snapFrom) * Math.min((performance.now() - snapStart) / snapDur, 1)
-            : current;
-
-        if (rafId) cancelAnimationFrame(rafId);
-
-        /* Shortest path for infinite wrap */
-        let diff = idx - currentPos;
-        if (diff > total / 2)  diff -= total;
-        if (diff < -total / 2) diff += total;
-        const virtualTarget = currentPos + diff;
-
-        snapFrom   = currentPos;
-        snapTarget = virtualTarget;
-        snapStart  = performance.now();
-snapDur = Math.min(650, Math.max(260, 260 + Math.abs(diff) * 75));
-        isSnapping = true;
-        cards.forEach(c => c.classList.add('is-snapping'));
-        animateSnap();
-    }
-
-    function goTo(idx) {
-        snapTo(idx);
-    }
-
-    /* ── Update counter + dots ── */
-    function updateUI() {
-        if (currEl) currEl.textContent = current + 1;
-        if (dotsWrap) {
-            Array.from(dotsWrap.children).forEach((d, i) => {
-                d.classList.toggle('active', i === current);
-            });
-        }
-    }
-
-    /* ── Drag base position ── */
-    let dragBasePos = 0;
-
-function getDragPos(dx) {
-    const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
-    return dragBasePos + (-dx / (cardWidth * 0.52));
-}
-
-    /* ── Touch start ── */
-    function onTouchStart(e) {
-        if (!isMobile() || e.touches.length !== 1) return;
-
-        if (isSnapping) {
-            isSnapping = false;
-            cancelAnimationFrame(rafId);
-            const elapsed  = performance.now() - snapStart;
-            const progress = Math.min(elapsed / snapDur, 1);
-            dragBasePos    = snapFrom + (snapTarget - snapFrom) * easeOutSpring(progress);
-        } else {
-            dragBasePos = current;
-        }
-
-        dragActive   = true;
-        dragStartX   = e.touches[0].clientX;
-        dragStartY   = e.touches[0].clientY;
-        dragCurrentX = dragStartX;
-        lastDragX    = dragStartX;
-        lastDragTime = performance.now();
-        velocity     = 0;
-        isHorizontal = null;
-
-        cards.forEach(c => {
-            c.classList.add('is-dragging');
-            c.classList.remove('is-snapping');
-        });
-    }
-
-    /* ── Touch move ── */
-    function onTouchMove(e) {
-        if (!isMobile() || !dragActive || e.touches.length !== 1) return;
-
-        const dx = e.touches[0].clientX - dragStartX;
-        const dy = e.touches[0].clientY - dragStartY;
-
-        if (isHorizontal === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-            isHorizontal = Math.abs(dx) > Math.abs(dy);
-        }
-        if (!isHorizontal) return;
-
-        e.preventDefault();
-
-        const now = performance.now();
-        const dt  = now - lastDragTime;
-        if (dt > 0) velocity = (e.touches[0].clientX - lastDragX) / dt;
-        lastDragX    = e.touches[0].clientX;
-        lastDragTime = now;
-        dragCurrentX = e.touches[0].clientX;
-
-        renderAt(getDragPos(dragCurrentX - dragStartX));
-    }
-
-    /* ── Touch end — infinite: NO clamping ── */
-    
-    function onTouchEnd() {
-    if (!isMobile() || !dragActive) return;
-    dragActive = false;
-    cards.forEach(c => c.classList.remove('is-dragging'));
-
-    if (!isHorizontal) return;
-
-    const dx        = dragCurrentX - dragStartX;
-    const cardWidth = cards[0] ? cards[0].offsetWidth : 280;
-    const threshold = cardWidth * 0.13;   // lower threshold = easier to trigger
-    const velThresh = 0.25;              // lower threshold = easier to trigger flick
-
-    let targetIdx;
-
-    if (Math.abs(velocity) > velThresh) {
-        // Momentum throw — scale cards by velocity, no cap
-        const rawThrow  = Math.abs(velocity) * 6.5;
-        const throwCards = Math.max(1, Math.round(rawThrow));
-        targetIdx = current + (velocity < 0 ? throwCards : -throwCards);
-    } else if (Math.abs(dx) > threshold) {
-        // Slow drag — snap by how many card-widths were covered
-        const draggedCards = Math.max(1, Math.round(Math.abs(dx) / (cardWidth * 0.6)));
-        targetIdx = current + (dx < 0 ? draggedCards : -draggedCards);
+    if (Math.abs(dx) > 60) {
+      swipeCard(dx < 0 ? 'left' : 'right');
     } else {
-        // Tiny movement — snap back
-        targetIdx = current;
+      /* snap back */
+      applyStack();
     }
+  }, { passive: true });
 
-    if (targetIdx !== current && typeof playCardChange === 'function') playCardChange();
-    goTo(targetIdx);
-}
+  /* Mouse drag (desktop debug) */
+  let mouseDown = false, mouseSX = 0;
+  grid.addEventListener('mousedown', e => {
+    if (!isMobile()) return;
+    mouseDown = true; mouseSX = e.clientX;
+  });
+  document.addEventListener('mouseup', e => {
+    if (!mouseDown || !isMobile()) return;
+    mouseDown = false;
+    const dx = e.clientX - mouseSX;
+    cards[current].style.transform = '';
+    cards[current].style.transition = '';
+    if (Math.abs(dx) > 60) swipeCard(dx < 0 ? 'left' : 'right');
+    else applyStack();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!mouseDown || !isMobile()) return;
+    const dx = e.clientX - mouseSX;
+    const card = cards[current];
+    card.style.transform  = `translateX(${dx * 0.4}px) rotate(${dx * 0.06}deg)`;
+    card.style.transition = 'none';
+  });
 
-    /* ── Bind touch events ── */
-    grid.addEventListener('touchstart',  onTouchStart, { passive: true  });
-    grid.addEventListener('touchmove',   onTouchMove,  { passive: false });
-    grid.addEventListener('touchend',    onTouchEnd,   { passive: true  });
-    grid.addEventListener('touchcancel', onTouchEnd,   { passive: true  });
-
-    /* ── Arrow buttons ── */
-    btnPrev.addEventListener('click', () => {
-        if (typeof playCardChange === 'function') playCardChange();
-        goTo(current - 1);
-    });
-    btnNext.addEventListener('click', () => {
-        if (typeof playCardChange === 'function') playCardChange();
-        goTo(current + 1);
-    });
-
-    /* ── Resize ── */
-    window.addEventListener('resize', throttle(() => {
-        if (!isMobile()) {
-            isSnapping = false;
-            cancelAnimationFrame(rafId);
-            cards.forEach(c => {
-                c.style.cssText = '';
-                c.classList.remove('roll-active', 'is-dragging', 'is-snapping');
-            });
-        } else {
-            renderAt(current);
-            updateUI();
-        }
-    }, 200));
-
-    /* ── Init ── */
-    if (isMobile()) {
-        renderAt(current);
-        updateUI();
+  /* Resize */
+  window.addEventListener('resize', throttle(() => {
+    if (isMobile()) { applyStack(); updateUI(); }
+    else {
+      cards.forEach(c => {
+        c.classList.remove(
+          'swipe-active','swipe-behind-1','swipe-behind-2',
+          'swipe-behind-3','swipe-hidden'
+        );
+        c.style.cssText = '';
+      });
     }
+  }, 200));
+
+  /* Init */
+  if (isMobile()) { applyStack(); updateUI(); }
 
 })();
+
+
+
+
+
+
+
 /* ════════════════════════════════════════════════════
    3D FAN CAROUSEL — DESKTOP
 ════════════════════════════════════════════════════ */
