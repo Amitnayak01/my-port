@@ -361,7 +361,8 @@ var _scrollTickCount = 0;
 function playScroll(direction) {
     if (!soundEnabled) return;
     var now = Date.now();
-    if (now - _scrollSoundLast < 35) return;
+    var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
     _scrollSoundLast = now;
 
     try {
@@ -946,10 +947,10 @@ function toggleSound() {
         var touchDelta    = lastTouchY - currentTouchY; /* positive = scrolling down */
 
         /* Only fire if finger moved enough — filters micro-jitter */
-        if (Math.abs(touchDelta) > 4) {
-            playScroll(touchDelta);
-            lastTouchY = currentTouchY;
-        }
+    if (Math.abs(touchDelta) > 14) {
+    playScroll(touchDelta);
+    lastTouchY = currentTouchY;
+}
 
         /* Also sync window scroll position */
         var currentScrollY = window.scrollY || 0;
