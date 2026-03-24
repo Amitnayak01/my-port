@@ -354,13 +354,14 @@ function playCameraClick() {
    Internally throttled. Every 3rd tick adds a soft
    low thump, exactly like a real scroll wheel.
 ───────────────────────────────────────────────── */
+
 var _scrollSoundLast = 0;
 var _scrollTickCount = 0;
 
 function playScroll(direction) {
     if (!soundEnabled) return;
     var now = Date.now();
-    if (now - _scrollSoundLast < 55) return;
+    if (now - _scrollSoundLast < 35) return;
     _scrollSoundLast = now;
 
     try {
@@ -368,40 +369,107 @@ function playScroll(direction) {
         var t    = ctx.currentTime;
         var down = direction >= 0;
 
-        _scrollTickCount = (_scrollTickCount + 1) % 3;
-        var gainVal = 0.042 + _scrollTickCount * 0.007;
+        _scrollTickCount = (_scrollTickCount + 1) % 2;
 
-        var bufSize = Math.floor(ctx.sampleRate * 0.016);
-        var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-        var d   = buf.getChannelData(0);
-        for (var i = 0; i < bufSize; i++)
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 22);
-        var n = ctx.createBufferSource();
-        n.buffer = buf;
-
-        var hpf = ctx.createBiquadFilter();
-        hpf.type = 'highpass';
-        hpf.frequency.value = down ? 5800 : 5000;
-
-        var g = ctx.createGain();
-        g.gain.setValueAtTime(gainVal, t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
-
-        n.connect(hpf); hpf.connect(g); g.connect(ctx.destination);
-        n.start(t); n.stop(t + 0.018);
-
-        /* Every 3rd tick — low sub-thump (scroll wheel click-through feel) */
-        if (_scrollTickCount === 0) {
-            var thud = ctx.createOscillator();
-            thud.type = 'sine';
-            thud.frequency.setValueAtTime(down ? 85 : 105, t);
-            thud.frequency.exponentialRampToValueAtTime(down ? 38 : 48, t + 0.032);
-            var tg = ctx.createGain();
-            tg.gain.setValueAtTime(0.038, t);
-            tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.032);
-            thud.connect(tg); tg.connect(ctx.destination);
-            thud.start(t); thud.stop(t + 0.035);
+        /* ── KIT snap impulse ── */
+        var kitSize = Math.floor(ctx.sampleRate * 0.006);
+        var kitBuf  = ctx.createBuffer(1, kitSize, ctx.sampleRate);
+        var kd      = kitBuf.getChannelData(0);
+        for (var i = 0; i < kitSize; i++) {
+            var p = i / kitSize;
+            kd[i] = Math.sin(p * Math.PI * 14)
+                  * Math.pow(1 - p, 28)
+                  * (Math.random() * 0.15 + 0.85);
         }
+        var kit = ctx.createBufferSource();
+        kit.buffer = kitBuf;
+
+        var kBpf1 = ctx.createBiquadFilter();
+        kBpf1.type = 'bandpass';
+        kBpf1.frequency.value = (_scrollTickCount === 0 ? 3400 : 3900)
+                              * (_scrollTickCount === 0 ? 1.0 : 1.18);
+        kBpf1.Q.value = 1.2;
+
+        var kBpf2 = ctx.createBiquadFilter();
+        kBpf2.type = 'peaking';
+        kBpf2.frequency.value = 6500;
+        kBpf2.gain.value = 8;
+        kBpf2.Q.value = 1.8;
+
+        var kGain = ctx.createGain();
+        kGain.gain.setValueAtTime(0.72, t);
+        kGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
+
+        kit.connect(kBpf1); kBpf1.connect(kBpf2); kBpf2.connect(kGain); kGain.connect(ctx.destination);
+        kit.start(t); kit.stop(t + 0.008);
+
+        /* ── "IT" tone body ── */
+        var kitTone = ctx.createOscillator();
+        kitTone.type = 'square';
+        kitTone.frequency.setValueAtTime(_scrollTickCount === 0 ? 2800 : 3200, t);
+        kitTone.frequency.exponentialRampToValueAtTime(_scrollTickCount === 0 ? 1100 : 1300, t + 0.009);
+
+        var ktHpf = ctx.createBiquadFilter();
+        ktHpf.type = 'highpass';
+        ktHpf.frequency.value = 1800;
+
+        var ktGain = ctx.createGain();
+        ktGain.gain.setValueAtTime(0.0001, t);
+        ktGain.gain.linearRampToValueAtTime(0.06, t + 0.001);
+        ktGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.009);
+
+        kitTone.connect(ktHpf); ktHpf.connect(ktGain); ktGain.connect(ctx.destination);
+        kitTone.start(t); kitTone.stop(t + 0.01);
+
+        /* ── Air puff ── */
+        var airSize = Math.floor(ctx.sampleRate * 0.005);
+        var airBuf  = ctx.createBuffer(1, airSize, ctx.sampleRate);
+        var ad      = airBuf.getChannelData(0);
+        for (var j = 0; j < airSize; j++) {
+            var ap = j / airSize;
+            ad[j] = (Math.random() * 2 - 1) * Math.pow(1 - ap, 6);
+        }
+        var airSrc = ctx.createBufferSource();
+        airSrc.buffer = airBuf;
+
+        var airHpf = ctx.createBiquadFilter();
+        airHpf.type = 'highpass';
+        airHpf.frequency.value = 5500;
+
+        var airGain = ctx.createGain();
+        airGain.gain.setValueAtTime(0.18, t);
+        airGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.005);
+
+        airSrc.connect(airHpf); airHpf.connect(airGain); airGain.connect(ctx.destination);
+        airSrc.start(t); airSrc.stop(t + 0.006);
+
+        /* ── Every 2nd tick — index notch ── */
+        if (_scrollTickCount === 0) {
+            var notchSize = Math.floor(ctx.sampleRate * 0.007);
+            var notchBuf  = ctx.createBuffer(1, notchSize, ctx.sampleRate);
+            var nd        = notchBuf.getChannelData(0);
+            for (var n = 0; n < notchSize; n++) {
+                var np = n / notchSize;
+                nd[n] = Math.sin(np * Math.PI * 10)
+                      * Math.pow(1 - np, 20)
+                      * (Math.random() * 0.1 + 0.9);
+            }
+            var notch = ctx.createBufferSource();
+            notch.buffer = notchBuf;
+
+            var nBpf = ctx.createBiquadFilter();
+            nBpf.type = 'bandpass';
+            nBpf.frequency.value = 1600;
+            nBpf.Q.value = 0.7;
+
+            var nGain = ctx.createGain();
+            nGain.gain.setValueAtTime(0.28, t + 0.002);
+            nGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
+
+            notch.connect(nBpf); nBpf.connect(nGain); nGain.connect(ctx.destination);
+            notch.start(t + 0.002); notch.stop(t + 0.02);
+        }
+
     } catch(e) {}
 }
 
@@ -816,13 +884,39 @@ function toggleSound() {
     return soundEnabled;
 }
 
+
 /* ════════════════════════════════════════════════════
-   SCROLL LISTENER
-   Watches scroll direction → fires playScroll()
+   SCROLL + TOUCH LISTENERS — desktop & mobile
 ════════════════════════════════════════════════════ */
 (function initScrollSound() {
-    var lastScrollY = window.scrollY || 0;
 
+    var lastScrollY  = window.scrollY || 0;
+    var lastTouchY   = 0;
+    var touchActive  = false;
+    var touchUnlocked = false;
+
+    /* ── Unlock AudioContext on first touch ──
+       iOS Safari requires a user gesture before
+       any audio can play. We resume on touchstart
+       so the very first scroll tick fires. */
+    function unlockOnTouch() {
+        if (touchUnlocked) return;
+        touchUnlocked = true;
+        try {
+            var ctx = getCtx();
+            /* Create and immediately stop a silent buffer —
+               this satisfies Safari's gesture requirement */
+            var silentBuf = ctx.createBuffer(1, 1, ctx.sampleRate);
+            var silentSrc = ctx.createBufferSource();
+            silentSrc.buffer = silentBuf;
+            silentSrc.connect(ctx.destination);
+            silentSrc.start(0);
+            silentSrc.stop(0);
+            if (ctx.state === 'suspended') ctx.resume();
+        } catch(e) {}
+    }
+
+    /* ── Desktop: wheel scroll ── */
     window.addEventListener('scroll', function() {
         var currentY = window.scrollY || 0;
         var delta    = currentY - lastScrollY;
@@ -831,6 +925,46 @@ function toggleSound() {
             lastScrollY = currentY;
         }
     }, { passive: true });
+
+    /* ── Mobile: touch scroll ──
+       touchmove fires continuously during a finger
+       swipe — perfect for per-tick kit-kit sound.
+       We track finger Y delta ourselves so we know
+       direction and distance regardless of scroll
+       position (works in modals, fixed containers too). */
+    document.addEventListener('touchstart', function(e) {
+        unlockOnTouch();
+        lastTouchY  = e.touches[0].clientY;
+        touchActive = true;
+        lastScrollY = window.scrollY || 0;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!touchActive) return;
+
+        var currentTouchY = e.touches[0].clientY;
+        var touchDelta    = lastTouchY - currentTouchY; /* positive = scrolling down */
+
+        /* Only fire if finger moved enough — filters micro-jitter */
+        if (Math.abs(touchDelta) > 4) {
+            playScroll(touchDelta);
+            lastTouchY = currentTouchY;
+        }
+
+        /* Also sync window scroll position */
+        var currentScrollY = window.scrollY || 0;
+        lastScrollY = currentScrollY;
+
+    }, { passive: true });
+
+    document.addEventListener('touchend', function() {
+        touchActive = false;
+    }, { passive: true });
+
+    document.addEventListener('touchcancel', function() {
+        touchActive = false;
+    }, { passive: true });
+
 })();
 
 /* ════════════════════════════════════════════════════
