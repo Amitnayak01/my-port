@@ -214,6 +214,71 @@
 </head>
 <body>
 
+
+    <!-- ── Swipe to Unlock Screen ── -->
+<div id="lockScreen">
+    <canvas id="lockCanvas"></canvas>
+    <div class="lock-grid-lines" aria-hidden="true">
+        <div></div><div></div><div></div><div></div>
+        <div></div><div></div><div></div><div></div>
+    </div>
+    <div class="lock-content">
+        <div class="lock-top-bar">
+            <span class="lock-top-tag">Portfolio 2025</span>
+            <span class="lock-top-dot"></span>
+            <span class="lock-top-tag">Odisha, India</span>
+        </div>
+        <div class="lock-avatar-wrap">
+            <div class="lock-ring lock-ring-1"></div>
+            <div class="lock-ring lock-ring-2"></div>
+            <div class="lock-ring lock-ring-3"></div>
+            <div class="lock-avatar-img">
+                <img src="profile.jpg" alt="Amit Kumar Nayak"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <span style="display:none">AKN</span>
+            </div>
+            <div class="lock-avail-ring">
+                <span></span>Available
+            </div>
+        </div>
+        <div class="lock-name-block">
+            <h1 class="lock-name">Amit Kumar Nayak</h1>
+            <p class="lock-role" id="lockRoleType"></p>
+        </div>
+        <div class="lock-tech-row">
+            <span>⚛ React</span>
+            <span>⬡ Node.js</span>
+            <span>◈ WebRTC</span>
+            <span>⚡ Socket.io</span>
+            <span>🍃 MongoDB</span>
+        </div>
+        <div class="lock-swipe-wrap">
+            <div class="lock-track" id="lockTrack">
+                <div class="lock-track-fill" id="lockFill"></div>
+                <div class="lock-track-shimmer"></div>
+                <div class="lock-thumb" id="lockThumb">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+                <span class="lock-swipe-label" id="lockLabel">Swipe to explore</span>
+            </div>
+            <div class="lock-swipe-arrows" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="lock-footer-stats">
+            <div class="lock-stat"><span>7+</span>Projects</div>
+            <div class="lock-stat-sep"></div>
+            <div class="lock-stat"><span>3+</span>Yrs Coding</div>
+            <div class="lock-stat-sep"></div>
+            <div class="lock-stat"><span>B.Tech</span>CSIT</div>
+        </div>
+    </div>
+    <div class="lock-corner lock-c1"></div>
+    <div class="lock-corner lock-c2"></div>
+    <div class="lock-corner lock-c3"></div>
+    <div class="lock-corner lock-c4"></div>
+</div>
+
     <!-- ══════════════════════════════════════════
          PROJECT IMAGE FULLSCREEN LIGHTBOX
     ══════════════════════════════════════════ -->

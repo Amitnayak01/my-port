@@ -1,4 +1,174 @@
- /* ════════════════════════════════════════════════════
+
+
+/* ════════════════════════════════════════════════════
+   LOCK SCREEN — PREMIUM v2
+════════════════════════════════════════════════════ */
+(function () {
+    const screen = document.getElementById('lockScreen');
+    const track  = document.getElementById('lockTrack');
+    const thumb  = document.getElementById('lockThumb');
+    const fill   = document.getElementById('lockFill');
+    const label  = document.getElementById('lockLabel');
+    const roleEl = document.getElementById('lockRoleType');
+    if (!screen || !thumb) return;
+
+    /* ── Particle canvas ── */
+    const canvas = document.getElementById('lockCanvas');
+    const ctx    = canvas && canvas.getContext('2d');
+    let particles = [], animId;
+
+    function resizeCanvas() {
+        if (!canvas) return;
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function spawnParticles() {
+        particles = [];
+        const n = Math.min(60, Math.floor(window.innerWidth / 14));
+        for (let i = 0; i < n; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.2 + 0.3,
+                dx: (Math.random() - 0.5) * 0.3,
+                dy: (Math.random() - 0.5) * 0.3,
+                o: Math.random() * 0.5 + 0.1,
+                pulse: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    function drawParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = Date.now() / 1000;
+        particles.forEach(p => {
+            p.x += p.dx; p.y += p.dy; p.pulse += 0.02;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width)  p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+            const alpha = p.o * (0.6 + 0.4 * Math.sin(p.pulse));
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(201,169,110,${alpha})`;
+            ctx.fill();
+        });
+        /* Faint connection lines */
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(201,169,110,${0.06 * (1 - dist/100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        animId = requestAnimationFrame(drawParticles);
+    }
+
+    resizeCanvas(); spawnParticles(); drawParticles();
+    window.addEventListener('resize', () => { resizeCanvas(); spawnParticles(); });
+
+    /* ── Role typing ── */
+    const roles = ['Full Stack Developer', 'React · Node.js · WebRTC', 'Real-Time App Builder'];
+    let ri = 0, ci = 0, deleting = false;
+
+    function typeRole() {
+        if (!roleEl) return;
+        const cur = roles[ri];
+        if (!deleting) {
+            ci++;
+            roleEl.innerHTML = cur.slice(0, ci) + '<span class="lock-role-cursor"></span>';
+            if (ci === cur.length) { deleting = true; setTimeout(typeRole, 2200); return; }
+            setTimeout(typeRole, 65);
+        } else {
+            ci--;
+            roleEl.innerHTML = cur.slice(0, ci) + '<span class="lock-role-cursor"></span>';
+            if (ci === 0) { deleting = false; ri = (ri + 1) % roles.length; setTimeout(typeRole, 350); return; }
+            setTimeout(typeRole, 38);
+        }
+    }
+    setTimeout(typeRole, 600);
+
+    /* ── Swipe logic ── */
+    const THRESHOLD = 0.80;
+    let dragging = false, startX = 0, curX = 0;
+
+    function maxX() { return track.clientWidth - thumb.clientWidth - 14; }
+
+    function setX(x) {
+        x = Math.max(0, Math.min(x, maxX()));
+        curX = x;
+        thumb.style.left = (7 + x) + 'px';
+        const pct = x / maxX();
+        fill.style.width = (pct * 100) + '%';
+        label.style.opacity = Math.max(0, 1 - pct * 2.5);
+    }
+
+    function unlock() {
+        const ripple = document.createElement('div');
+        ripple.className = 'lock-ripple';
+        track.appendChild(ripple);
+        screen.classList.add('lock-flash');
+        cancelAnimationFrame(animId);
+        setTimeout(() => { screen.classList.add('lock-unlocked'); }, 380);
+        setTimeout(() => { screen.style.display = 'none'; }, 1100);
+    }
+
+    function snapBack() {
+        thumb.style.transition = 'left 0.45s cubic-bezier(0.34,1.2,0.64,1)';
+        fill.style.transition   = 'width 0.45s cubic-bezier(0.34,1.2,0.64,1)';
+        setX(0);
+        setTimeout(() => { thumb.style.transition = ''; fill.style.transition = ''; }, 460);
+    }
+
+    function onEnd() {
+        if (!dragging) return;
+        dragging = false;
+        thumb.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup',   onEnd);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend',  onEnd);
+        curX / maxX() >= THRESHOLD ? unlock() : snapBack();
+    }
+
+    function onMove(e) { if (dragging) setX(e.clientX - startX); }
+    function onTouchMove(e) { if (dragging) setX(e.touches[0].clientX - startX); }
+
+    thumb.addEventListener('mousedown', e => {
+        e.preventDefault();
+        dragging = true;
+        thumb.classList.add('dragging');
+        thumb.style.transition = '';
+        startX = e.clientX - curX;
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onEnd);
+    });
+
+    thumb.addEventListener('touchstart', e => {
+        dragging = true;
+        thumb.classList.add('dragging');
+        thumb.style.transition = '';
+        startX = e.touches[0].clientX - curX;
+        document.addEventListener('touchmove', onTouchMove, { passive: true });
+        document.addEventListener('touchend',  onEnd);
+    }, { passive: true });
+})();
+
+
+
+
+
+/* ════════════════════════════════════════════════════
        ALL JS UNCHANGED FROM ORIGINAL
     ════════════════════════════════════════════════════ */
     'use strict';

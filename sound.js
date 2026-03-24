@@ -1073,7 +1073,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (Math.abs(dx) > 45) playSwipe(dx < 0 ? 'left' : 'right');
         }, { passive: true });
     }
-
+/* ── Lock screen unlock swipe sound ── */
+    var lockScreen = document.getElementById('lockScreen');
+    if (lockScreen) {
+        var lockWasUnlocked = false;
+        new MutationObserver(function() {
+            var isUnlocked = lockScreen.classList.contains('lock-unlocked');
+            if (isUnlocked && !lockWasUnlocked) {
+                lockWasUnlocked = true;
+                playSwipe('right');
+            }
+        }).observe(lockScreen, { attributes: true, attributeFilter: ['class'] });
+    }
     /* ── V-Meet mosaic ── */
     var vmGallery = document.getElementById('vmGallery');
     if (vmGallery) {
