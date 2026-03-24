@@ -3428,3 +3428,29 @@ transform-origin: top center;
     border-color: rgba(201, 169, 110, 0.7);
     transform: scale(1.1);
 }
+
+#audioSplash {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #080808;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1.4rem;
+    cursor: pointer;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+#audioSplash.splash-hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-logo { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: #c9a96e; letter-spacing: 0.06em; }
+.splash-ring {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid rgba(201,169,110,0.25);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; animation: splashPulse 1.6s ease-in-out infinite;
+}
+.splash-ring::before { content:''; position:absolute; inset:-8px; border-radius:50%; border:1px solid rgba(201,169,110,0.12); animation:splashPulse 1.6s ease-in-out infinite 0.3s; }
+.splash-ring::after  { content:''; position:absolute; inset:-18px; border-radius:50%; border:1px solid rgba(201,169,110,0.06); animation:splashPulse 1.6s ease-in-out infinite 0.6s; }
+.splash-icon { font-size: 1.9rem; }
+.splash-text { font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:rgba(201,169,110,0.55); }
+.splash-hint { font-family:'DM Sans',sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.18); }
+@keyframes splashPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:0.6} }
+
+
+

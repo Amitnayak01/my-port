@@ -1,42 +1,107 @@
+
+
+
 /* ════════════════════════════════════════════════════
-   SOUND SYSTEM v2 — MECHANICAL AUDIO ENGINE
+   SOUND SYSTEM v3 — MECHANICAL AUDIO ENGINE
    Amit Kumar Nayak Portfolio 2026
-   ─────────────────────────────────────────────────────
-   NEW in v2:
-     • playScroll()        — throttled mechanical scroll tick
-     • playSwipe()         — satisfying card swipe whoosh
-     • playHover()         — ultra-subtle hover whisper
-     • playNavClick()      — crisp nav-link press
-     • playModalOpen()     — deep vault-door open
-     • playModalClose()    — vault-door close
-     • playToggle(on)      — toggle switch on / off
-     • playPageLoad()      — subtle boot chime on DOMContentLoaded
-     • playUIClick()       — general UI element click
-   All original sounds kept 100% intact.
 ════════════════════════════════════════════════════ */
 'use strict';
 
 /* ── Audio context singleton ── */
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
+let audioCtx     = null;
 let soundEnabled = true;
+var _ctxUnlocked = false;
 
 function getCtx() {
-    if (!audioCtx) audioCtx = new AudioCtx();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(function(){});
+    }
     return audioCtx;
 }
 
-/* ── Unlock on first gesture ── */
-document.addEventListener('click', function unlock() {
-    getCtx();
-    document.removeEventListener('click', unlock);
-}, { once: true });
+/* ══════════════════════════════════════════════════
+   AUDIO UNLOCK
+   touchstart  → trusted on ALL mobile browsers (fires
+                 before scroll moves, unlocks instantly)
+   wheel       → trusted in Chrome desktop
+   mousedown   → fallback for Safari/Firefox desktop
+══════════════════════════════════════════════════ */
+var _ctxUnlocked = false;
+
+function _playBootChime() {
+    setTimeout(function() { try { playPageLoad(); } catch(e) {} }, 100);
+}
+
+function _removeUnlockListeners() {
+    ['touchstart', 'wheel', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(function(ev) {
+        document.removeEventListener(ev, _tryUnlock, true);
+    });
+}
+
+function _tryUnlock() {
+    if (_ctxUnlocked) return;
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        audioCtx.resume().then(function() {
+            if (audioCtx.state === 'running') {
+                _ctxUnlocked = true;
+                _removeUnlockListeners();
+                _playBootChime();
+            }
+        }).catch(function() {});
+    } catch(e) {}
+}
+
+['touchstart', 'wheel', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(function(ev) {
+    document.addEventListener(ev, _tryUnlock, { capture: true, passive: true });
+});
+
+
+/* One-time listeners — removed immediately after first fire */
+function _bindAutoUnlock() {
+    var events = ['scroll', 'touchstart', 'mousedown', 'keydown', 'wheel'];
+
+    function onFirstGesture() {
+        events.forEach(function (ev) {
+            window.removeEventListener(ev, onFirstGesture, { capture: true });
+        });
+        unlockAndEnter();
+    }
+
+    events.forEach(function (ev) {
+        window.addEventListener(ev, onFirstGesture, { capture: true, passive: true });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', _bindAutoUnlock);
+
+
+
+/* Bind splash interactions as early as possible */
+document.addEventListener('DOMContentLoaded', function() {
+    var splash = document.getElementById('audioSplash');
+    if (!splash) return;
+
+    function onSplashInteract(e) {
+        e.preventDefault();
+        unlockAndEnter();
+    }
+
+    splash.addEventListener('click',    onSplashInteract);
+    splash.addEventListener('touchend', onSplashInteract, { passive: false });
+    splash.addEventListener('keydown',  function(e) {
+        if (e.key === 'Enter' || e.key === ' ') unlockAndEnter();
+    });
+});
 
 /* ══════════════════════════════════════════════════
    SHARED HELPERS
 ══════════════════════════════════════════════════ */
-
 function makeNoise(ctx, duration, exponent) {
     exponent = exponent || 12;
     const size = Math.floor(ctx.sampleRate * duration);
@@ -48,14 +113,12 @@ function makeNoise(ctx, duration, exponent) {
 }
 
 /* ════════════════════════════════════════════════════
-   ORIGINAL SOUNDS — UNTOUCHED
+   SOUND 1 — Card Change
 ════════════════════════════════════════════════════ */
-
-/* SOUND 1 — Card Change */
 function playCardChange() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const bufSize = Math.floor(ctx.sampleRate * 0.045);
@@ -95,11 +158,13 @@ function playCardChange() {
     } catch(e) {}
 }
 
-/* SOUND 2 — Dot / Arrow Button Click */
+/* ════════════════════════════════════════════════════
+   SOUND 2 — Button Click
+════════════════════════════════════════════════════ */
 function playButtonClick() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const bufSize = Math.floor(ctx.sampleRate * 0.025);
@@ -129,11 +194,13 @@ function playButtonClick() {
     } catch(e) {}
 }
 
-/* SOUND 3 — Image Slideshow Next/Prev */
+/* ════════════════════════════════════════════════════
+   SOUND 3 — Slideshow Click
+════════════════════════════════════════════════════ */
 function playSlideshowClick() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const bufSize = Math.floor(ctx.sampleRate * 0.03);
@@ -163,11 +230,13 @@ function playSlideshowClick() {
     } catch(e) {}
 }
 
-/* SOUND 4 — Lightbox Open */
+/* ════════════════════════════════════════════════════
+   SOUND 4 — Lightbox Open
+════════════════════════════════════════════════════ */
 function playLightboxOpen() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const osc = ctx.createOscillator();
@@ -196,11 +265,13 @@ function playLightboxOpen() {
     } catch(e) {}
 }
 
-/* SOUND 5 — Lightbox Close */
+/* ════════════════════════════════════════════════════
+   SOUND 5 — Lightbox Close
+════════════════════════════════════════════════════ */
 function playLightboxClose() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const osc = ctx.createOscillator();
@@ -225,11 +296,13 @@ function playLightboxClose() {
     } catch(e) {}
 }
 
-/* SOUND 6 — Auto-advance */
+/* ════════════════════════════════════════════════════
+   SOUND 6 — Auto-advance
+════════════════════════════════════════════════════ */
 function playAutoAdvance() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const bufSize = Math.floor(ctx.sampleRate * 0.03);
@@ -259,11 +332,13 @@ function playAutoAdvance() {
     } catch(e) {}
 }
 
-/* SOUND 7 — Keyboard arrow key */
+/* ════════════════════════════════════════════════════
+   SOUND 7 — Key Press
+════════════════════════════════════════════════════ */
 function playKeyPress() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const bufSize = Math.floor(ctx.sampleRate * 0.018);
@@ -293,11 +368,13 @@ function playKeyPress() {
     } catch(e) {}
 }
 
-/* SOUND 8 — Drag start */
+/* ════════════════════════════════════════════════════
+   SOUND 8 — Drag Start
+════════════════════════════════════════════════════ */
 function playDragStart() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         const o = ctx.createOscillator();
@@ -315,11 +392,13 @@ function playDragStart() {
     } catch(e) {}
 }
 
-/* SOUND 9 — Camera shutter */
+/* ════════════════════════════════════════════════════
+   SOUND 9 — Camera Click
+════════════════════════════════════════════════════ */
 function playCameraClick() {
     if (!soundEnabled) return;
     try {
-        const ctx = getCtx();
+        const ctx = getCtx(); if (!ctx) return;
         const now = ctx.currentTime;
 
         [0, 0.05].forEach(function(offset, idx) {
@@ -345,16 +424,10 @@ function playCameraClick() {
 }
 
 /* ════════════════════════════════════════════════════
-   NEW SOUNDS v2
+   SOUND 10 — KIT-KIT Mechanical Scroll
+   Alternating sharp plastic ratchet ticks.
+   Mobile-friendly throttle built in.
 ════════════════════════════════════════════════════ */
-
-/* ─────────────────────────────────────────────────
-   SOUND 10 — Smooth Mechanical Scroll Tick
-   Tiny ratchet tooth click — very quiet, filtered.
-   Internally throttled. Every 3rd tick adds a soft
-   low thump, exactly like a real scroll wheel.
-───────────────────────────────────────────────── */
-
 var _scrollSoundLast = 0;
 var _scrollTickCount = 0;
 
@@ -362,13 +435,12 @@ function playScroll(direction) {
     if (!soundEnabled) return;
     var now = Date.now();
     var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
+    if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
     _scrollSoundLast = now;
 
     try {
-        var ctx  = getCtx();
-        var t    = ctx.currentTime;
-        var down = direction >= 0;
+        var ctx = getCtx(); if (!ctx) return;
+        var t   = ctx.currentTime;
 
         _scrollTickCount = (_scrollTickCount + 1) % 2;
 
@@ -382,13 +454,13 @@ if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
                   * Math.pow(1 - p, 28)
                   * (Math.random() * 0.15 + 0.85);
         }
-        var kit = ctx.createBufferSource();
+        var kit  = ctx.createBufferSource();
         kit.buffer = kitBuf;
 
         var kBpf1 = ctx.createBiquadFilter();
         kBpf1.type = 'bandpass';
         kBpf1.frequency.value = (_scrollTickCount === 0 ? 3400 : 3900)
-                              * (_scrollTickCount === 0 ? 1.0 : 1.18);
+                              * (_scrollTickCount === 0 ? 1.0  : 1.18);
         kBpf1.Q.value = 1.2;
 
         var kBpf2 = ctx.createBiquadFilter();
@@ -474,18 +546,16 @@ if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 11 — Card Swipe (mobile gesture)
-   Deep mechanical whoosh + trailing resonant snap.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 11 — Card Swipe
+════════════════════════════════════════════════════ */
 function playSwipe(direction) {
     if (!soundEnabled) return;
     try {
-        var ctx  = getCtx();
+        var ctx  = getCtx(); if (!ctx) return;
         var t    = ctx.currentTime;
         var left = (direction === 'left' || direction < 0);
 
-        /* Pitched sweep */
         var osc = ctx.createOscillator();
         osc.type = 'sine';
         if (left) {
@@ -504,7 +574,6 @@ function playSwipe(direction) {
         osc.connect(bpf); bpf.connect(og); og.connect(ctx.destination);
         osc.start(t); osc.stop(t + 0.16);
 
-        /* Air noise whoosh layer */
         var wBufSize = Math.floor(ctx.sampleRate * 0.13);
         var wBuf = ctx.createBuffer(1, wBufSize, ctx.sampleRate);
         var wd   = wBuf.getChannelData(0);
@@ -523,7 +592,6 @@ function playSwipe(direction) {
         wn.connect(wf); wf.connect(wg); wg.connect(ctx.destination);
         wn.start(t); wn.stop(t + 0.14);
 
-        /* Settle snap */
         var sBufSize = Math.floor(ctx.sampleRate * 0.017);
         var sBuf = ctx.createBuffer(1, sBufSize, ctx.sampleRate);
         var sd   = sBuf.getChannelData(0);
@@ -541,11 +609,9 @@ function playSwipe(direction) {
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 12 — Ultra-subtle Hover Whisper
-   Barely audible high-frequency air puff.
-   Debounced to max once per 120 ms.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 12 — Hover Whisper
+════════════════════════════════════════════════════ */
 var _hoverLast = 0;
 function playHover() {
     if (!soundEnabled) return;
@@ -553,7 +619,7 @@ function playHover() {
     if (now - _hoverLast < 120) return;
     _hoverLast = now;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
         var bufSize = Math.floor(ctx.sampleRate * 0.02);
@@ -563,31 +629,26 @@ function playHover() {
             d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 8);
         var n = ctx.createBufferSource();
         n.buffer = buf;
-
         var f = ctx.createBiquadFilter();
         f.type = 'highpass'; f.frequency.value = 6200;
-
         var g = ctx.createGain();
         g.gain.setValueAtTime(0.0001, t);
         g.gain.linearRampToValueAtTime(0.026, t + 0.005);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
-
         n.connect(f); f.connect(g); g.connect(ctx.destination);
         n.start(t); n.stop(t + 0.022);
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 13 — Nav Link Click
-   Crisp typewriter key with metallic ting.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 13 — Nav Click
+════════════════════════════════════════════════════ */
 function playNavClick() {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
-        /* Click transient */
         var bufSize = Math.floor(ctx.sampleRate * 0.02);
         var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
         var d   = buf.getChannelData(0);
@@ -603,7 +664,6 @@ function playNavClick() {
         n.connect(f); f.connect(g); g.connect(ctx.destination);
         n.start(t); n.stop(t + 0.022);
 
-        /* Metallic ting */
         var ting = ctx.createOscillator();
         ting.type = 'triangle'; ting.frequency.value = 2100;
         var tg = ctx.createGain();
@@ -612,7 +672,6 @@ function playNavClick() {
         ting.connect(tg); tg.connect(ctx.destination);
         ting.start(t + 0.005); ting.stop(t + 0.1);
 
-        /* Low body thump */
         var thud = ctx.createOscillator();
         thud.type = 'sine';
         thud.frequency.setValueAtTime(175, t + 0.003);
@@ -625,17 +684,15 @@ function playNavClick() {
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 14 — Modal / Overlay Open (vault door)
-   Deep resonant thunk + pressurised hiss + lock click.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 14 — Modal Open
+════════════════════════════════════════════════════ */
 function playModalOpen() {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
-        /* Deep sweep up */
         var osc = ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(58, t);
@@ -647,7 +704,6 @@ function playModalOpen() {
         osc.connect(og); og.connect(ctx.destination);
         osc.start(t); osc.stop(t + 0.23);
 
-        /* Hiss layer */
         var wBufSize = Math.floor(ctx.sampleRate * 0.18);
         var wBuf = ctx.createBuffer(1, wBufSize, ctx.sampleRate);
         var wd   = wBuf.getChannelData(0);
@@ -664,7 +720,6 @@ function playModalOpen() {
         wn.connect(wf); wf.connect(wg); wg.connect(ctx.destination);
         wn.start(t); wn.stop(t + 0.2);
 
-        /* Locking click */
         var ckSize = Math.floor(ctx.sampleRate * 0.025);
         var ckBuf  = ctx.createBuffer(1, ckSize, ctx.sampleRate);
         var ckd    = ckBuf.getChannelData(0);
@@ -680,7 +735,6 @@ function playModalOpen() {
         ck.connect(cf); cf.connect(cg); cg.connect(ctx.destination);
         ck.start(t + 0.17); ck.stop(t + 0.23);
 
-        /* Resonant ring */
         var ring = ctx.createOscillator();
         ring.type = 'sine'; ring.frequency.value = 510;
         var rg = ctx.createGain();
@@ -691,17 +745,15 @@ function playModalOpen() {
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 15 — Modal / Overlay Close (vault shut)
-   Downward sweep + final weighted thud.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 15 — Modal Close
+════════════════════════════════════════════════════ */
 function playModalClose() {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
-        /* Initial click */
         var ckSize = Math.floor(ctx.sampleRate * 0.02);
         var ckBuf  = ctx.createBuffer(1, ckSize, ctx.sampleRate);
         var ckd    = ckBuf.getChannelData(0);
@@ -717,7 +769,6 @@ function playModalClose() {
         ck.connect(cf); cf.connect(cg); cg.connect(ctx.destination);
         ck.start(t); ck.stop(t + 0.025);
 
-        /* Downward sweep */
         var osc = ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(330, t + 0.01);
@@ -728,7 +779,6 @@ function playModalClose() {
         osc.connect(og); og.connect(ctx.destination);
         osc.start(t + 0.01); osc.stop(t + 0.2);
 
-        /* Final weighted thud */
         var thud = ctx.createOscillator();
         thud.type = 'sine';
         thud.frequency.setValueAtTime(78, t + 0.15);
@@ -741,14 +791,13 @@ function playModalClose() {
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 16 — Toggle Switch On / Off
-   Satisfying mechanical lever snap.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 16 — Toggle
+════════════════════════════════════════════════════ */
 function playToggle(isOn) {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
         var snapSize = Math.floor(ctx.sampleRate * 0.022);
@@ -768,7 +817,6 @@ function playToggle(isOn) {
         n.connect(f); f.connect(g); g.connect(ctx.destination);
         n.start(t); n.stop(t + 0.025);
 
-        /* Tone — rising for ON, falling for OFF */
         var osc = ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(isOn ? 420 : 215, t + 0.005);
@@ -781,22 +829,21 @@ function playToggle(isOn) {
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════
    SOUND 17 — Page Load Boot Chime
-   Three ascending bell tones + initial mechanical
-   relay click. Plays once 400 ms after DOMContentLoaded.
-───────────────────────────────────────────────── */
+   Called by unlockAndEnter() right after AudioContext
+   is resumed — guaranteed to play every time.
+════════════════════════════════════════════════════ */
 function playPageLoad() {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
         var notes = [330, 440, 550];
         notes.forEach(function(freq, idx) {
-            var delay = idx * 0.11 + 0.3;
+            var delay = idx * 0.11 + 0.05; /* start quickly after unlock */
 
-            /* Bell fundamental */
             var osc = ctx.createOscillator();
             osc.type = 'triangle';
             osc.frequency.value = freq;
@@ -807,7 +854,6 @@ function playPageLoad() {
             osc.connect(og); og.connect(ctx.destination);
             osc.start(t + delay); osc.stop(t + delay + 0.3);
 
-            /* Inharmonic overtone — gives bell character */
             var ovr = ctx.createOscillator();
             ovr.type = 'sine';
             ovr.frequency.value = freq * 2.76;
@@ -819,7 +865,7 @@ function playPageLoad() {
             ovr.start(t + delay); ovr.stop(t + delay + 0.2);
         });
 
-        /* Relay click at start */
+        /* Relay click */
         var ckSize = Math.floor(ctx.sampleRate * 0.015);
         var ckBuf  = ctx.createBuffer(1, ckSize, ctx.sampleRate);
         var ckd    = ckBuf.getChannelData(0);
@@ -830,21 +876,20 @@ function playPageLoad() {
         var cf = ctx.createBiquadFilter();
         cf.type = 'bandpass'; cf.frequency.value = 2900; cf.Q.value = 1.5;
         var cg = ctx.createGain();
-        cg.gain.setValueAtTime(0.11, t + 0.27);
-        cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
+        cg.gain.setValueAtTime(0.11, t + 0.02);
+        cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
         ck.connect(cf); cf.connect(cg); cg.connect(ctx.destination);
-        ck.start(t + 0.27); ck.stop(t + 0.31);
+        ck.start(t + 0.02); ck.stop(t + 0.06);
     } catch(e) {}
 }
 
-/* ─────────────────────────────────────────────────
-   SOUND 18 — General UI Click
-   Sharp defined click for misc buttons / links.
-───────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   SOUND 18 — UI Click
+════════════════════════════════════════════════════ */
 function playUIClick() {
     if (!soundEnabled) return;
     try {
-        var ctx = getCtx();
+        var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
         var bufSize = Math.floor(ctx.sampleRate * 0.016);
@@ -885,7 +930,6 @@ function toggleSound() {
     return soundEnabled;
 }
 
-
 /* ════════════════════════════════════════════════════
    SCROLL + TOUCH LISTENERS — desktop & mobile
 ════════════════════════════════════════════════════ */
@@ -894,28 +938,6 @@ function toggleSound() {
     var lastScrollY  = window.scrollY || 0;
     var lastTouchY   = 0;
     var touchActive  = false;
-    var touchUnlocked = false;
-
-    /* ── Unlock AudioContext on first touch ──
-       iOS Safari requires a user gesture before
-       any audio can play. We resume on touchstart
-       so the very first scroll tick fires. */
-    function unlockOnTouch() {
-        if (touchUnlocked) return;
-        touchUnlocked = true;
-        try {
-            var ctx = getCtx();
-            /* Create and immediately stop a silent buffer —
-               this satisfies Safari's gesture requirement */
-            var silentBuf = ctx.createBuffer(1, 1, ctx.sampleRate);
-            var silentSrc = ctx.createBufferSource();
-            silentSrc.buffer = silentBuf;
-            silentSrc.connect(ctx.destination);
-            silentSrc.start(0);
-            silentSrc.stop(0);
-            if (ctx.state === 'suspended') ctx.resume();
-        } catch(e) {}
-    }
 
     /* ── Desktop: wheel scroll ── */
     window.addEventListener('scroll', function() {
@@ -927,44 +949,27 @@ function toggleSound() {
         }
     }, { passive: true });
 
-    /* ── Mobile: touch scroll ──
-       touchmove fires continuously during a finger
-       swipe — perfect for per-tick kit-kit sound.
-       We track finger Y delta ourselves so we know
-       direction and distance regardless of scroll
-       position (works in modals, fixed containers too). */
+    /* ── Mobile: touchstart ── */
     document.addEventListener('touchstart', function(e) {
-        unlockOnTouch();
         lastTouchY  = e.touches[0].clientY;
         touchActive = true;
         lastScrollY = window.scrollY || 0;
     }, { passive: true });
 
+    /* ── Mobile: touchmove ── */
     document.addEventListener('touchmove', function(e) {
         if (!touchActive) return;
-
         var currentTouchY = e.touches[0].clientY;
-        var touchDelta    = lastTouchY - currentTouchY; /* positive = scrolling down */
-
-        /* Only fire if finger moved enough — filters micro-jitter */
-    if (Math.abs(touchDelta) > 14) {
-    playScroll(touchDelta);
-    lastTouchY = currentTouchY;
-}
-
-        /* Also sync window scroll position */
-        var currentScrollY = window.scrollY || 0;
-        lastScrollY = currentScrollY;
-
+        var touchDelta    = lastTouchY - currentTouchY;
+        if (Math.abs(touchDelta) > 14) {
+            playScroll(touchDelta);
+            lastTouchY = currentTouchY;
+        }
+        lastScrollY = window.scrollY || 0;
     }, { passive: true });
 
-    document.addEventListener('touchend', function() {
-        touchActive = false;
-    }, { passive: true });
-
-    document.addEventListener('touchcancel', function() {
-        touchActive = false;
-    }, { passive: true });
+    document.addEventListener('touchend',   function() { touchActive = false; }, { passive: true });
+    document.addEventListener('touchcancel',function() { touchActive = false; }, { passive: true });
 
 })();
 
@@ -972,11 +977,6 @@ function toggleSound() {
    DOM EVENT BINDINGS
 ════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
-
-    /* ── Page load boot chime ── */
-    setTimeout(function() {
-        try { getCtx(); playPageLoad(); } catch(e) {}
-    }, 420);
 
     /* ── Fan carousel arrows ── */
     var fanPrev = document.getElementById('fanPrev');
@@ -997,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }).observe(fanDots, { childList: true });
     }
 
-    /* ── Roll carousel arrows (with swipe sound) ── */
+    /* ── Roll carousel arrows ── */
     var rollPrev = document.getElementById('rollPrev');
     var rollNext = document.getElementById('rollNext');
     if (rollPrev) rollPrev.addEventListener('click', function() { playCardChange(); playSwipe('right'); });
@@ -1113,7 +1113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (themeToggle) themeToggle.addEventListener('click', function() { playToggle(true); });
     if (cmdTrigger)  cmdTrigger.addEventListener('click',  playUIClick);
 
-    /* ── Command palette (open / close via class mutation) ── */
+    /* ── Command palette ── */
     var cmdOverlay = document.getElementById('cmdOverlay');
     if (cmdOverlay) {
         var cmdWasOpen = false;
@@ -1158,7 +1158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    /* ── Hover whisper — carefully selected targets only ── */
+    /* ── Hover whisper ── */
     document.querySelectorAll(
         '.project-card, .skill-tag, .contact-card, .tl-content, .education-card, .fan-dot, .roll-dot'
     ).forEach(function(el) {
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape') playToggle(false);
     });
 
-    /* ── Auto-advance (MutationObserver on card classes) ── */
+    /* ── Auto-advance ── */
     var cards = document.querySelectorAll('.project-card');
     var lastActive = -1;
     var cardObserver = new MutationObserver(function() {
@@ -1190,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardObserver.observe(c, { attributes: true, attributeFilter: ['class'] });
     });
 
-    /* ── Sound toggle button (optional — add id="soundToggle" to any button) ── */
+    /* ── Sound toggle button ── */
     var sndToggleBtn = document.getElementById('soundToggle');
     if (sndToggleBtn) {
         sndToggleBtn.addEventListener('click', function() {
