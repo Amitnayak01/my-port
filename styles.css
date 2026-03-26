@@ -3571,28 +3571,146 @@ transform-origin: top center;
     justify-content: center;
     margin: 0.25rem 0;
 }
+
+
+
+/* ─── Base ring ─────────────────────────── */
 .lock-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid;
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  pointer-events: none;
 }
+
+/* ─── Ring 1 – primary arc sweep with glow ── */
 .lock-ring-1 {
-    inset: -10px;
-    border-color: rgba(201,169,110,0.4);
-    animation: lockSpin 9s linear infinite;
+  inset: -10px;
+  border: 2px solid transparent;
+  border-top-color: rgba(201,169,110,0.9);
+  border-right-color: rgba(201,169,110,0.45);
+  box-shadow:
+    0 0 10px rgba(201,169,110,0.3),
+    inset 0 0 6px rgba(201,169,110,0.1);
+  animation: lockSpin 3.5s cubic-bezier(0.4,0,0.6,1) infinite;
 }
+
+/* ─── Ring 2 – dashed counter-spin ──────── */
 .lock-ring-2 {
-    inset: -20px;
-    border-color: rgba(201,169,110,0.15);
-    border-style: dashed;
-    animation: lockSpin 14s linear infinite reverse;
+  inset: -20px;
+  border: 1px dashed rgba(201,169,110,0.28);
+  border-top-color: rgba(201,169,110,0.6);
+  animation: lockSpin 7s linear infinite reverse;
 }
+
+/* ─── Ring 3 – ghost drift ───────────────── */
 .lock-ring-3 {
-    inset: -32px;
-    border-color: rgba(201,169,110,0.06);
-    animation: lockSpin 20s linear infinite;
+  inset: -32px;
+  border: 1px solid rgba(201,169,110,0.07);
+  border-top-color: rgba(201,169,110,0.22);
+  border-bottom-color: rgba(201,169,110,0.13);
+  animation: lockSpin 13s linear infinite;
 }
-@keyframes lockSpin { to { transform: rotate(360deg); } }
+
+/* ─── Ring 4 – outer halo (new) ─────────── */
+.lock-ring-4 {
+  inset: -46px;
+  border: 1px solid transparent;
+  border-top-color: rgba(201,169,110,0.1);
+  animation: lockSpin 20s linear infinite reverse;
+}
+
+/* ─── Orbiting dot tracks (new) ─────────── */
+.lock-dot-track {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.lock-dot-track-1 {
+  inset: -20px;
+  animation: lockSpin 7s linear infinite;
+}
+
+.lock-dot-track-2 {
+  inset: -32px;
+  animation: lockSpin 11s linear infinite reverse;
+}
+
+.lock-dot-track-3 {
+  inset: -46px;
+  animation: lockSpin 17s linear infinite;
+}
+
+.lock-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(201,169,110,1);
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 5px 2px rgba(201,169,110,0.65),
+    0 0 10px 3px rgba(201,169,110,0.25);
+}
+
+.lock-dot-track-1 .lock-dot { width: 5px; height: 5px; }
+.lock-dot-track-2 .lock-dot { width: 4px; height: 4px; opacity: 0.75; }
+.lock-dot-track-3 .lock-dot { width: 3px; height: 3px; opacity: 0.5; }
+
+/* second dot on track-2, opposite side */
+.lock-dot-track-2 .lock-dot-2 {
+  top: auto;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  width: 3px; height: 3px;
+  opacity: 0.4;
+}
+
+/* ─── Inner avatar pulse halo (new) ─────── */
+.lock-ring-inner {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201,169,110,0.5);
+  box-shadow:
+    0 0 0 1px rgba(201,169,110,0.1),
+    0 0 12px rgba(201,169,110,0.2);
+  animation: lockPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ─── Status dot heartbeat (new) ────────── */
+.lock-status-dot {
+  animation: lockHeartbeat 2s ease-in-out infinite;
+}
+
+/* ─── Keyframes ──────────────────────────── */
+@keyframes lockSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes lockPulse {
+  0%, 100% {
+    opacity: 0.55;
+    box-shadow:
+      0 0 0 1px rgba(201,169,110,0.07),
+      0 0 8px rgba(201,169,110,0.12);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 0 1px rgba(201,169,110,0.18),
+      0 0 18px rgba(201,169,110,0.32);
+  }
+}
+
+@keyframes lockHeartbeat {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  40%       { transform: scale(1.6); opacity: 0.85; }
+  60%       { transform: scale(0.8); opacity: 1; }
+}
+
+
 .lock-avatar-img {
     width: 100%;
     height: 100%;
@@ -4207,4 +4325,605 @@ transform-origin: top center;
 [data-theme="light"] nav.scrolled {
     background: rgba(247, 244, 238, 0.92) !important;
     border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+
+
+
+
+/* ══════════════════════════════════════════════════
+   HERO IMAGE — COMPLETELY FIXED (no movement)
+══════════════════════════════════════════════════ */
+
+/* 1. Kill JS parallax — !important beats JS inline styles */
+#heroImgWrap {
+    transform: none !important;
+    will-change: auto !important;
+}
+
+/* 2. Kill the heroFloat bobbing animation on the image shell */
+.hero-img-outer {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* 3. Kill the hover scale on the photo itself */
+.hero-img-outer:hover .hero-img {
+    transform: none !important;
+}
+
+/* 4. Responsive safety — stays centered on mobile too */
+@media (max-width: 768px) {
+    #heroImgWrap {
+        transform: none !important;
+    }
+}
+/* ══════════════════════════════════════════════════
+   LOCK SCREEN IMAGE — COMPLETELY FIXED (no movement)
+══════════════════════════════════════════════════ */
+
+/* Kill the lockAvatarFloat bobbing on the lock screen photo */
+.lock-avatar-img {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Keep rings spinning — only stop the image itself */
+.lock-ring-1,
+.lock-ring-2,
+.lock-ring-3 {
+    animation-play-state: running !important;
+}
+
+/* ══════════════════════════════════════════════════
+   LOCK SCREEN — ANIMATED BACKGROUND
+══════════════════════════════════════════════════ */
+
+/* Drifting aurora blob — gold, top-left */
+#lockScreen::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,169,110,0.13) 0%, transparent 65%);
+    top: -20%; left: -15%;
+    filter: blur(70px);
+    animation: lockAurora1 16s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Drifting aurora blob — teal, bottom-right */
+#lockScreen::after {
+    content: '';
+    position: absolute;
+    width: 580px; height: 580px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(90,155,110,0.09) 0%, transparent 65%);
+    bottom: -15%; right: -10%;
+    filter: blur(60px);
+    animation: lockAurora2 20s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes lockAurora1 {
+    0%,100% { transform: translate(0,0) scale(1); opacity: 0.7; }
+    25%      { transform: translate(120px,-90px) scale(1.15); opacity: 1; }
+    50%      { transform: translate(50px,110px) scale(0.9); opacity: 0.55; }
+    75%      { transform: translate(-90px,40px) scale(1.08); opacity: 0.85; }
+}
+
+@keyframes lockAurora2 {
+    0%,100% { transform: translate(0,0) scale(1); opacity: 0.6; }
+    30%      { transform: translate(-110px,80px) scale(1.12); opacity: 0.9; }
+    60%      { transform: translate(90px,-100px) scale(0.92); opacity: 0.45; }
+    80%      { transform: translate(-50px,-55px) scale(1.06); opacity: 0.72; }
+}
+
+/* Breathing center glow */
+.lock-grid-lines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 50% at 50% 50%, rgba(201,169,110,0.07) 0%, transparent 70%);
+    animation: lockCenterBreathe 5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes lockCenterBreathe {
+    0%,100% { opacity: 0.5; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+/* Horizontal scan line sweeping top → bottom */
+.lock-grid-lines::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%, rgba(201,169,110,0) 10%,
+        rgba(201,169,110,0.55) 50%,
+        rgba(201,169,110,0) 90%, transparent 100%);
+    top: -1px;
+    animation: lockScanLine 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes lockScanLine {
+    0%   { top: -1px;  opacity: 0; }
+    4%   { opacity: 1; }
+    96%  { opacity: 0.7; }
+    100% { top: 100%;  opacity: 0; }
+}
+
+/* Grid lines — staggered pulse */
+.lock-grid-lines div {
+    animation: lockGridPulse 4s ease-in-out infinite !important;
+}
+.lock-grid-lines div:nth-child(1) { animation-delay: 0s !important; }
+.lock-grid-lines div:nth-child(2) { animation-delay: 0.55s !important; }
+.lock-grid-lines div:nth-child(3) { animation-delay: 1.1s !important; }
+.lock-grid-lines div:nth-child(4) { animation-delay: 1.65s !important; }
+.lock-grid-lines div:nth-child(5) { animation-delay: 0.28s !important; }
+.lock-grid-lines div:nth-child(6) { animation-delay: 0.83s !important; }
+.lock-grid-lines div:nth-child(7) { animation-delay: 1.38s !important; }
+.lock-grid-lines div:nth-child(8) { animation-delay: 1.93s !important; }
+
+@keyframes lockGridPulse {
+    0%,100% { opacity: 0.4; }
+    50%      { opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════
+   LOCK SCREEN AVATAR — ANIMATED BACKGROUND
+══════════════════════════════════════════════════ */
+
+/* Allow pseudo-element layering inside the circle */
+.lock-avatar-img {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Rotating golden aurora sweep — clipped to circle by parent */
+.lock-avatar-img::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    width: 220%;
+    height: 220%;
+    background: conic-gradient(
+        from 0deg,
+        rgba(201,169,110,0)      0deg,
+        rgba(201,169,110,0.45)  50deg,
+        rgba(232,213,176,0.25)  80deg,
+        rgba(201,169,110,0)    120deg,
+        rgba(90,155,110,0.18)  200deg,
+        rgba(201,169,110,0)    260deg,
+        rgba(201,169,110,0.35) 320deg,
+        rgba(201,169,110,0)    360deg
+    );
+    animation: lockAvatarSweep 5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Second layer — slower counter-rotation for depth */
+.lock-avatar-img::after {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    width: 220%;
+    height: 220%;
+    background: conic-gradient(
+        from 0deg,
+        rgba(90,155,110,0)     0deg,
+        rgba(90,155,110,0.18) 80deg,
+        rgba(90,155,110,0)   160deg,
+        rgba(201,169,110,0.2) 240deg,
+        rgba(90,155,110,0)   360deg
+    );
+    animation: lockAvatarSweep 9s linear infinite reverse;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes lockAvatarSweep {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Keep the photo & fallback text above the aurora layers */
+.lock-avatar-img img,
+.lock-avatar-img span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Pulsing box-shadow to match the aurora rhythm */
+.lock-avatar-img {
+    animation: lockAvatarGlow 5s ease-in-out infinite !important;
+    transform: none !important;
+}
+
+@keyframes lockAvatarGlow {
+    0%,100% {
+        box-shadow:
+            0 0 0 4px rgba(201,169,110,0.08),
+            0 0 30px rgba(201,169,110,0.25),
+            0 0 60px rgba(201,169,110,0.08);
+    }
+    50% {
+        box-shadow:
+            0 0 0 4px rgba(201,169,110,0.18),
+            0 0 50px rgba(201,169,110,0.45),
+            0 0 90px rgba(201,169,110,0.18);
+    }
+}
+
+.lock-avail-ring {
+    z-index: 100 !important;
+    position: absolute !important;
+    bottom: -4px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   AVATAR FLIP CARD
+══════════════════════════════════════════════════ */
+.lock-avatar-wrap {
+    perspective: 900px;
+}
+
+.lock-avatar-img {
+    transform-style: preserve-3d !important;
+    transition: transform 0.7s cubic-bezier(0.34,1.1,0.64,1) !important;
+    cursor: pointer;
+}
+
+.lock-avatar-img.flipped {
+    transform: rotateY(180deg) !important;
+}
+
+/* Back face */
+.lock-avatar-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #1a1410, #2a2018);
+    border: 2px solid rgba(201,169,110,0.45);
+    overflow: hidden;
+}
+
+/* Front face — keep photo visible */
+.lock-avatar-img img,
+.lock-avatar-img span {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Back — initials circle */
+.lock-avatar-back .av-initials {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a07c45, #c9a96e, #e8d5b0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #080808;
+    box-shadow: 0 0 20px rgba(201,169,110,0.5);
+    animation: avInitialsPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes avInitialsPulse {
+    0%,100% { box-shadow: 0 0 20px rgba(201,169,110,0.5); }
+    50%      { box-shadow: 0 0 40px rgba(201,169,110,0.85), 0 0 60px rgba(201,169,110,0.3); }
+}
+
+/* Back — name + role */
+.lock-avatar-back .av-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #c9a96e;
+    letter-spacing: 0.06em;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.lock-avatar-back .av-role {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Tap hint on front */
+.lock-avatar-tap-hint {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    white-space: nowrap;
+    z-index: 3;
+    animation: tapHintFade 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes tapHintFade {
+    0%,100% { opacity: 0; }
+    50%      { opacity: 1; }
+}
+
+/* Aurora layers sit behind everything */
+.lock-avatar-img::before,
+.lock-avatar-img::after {
+    z-index: 0 !important;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   HERO AVATAR FLIP CARD
+══════════════════════════════════════════════════ */
+.hero-img-outer {
+    transform-style: preserve-3d !important;
+    transition: transform 0.7s cubic-bezier(0.34,1.1,0.64,1) !important;
+    cursor: pointer;
+    animation: none !important;
+}
+
+.hero-img-outer.flipped {
+    transform: rotateY(180deg) !important;
+}
+
+/* Keep front face hidden on back */
+.hero-img {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+/* Back face */
+.hero-img-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #0e0c08, #1e1a10, #2a2018);
+    overflow: hidden;
+}
+
+/* Rotating aurora inside back face */
+.hero-img-back::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    width: 220%; height: 220%;
+    background: conic-gradient(
+        rgba(201,169,110,0)     0deg,
+        rgba(201,169,110,0.35) 50deg,
+        rgba(201,169,110,0)   120deg,
+        rgba(90,155,110,0.15) 200deg,
+        rgba(201,169,110,0)   280deg,
+        rgba(201,169,110,0.2) 330deg,
+        rgba(201,169,110,0)   360deg
+    );
+    animation: heroBackAurora 5s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes heroBackAurora {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Initials circle */
+.hero-img-back .hb-initials {
+    position: relative;
+    z-index: 1;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a07c45, #c9a96e, #e8d5b0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #080808;
+    box-shadow: 0 0 30px rgba(201,169,110,0.6);
+    animation: heroBkPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes heroBkPulse {
+    0%,100% { box-shadow: 0 0 30px rgba(201,169,110,0.5); }
+    50%      { box-shadow: 0 0 55px rgba(201,169,110,0.9), 0 0 80px rgba(201,169,110,0.3); }
+}
+
+.hero-img-back .hb-name {
+    position: relative; z-index: 1;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem; font-weight: 700;
+    color: #c9a96e; letter-spacing: 0.05em;
+    text-align: center; line-height: 1.4;
+}
+
+.hero-img-back .hb-role {
+    position: relative; z-index: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem; font-weight: 500;
+    color: rgba(255,255,255,0.38);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.hero-img-back .hb-stack {
+    position: relative; z-index: 1;
+    display: flex; gap: 5px; flex-wrap: wrap;
+    justify-content: center; max-width: 200px;
+}
+
+.hero-img-back .hb-stack span {
+    font-size: 0.58rem; font-weight: 600;
+    color: rgba(201,169,110,0.75);
+    background: rgba(201,169,110,0.1);
+    border: 1px solid rgba(201,169,110,0.25);
+    padding: 2px 7px; border-radius: 20px;
+    letter-spacing: 0.05em;
+}
+
+/* Tap hint */
+.hero-tap-hint {
+    position: absolute;
+    bottom: 12px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap; z-index: 6;
+    animation: tapHintFade 3s ease-in-out infinite;
+    pointer-events: none;
+    backface-visibility: hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   HERO — COMET / FALLING STAR ANIMATIONS
+══════════════════════════════════════════════════ */
+
+.hero-parallax-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Individual comet elements — inject via JS below */
+.hero-comet {
+    position: absolute;
+    height: 1.5px;
+    border-radius: 50px;
+    background: linear-gradient(90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(232,213,176,0.6) 40%,
+        rgba(201,169,110,1) 70%,
+        rgba(255,255,255,0.9) 100%
+    );
+    transform-origin: right center;
+    animation: cometFall linear infinite;
+    pointer-events: none;
+    opacity: 0;
+}
+
+@keyframes cometFall {
+    0%   { transform: translate(0, 0) rotate(var(--angle));
+           opacity: 0; }
+    5%   { opacity: 1; }
+    85%  { opacity: 0.8; }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--angle));
+           opacity: 0; }
+}
+
+
+@media (max-width: 768px) {
+    .ps-prev,
+    .roll-btn,
+    .ps-next {
+        display: none !important;
+    }
+}
+
+
+
+/* ===== FIX AVATAR FLIP ISSUE ===== */
+
+/* Enable 3D space */
+.lock-avatar-wrap {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+}
+
+/* Card */
+.lock-avatar-img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d !important;
+    transition: transform 0.8s ease;
+}
+
+/* Flip */
+.lock-avatar-img.flipped {
+    transform: rotateY(180deg);
+}
+
+/* FRONT IMAGE */
+.lock-avatar-img > img {
+    position: absolute !important;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    backface-visibility: hidden !important;
+    transform: rotateY(0deg);
+    z-index: 2;
+}
+
+/* BACK */
+.lock-avatar-back {
+    position: absolute !important;
+    inset: 0;
+    transform: rotateY(180deg);
+    backface-visibility: hidden !important;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* BACK IMAGE */
+.lock-avatar-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Prevent parent breaking 3D */
+.lock-ring,
+.lock-ring-1,
+.lock-ring-2,
+.lock-ring-3,
+.lock-ring-4 {
+    transform-style: flat !important;
 }

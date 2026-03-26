@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amit Kumar Nayak — Full Stack Developer</title>
+    <meta name="description" content="Full Stack Developer specializing in React, Node.js, WebRTC & real-time applications. Building scalable, high-performance web experiences.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ── Image slot styles ── */
+.pc-img-slide {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0;
+    transition: transform 0.55s ease;
+}y
+        .pc-img-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed rgba(201,169,110,0.25);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 1rem;
+            pointer-events: none;
+        }
+        .pc-img-placeholder svg { opacity: 0.4; }
+        .pc-img-placeholder span { opacity: 0.55; font-family: monospace; font-size: 0.7rem; }
+
+        /* ── Project image click cursor ── */
+        .pc-img-slide { cursor: zoom-in; }
+
+        /* ══════════════════════════════════════════
+           PROJECT IMAGE FULLSCREEN LIGHTBOX
+        ══════════════════════════════════════════ */
+        #projLightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 11000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #projLightbox.proj-lb-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #projLightbox .proj-lb-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.93);
+            backdrop-filter: blur(18px) saturate(120%);
+        }
+        /* inner wrapper */
+        #projLightbox .proj-lb-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            padding: 60px 80px;
+            box-sizing: border-box;
+        }
+        /* image */
+        #projLightbox .proj-lb-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,169,110,0.15);
+            display: block;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        #projLightbox .proj-lb-img.proj-img-fade {
+            opacity: 0;
+            transform: scale(0.97);
+        }
+        /* close button */
+        #projLightbox .proj-lb-close {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.22s ease;
+            flex-shrink: 0;
+        }
+        #projLightbox .proj-lb-close:hover {
+            background: rgba(255,59,48,0.3);
+            border-color: rgba(255,59,48,0.6);
+            color: #ff5f57;
+            transform: scale(1.1) rotate(90deg);
+        }
+        /* nav buttons */
+        #projLightbox .proj-lb-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.22s ease;
+        }
+        #projLightbox .proj-lb-nav:hover {
+            background: rgba(201,169,110,0.22);
+            border-color: rgba(201,169,110,0.55);
+            color: #c9a96e;
+            transform: translateY(-50%) scale(1.1);
+        }
+        #projLightbox .proj-lb-prev { left: 20px; }
+        #projLightbox .proj-lb-next { right: 20px; }
+        /* counter pill */
+        #projLightbox .proj-lb-counter {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 0.3rem 0.9rem;
+            z-index: 2;
+            white-space: nowrap;
+        }
+        /* dot indicators */
+        #projLightbox .proj-lb-dots {
+            position: fixed;
+            bottom: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 7px;
+            z-index: 2;
+        }
+        #projLightbox .proj-lb-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            cursor: pointer;
+            transition: all 0.22s ease;
+            border: none;
+            padding: 0;
+        }
+        #projLightbox .proj-lb-dot.active {
+            background: #c9a96e;
+            transform: scale(1.45);
+        }
+        /* project title badge */
+        #projLightbox .proj-lb-title {
+            position: fixed;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Syne', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 0.3rem 1rem;
+            z-index: 2;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+        }
+        @media (max-width: 600px) {
+            #projLightbox .proj-lb-inner { padding: 52px 16px 80px; }
+            #projLightbox .proj-lb-prev { left: 8px; }
+            #projLightbox .proj-lb-next { right: 8px; }
+            #projLightbox .proj-lb-nav { width: 40px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- ══════════════════════════════════════════
+         PROJECT IMAGE FULLSCREEN LIGHTBOX
+    ══════════════════════════════════════════ -->
+    <div id="projLightbox" role="dialog" aria-modal="true" aria-label="Project screenshot viewer">
+        <div class="proj-lb-backdrop" id="projLbBackdrop"></div>
+        <div class="proj-lb-inner">
+            <img class="proj-lb-img" id="projLbImg" src="" alt="Project screenshot" draggable="false">
+        </div>
+        <div class="proj-lb-title" id="projLbTitle"></div>
+        <button class="proj-lb-close" id="projLbClose" aria-label="Close fullscreen">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="proj-lb-nav proj-lb-prev" id="projLbPrev" aria-label="Previous image">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="proj-lb-nav proj-lb-next" id="projLbNext" aria-label="Next image">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="proj-lb-dots" id="projLbDots"></div>
+        <div class="proj-lb-counter" id="projLbCounter">1 / 5</div>
+    </div>
+
+    <!-- ── Scroll Progress Bar ── -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- ── Cursor Glow ── -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- ── Animated Gradient Mesh ── -->
+    <div class="gradient-mesh" aria-hidden="true">
+        <div class="mesh-blob mesh-blob-1"></div>
+        <div class="mesh-blob mesh-blob-2"></div>
+        <div class="mesh-blob mesh-blob-3"></div>
+    </div>
+
+    <!-- ── Particles & Noise ── -->
+    <div class="particles" id="particles"></div>
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- ── Command Palette ── -->
+    <div class="cmd-overlay" id="cmdOverlay" role="dialog" aria-label="Command palette" aria-modal="true">
+        <div class="cmd-palette" id="cmdPalette">
+            <div class="cmd-input-wrap">
+                <span class="cmd-icon">⌕</span>
+                <input type="text" class="cmd-input" id="cmdInput" placeholder="Search… type a command" autocomplete="off" spellcheck="false">
+                <span class="cmd-kbd">ESC</span>
+            </div>
+            <div class="cmd-results" id="cmdResults" role="listbox"></div>
+            <div class="cmd-footer">
+                <span class="cmd-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                <span class="cmd-hint"><kbd>↵</kbd> select</span>
+                <span class="cmd-hint"><kbd>esc</kbd> close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Navigation ── -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-dot"></span>AKN
+            </div>
+
+            <ul id="navMenu" role="menubar">
+                <li role="none"><a href="#hero"       class="active" role="menuitem">Home</a></li>
+                <li role="none"><a href="#about"      role="menuitem">About</a></li>
+                <li role="none"><a href="#skills"     role="menuitem">Skills</a></li>
+                <li role="none"><a href="#experience" role="menuitem">Experience</a></li>
+                <li role="none"><a href="#projects"   role="menuitem">Projects</a></li>
+                <li role="none"><a href="#contact"    role="menuitem">Contact</a></li>
+            </ul>
+            <div class="nav-controls">
+                <button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+                <button class="nav-icon-btn" id="cmdTrigger" aria-label="Open command palette" title="Command palette (Ctrl+K)">⌘</button>
+                <a href="Amit Nayak-Resume.pdf" class="nav-resume-btn" target="_blank" rel="noopener">Resume ↗</a>
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── Floating Hire Me Button ── -->
+  <a href="mailto:amitkumarnayak330@gmail.com" class="hire-float" id="hireFloat" aria-label="Hire Amit">
+    <span class="hf-dot"></span>
+    Hire Me
+</a>
+    <button class="sound-float" id="soundToggle" aria-label="Mute sounds" title="Mute sounds">
+    🔊
+</button>
+
+    <div class="container">
+
+        <!-- ════════════════════════════════════════════
+             HERO
+        ════════════════════════════════════════════ -->
+        <section id="hero" class="hero">
+            <div class="hero-parallax-bg" aria-hidden="true">
+                <div class="hero-grid-line hero-grid-h"></div>
+                <div class="hero-grid-line hero-grid-h"></div>
+                <div class="hero-grid-line hero-grid-v"></div>
+                <div class="hero-grid-line hero-grid-v"></div>
+            </div>
+            <div class="hero-float-icons" aria-hidden="true">
+                <span class="float-icon" style="color:#61dafb">⚛</span>
+                <span class="float-icon" style="color:#68a063">⬡</span>
+                <span class="float-icon" style="color:#c9a96e">◈</span>
+            </div>
+            <div class="hero-text">
+                <div class="avail-badge">
+                    <span class="avail-dot"></span>
+                    Available for opportunities
+                </div>
+                <h1 class="hero-heading">
+                    Hello, I'm<br>
+                    <span class="hero-name">Amit Kumar<br>Nayak</span>
+                </h1>
+                <div class="hero-role-wrap">
+                    <span class="hero-role-label" id="typingTarget"></span><span class="typing-cursor" id="typingCursor"></span>
+                </div>
+                <p class="hero-desc">Building scalable, real-time web applications with modern stacks. Passionate about clean architecture and exceptional user experiences.</p>
+                <div class="hero-stack-badges">
+                    <span class="hstack-badge"><span class="hs-icon react">⚛</span>React</span>
+                    <span class="hstack-badge"><span class="hs-icon node">⬡</span>Node.js</span>
+                    <span class="hstack-badge"><span class="hs-icon mongo">●</span>MongoDB</span>
+                    <span class="hstack-badge"><span class="hs-icon socket">⚡</span>Socket.io</span>
+                    <span class="hstack-badge"><span class="hs-icon webrtc">◈</span>WebRTC</span>
+                </div>
+                <div class="hero-meta">
+                    <div class="hero-meta-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Sambalpur, Odisha
+                    </div>
+                    <div class="hero-meta-sep">·</div>
+                    <div class="hero-meta-item">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.4a16 16 0 0 0 5.55 5.55l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
+                        +91 7735254860
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <a href="#projects" class="btn btn-primary btn-magnetic">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        View Projects
+                    </a>
+                    <a href="Amit Nayak-Resume.pdf" class="btn btn-secondary btn-magnetic" target="_blank" rel="noopener">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download CV
+                    </a>
+                    <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-icon btn-magnetic" aria-label="GitHub">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank" rel="noopener" class="btn btn-icon btn-magnetic" aria-label="LinkedIn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-image-wrap" id="heroImgWrap">
+                    <div class="hero-glow-ring" aria-hidden="true"></div>
+                    <div class="hero-glow-ring-2" aria-hidden="true"></div>
+
+                    <div class="hero-img-outer" onclick="flipHeroAvatar()">
+    <img src="profile.jpg" alt="Amit Kumar Nayak" class="hero-img" loading="eager">
+
+    <!-- Back face -->
+    <div class="hero-img-back">
+        <div class="hb-initials">AKN</div>
+        <div class="hb-name">Amit Kumar<br>Nayak</div>
+        <div class="hb-role">Full Stack Developer</div>
+        <div class="hb-stack">
+            <span>React</span>
+            <span>Node.js</span>
+            <span>WebRTC</span>
+            <span>MongoDB</span>
+        </div>
+    </div>
+
+    <!-- Tap hint -->
+    <div class="hero-tap-hint">tap to flip</div>
+</div>
+
+
+                    <div class="hero-stat-card stat-card-1" aria-label="7 plus projects">
+                        <span class="stat-num" data-count="7" data-suffix="+">7+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="hero-stat-card stat-card-2" aria-label="3 plus years coding">
+                        <span class="stat-num" data-count="3" data-suffix="+">3+</span>
+                        <span class="stat-label">Yrs Coding</span>
+                    </div>
+                    <div class="hero-orbit-dot dot-1" aria-hidden="true"></div>
+                    <div class="hero-orbit-dot dot-2" aria-hidden="true"></div>
+                    <div class="hero-orbit-dot dot-3" aria-hidden="true"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             TECH STACK MARQUEE
+        ════════════════════════════════════════════ -->
+        <section id="techstack" class="techstack-section" aria-label="Technology stack">
+            <div class="ts-label">Core Technologies</div>
+            <div class="ts-track-wrap">
+                <div class="ts-track">
+                    <div class="ts-item"><span class="ts-icon">⚛</span><span>React.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">⬡</span><span>Node.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">🍃</span><span>MongoDB</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚡</span><span>Socket.io</span></div>
+                    <div class="ts-item"><span class="ts-icon">◈</span><span>WebRTC</span></div>
+                    <div class="ts-item"><span class="ts-icon">☕</span><span>Java</span></div>
+                    <div class="ts-item"><span class="ts-icon">📜</span><span>JavaScript</span></div>
+                    <div class="ts-item"><span class="ts-icon">🎨</span><span>Tailwind</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔗</span><span>REST APIs</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔐</span><span>JWT Auth</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚛</span><span>React.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">⬡</span><span>Node.js</span></div>
+                    <div class="ts-item"><span class="ts-icon">🍃</span><span>MongoDB</span></div>
+                    <div class="ts-item"><span class="ts-icon">⚡</span><span>Socket.io</span></div>
+                    <div class="ts-item"><span class="ts-icon">◈</span><span>WebRTC</span></div>
+                    <div class="ts-item"><span class="ts-icon">☕</span><span>Java</span></div>
+                    <div class="ts-item"><span class="ts-icon">📜</span><span>JavaScript</span></div>
+                    <div class="ts-item"><span class="ts-icon">🎨</span><span>Tailwind</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔗</span><span>REST APIs</span></div>
+                    <div class="ts-item"><span class="ts-icon">🔐</span><span>JWT Auth</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             ABOUT & EDUCATION
+        ════════════════════════════════════════════ -->
+        <section id="about">
+            <div class="section-header">
+                <span class="section-tag">About</span>
+                <h2 class="section-title">About Me</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-text-block reveal blur-reveal">
+                    <p>I'm an aspiring software engineer with expertise in Java, C++, web development, and modern technologies. With a strong foundation in both frontend and backend development, I'm passionate about creating full-stack applications that solve real-world problems and deliver exceptional user experiences.</p>
+                    <div class="about-highlights">
+                        <div class="about-hl-item">
+                            <span class="hl-num"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
+                            <span class="hl-label">Projects Built</span>
+                        </div>
+                        <div class="about-hl-item">
+                            <span class="hl-num"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
+                            <span class="hl-label">Years Coding</span>
+                        </div>
+                        <div class="about-hl-item">
+                            <span class="hl-num">B.Tech</span>
+                            <span class="hl-label">CSIT Graduate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header edu-header">
+                    <span class="section-tag">Education</span>
+                    <h2 class="section-title">Academic Background</h2>
+                </div>
+                <div class="education-grid">
+                    <div class="education-card reveal">
+                        <div class="edu-icon">🎓</div>
+                        <div class="edu-info">
+                            <h3>B.Tech in CSIT</h3>
+                            <p class="institution">ITER (SOA University), Bhubaneswar</p>
+                            <p class="duration">2021 – 2025</p>
+                            <span class="edu-score">CGPA: 7.07</span>
+                        </div>
+                    </div>
+                    <div class="education-card reveal">
+                        <div class="edu-icon">📘</div>
+                        <div class="edu-info">
+                            <h3>12th Grade (CHSE)</h3>
+                            <p class="institution">Vikash Higher Secondary School, Sambalpur</p>
+                            <p class="duration">2020 – 2021</p>
+                            <span class="edu-score">82.33%</span>
+                        </div>
+                    </div>
+                    <div class="education-card reveal">
+                        <div class="edu-icon">📗</div>
+                        <div class="edu-info">
+                            <h3>10th Grade (BSE)</h3>
+                            <p class="institution">Sri Aurobindo Integral School, Kindita</p>
+                            <p class="duration">2018 – 2019</p>
+                            <span class="edu-score">80.17%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             SKILLS
+        ════════════════════════════════════════════ -->
+        <section id="skills">
+            <div class="section-header">
+                <span class="section-tag">Skills</span>
+                <h2 class="section-title">Technical Skills</h2>
+            </div>
+            <div class="skills-container">
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header"><span class="skill-cat-icon">💻</span><h3>Programming Languages</h3></div>
+                    <div class="skill-tags">
+                        <span class="skill-tag"><span class="st-icon">☕</span>Java</span>
+                        <span class="skill-tag"><span class="st-icon">©</span>C</span>
+                        <span class="skill-tag"><span class="st-icon">C+</span>C++</span>
+                        <span class="skill-tag"><span class="st-icon js-c">JS</span>JavaScript</span>
+                        <span class="skill-tag"><span class="st-icon">⊗</span>SQL</span>
+                    </div>
+                </div>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header"><span class="skill-cat-icon">🎨</span><h3>Frontend Development</h3></div>
+                    <div class="skill-tags">
+                        <span class="skill-tag"><span class="st-icon ht">H5</span>HTML5</span>
+                        <span class="skill-tag"><span class="st-icon cs">C3</span>CSS3</span>
+                        <span class="skill-tag"><span class="st-icon re">⚛</span>React.js</span>
+                        <span class="skill-tag"><span class="st-icon">🎨</span>Tailwind</span>
+                        <span class="skill-tag"><span class="st-icon js-c">JS</span>JavaScript</span>
+                    </div>
+                </div>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header"><span class="skill-cat-icon">⚙️</span><h3>Backend Development</h3></div>
+                    <div class="skill-tags">
+                        <span class="skill-tag"><span class="st-icon no">⬡</span>Node.js</span>
+                        <span class="skill-tag"><span class="st-icon">Ex</span>Express.js</span>
+                        <span class="skill-tag"><span class="st-icon">🍃</span>MongoDB</span>
+                        <span class="skill-tag"><span class="st-icon">⇌</span>REST APIs</span>
+                        <span class="skill-tag"><span class="st-icon">⚡</span>Socket.io</span>
+                    </div>
+                </div>
+                <div class="skill-category reveal">
+                    <div class="skill-cat-header"><span class="skill-cat-icon">🔧</span><h3>Tools &amp; Technologies</h3></div>
+                    <div class="skill-tags">
+                        <span class="skill-tag"><span class="st-icon">⑂</span>Git</span>
+                        <span class="skill-tag"><span class="st-icon">◉</span>GitHub</span>
+                        <span class="skill-tag"><span class="st-icon">🐧</span>Linux</span>
+                        <span class="skill-tag"><span class="st-icon">🔐</span>JWT</span>
+                        <span class="skill-tag"><span class="st-icon">🗄</span>DBMS</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             EXPERIENCE
+        ════════════════════════════════════════════ -->
+        <section id="experience">
+            <div class="section-header">
+                <span class="section-tag">Experience</span>
+                <h2 class="section-title">Training &amp; Internship</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-line" aria-hidden="true"></div>
+                <div class="timeline-item experience-card reveal">
+                    <div class="timeline-dot" aria-hidden="true"></div>
+                    <div class="tl-date">Jul – Sep 2024</div>
+                    <div class="tl-content">
+                        <div class="tl-header">
+                            <div>
+                                <h3>Full Stack Web Development</h3>
+                                <p class="company">Edu-versity · AMG Technologies LLP</p>
+                            </div>
+                            <span class="tl-badge">Internship</span>
+                        </div>
+                        <div class="tl-stats">
+    <div class="tl-stat">
+        <div class="tl-stat-label">Duration</div>
+        <div class="tl-stat-val">3 Months</div>
+    </div>
+    <div class="tl-stat">
+        <div class="tl-stat-label">Recognition</div>
+        <div class="tl-stat-val">Letter of Rec</div>
+    </div>
+    <div class="tl-stat">
+        <div class="tl-stat-label">Performance</div>
+        <div class="tl-stat-val">Outstanding</div>
+    </div>
+</div>
+                        <p>Completed full-stack development program with outstanding performance, receiving Academic Head's Letter of Recommendation. Demonstrated strong technical skills, proactive learning approach, and effective collaboration on team projects. Recognized for analytical abilities, attention to detail, and passion for web development.</p>
+                        <div class="tl-tags">
+                            <span>React.js</span><span>Node.js</span><span>MongoDB</span><span>Express</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             FEATURED PROJECT
+        ════════════════════════════════════════════ -->
+        <section id="featured" class="featured-section">
+            <div class="section-header">
+                <span class="section-tag">Featured</span>
+                <h2 class="section-title">Spotlight Project</h2>
+            </div>
+            <div class="featured-card reveal blur-reveal">
+                <div class="featured-preview-wrap">
+                    <div class="vmg-mosaic" id="vmGallery">
+                        <div class="vmg-cell vmg-large" data-index="0" role="button" tabindex="0" aria-label="Open screenshot 1 fullscreen">
+                            <div class="vmg-screenshot vmg-s0">
+                                <div class="vmg-s-topbar">
+                                    <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
+                                    <span class="vmg-s-url">v-meet2.vercel.app</span>
+                                    <span class="vmg-s-rec">⬤ REC</span>
+                                </div>
+                                <div class="vmg-s-body">
+                                    <div class="vmg-grid4">
+                                        <div class="vmg-vcell vmg-active"><div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div><div class="vmg-vname">Amit<span class="vmg-host">Host</span></div><div class="vmg-vring"></div><div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div></div>
+                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-vname">Remote</div></div>
+                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div><div class="vmg-vname">Sarah</div></div>
+                                        <div class="vmg-vcell vmg-screenshare"><div class="vmg-ss-label">🖥️ Sharing</div><div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div></div>
+                                    </div>
+                                    <div class="vmg-ctrl-row">
+                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg></button>
+                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
+                                        <button class="vmg-cb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></button>
+                                        <button class="vmg-cb vmg-cb-end"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vmg-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span>Fullscreen</span></div>
+                            <div class="vmg-label">Zoom Grid Call</div>
+                        </div>
+                        <div class="vmg-right-col">
+                            <div class="vmg-cell vmg-small" data-index="1" role="button" tabindex="0" aria-label="Open screenshot 2">
+                                <div class="vmg-screenshot vmg-s1">
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Chat</span></div>
+                                    <div class="vmg-chat-mini">
+                                        <div class="vmg-chat-sb">
+                                            <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
+                                            <div class="vmg-csb-item"><div class="vmg-cav" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div><div><div class="vmg-cn">Remote</div><div class="vmg-cl">Joining...</div></div><span class="vmg-badge">2</span></div>
+                                            <div class="vmg-csb-item"><div class="vmg-cav vmg-grp">👥</div><div><div class="vmg-cn">Dev Team</div><div class="vmg-cl">Sarah: pushed</div></div><span class="vmg-badge">5</span></div>
+                                        </div>
+                                        <div class="vmg-chat-msgs">
+                                            <div class="vmg-msg in">Can we start? 👋<span>10:42</span></div>
+                                            <div class="vmg-msg out">Yes! Starting... <span>10:43 ✓✓</span></div>
+                                            <div class="vmg-msg in vmg-file"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> design.pdf<span>10:44</span></div>
+                                            <div class="vmg-msg out">Got it! 😊<span>10:44 ✓✓</span></div>
+                                            <div class="vmg-typing"><span></span><span></span><span></span><em>typing…</em></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">WhatsApp Chat</div>
+                            </div>
+                            <div class="vmg-cell vmg-small" data-index="2" role="button" tabindex="0" aria-label="Open screenshot 3">
+                                <div class="vmg-screenshot vmg-s2">
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Audio Conference</span><span class="vmg-s-rec">● LIVE</span></div>
+                                    <div class="vmg-audio-mini">
+                                        <div class="vmg-audio-center-mini"><div class="vmg-pulse-ring"></div><div class="vmg-pulse-ring vmg-pr2"></div><div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div class="vmg-speak-label">Speaking</div></div>
+                                        <div class="vmg-orb-row">
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
+                                            <div class="vmg-mini-orb vmg-orb-muted" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div>
+                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div>
+                                        </div>
+                                        <div class="vmg-audio-stat">🎙 3 speaking · 🔇 2 muted</div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Audio Conference</div>
+                            </div>
+                            <div class="vmg-cell vmg-small" data-index="3" role="button" tabindex="0" aria-label="Open screenshot 4">
+                                <div class="vmg-screenshot vmg-s3">
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Dev Team · 6 members</span><span class="vmg-s-rec">⬤ REC</span></div>
+                                    <div class="vmg-group-mini">
+                                        <div class="vmg-pin-stage"><div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div><div class="vmg-pin-tag">📌 Pinned · Speaking</div></div>
+                                        <div class="vmg-strip-mini">
+                                            <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
+                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
+                                            <div class="vmg-sm-cell vmg-muted"><div class="vmg-av sm" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div><small>John🔇</small></div>
+                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div><small>Maya</small></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Group Call</div>
+                            </div>
+                            <div class="vmg-cell vmg-small" data-index="4" role="button" tabindex="0" aria-label="Open screenshot 5">
+                                <div class="vmg-screenshot vmg-s4">
+                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Dashboard</span></div>
+                                    <div class="vmg-dash-mini">
+                                        <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
+                                        <div class="vmg-dash-row">
+                                            <div class="vmg-dash-btn vmg-new-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> New Meeting</div>
+                                            <div class="vmg-dash-btn vmg-join-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Join Room</div>
+                                        </div>
+                                        <div class="vmg-input-mini"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Enter meeting ID…</div>
+                                        <div class="vmg-recent-label">Recent Rooms</div>
+                                        <div class="vmg-recent-row">
+                                            <div class="vmg-recent-item">vm-x9k2p</div>
+                                            <div class="vmg-recent-item">vm-8x3tz</div>
+                                            <div class="vmg-recent-item">vm-dev21</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+                                <div class="vmg-label">Meeting Dashboard</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vm-feature-pills">
+                        <span class="vm-pill">🔒 E2E Encrypted</span>
+                        <span class="vm-pill">⚡ &lt;50ms latency</span>
+                        <span class="vm-pill">🌐 No install needed</span>
+                        <span class="vm-pill">📸 5 screens · tap to expand</span>
+                    </div>
+                </div>
+
+                <!-- LIGHTBOX (unchanged) -->
+                <div class="vmg-lightbox" id="vmgLightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
+                    <div class="vmg-lb-backdrop"></div>
+                    <div class="vmg-lb-inner">
+                        <div class="vmg-lb-counter"><span id="vmgLbCurr">1</span> / <span id="vmgLbTotal">5</span></div>
+                        <button class="vmg-lb-close" id="vmgLbClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                        <button class="vmg-lb-nav vmg-lb-prev" id="vmgLbPrev" aria-label="Previous screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+                        <div class="vmg-lb-stage" id="vmgLbStage"></div>
+                        <div class="vmg-lb-caption" id="vmgLbCaption"></div>
+                        <button class="vmg-lb-nav vmg-lb-next" id="vmgLbNext" aria-label="Next screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+                        <div class="vmg-lb-dots" id="vmgLbDots"></div>
+                    </div>
+                </div>
+
+                <!-- RIGHT INFO -->
+                <div class="featured-info">
+                    <span class="featured-number">01</span>
+                    <h3 class="featured-title">V-Meet</h3>
+                    <p class="featured-subtitle">Real-Time Video, Audio &amp; Chat Platform</p>
+                    <p class="featured-desc">Built V-Meet — a full-featured real-time communication platform powered by WebRTC peer connections. Supports Zoom-style grid video conferencing and WhatsApp-style 1-on-1 messaging in one unified app.</p>
+                    <div class="featured-features">
+                        <div class="ff-item"><span class="ff-check">✓</span> Zoom-style grid layout + pinned speaker mode</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> WhatsApp-style chat — read receipts, emoji, file sharing</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Audio conference with mute, noise suppression &amp; push-to-talk</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Group calling — dynamic pin, strip view, 6+ participants</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> Screen sharing with live annotation overlay</div>
+                        <div class="ff-item"><span class="ff-check">✓</span> WebRTC E2E encryption + JWT-secured auth</div>
+                    </div>
+                    <div class="featured-stack">
+                        <span>React.js</span><span>Node.js</span><span>Socket.io</span><span>WebRTC</span><span>MongoDB</span>
+                    </div>
+                    <div class="featured-actions">
+                        <a href="https://v-meet2.vercel.app" class="btn btn-primary btn-magnetic" target="_blank" rel="noopener">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-outline">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            View Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             PROJECTS GRID  ← ONLY SLIDESHOWS CHANGED
+        ════════════════════════════════════════════ -->
+        <section id="projects">
+            <div class="section-header">
+                <span class="section-tag">Work</span>
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-sub">A collection of real-world applications built with modern stacks</p>
+            </div>
+<div class="projects-scroll-wrap">
+
+            <div class="projects-grid">
+
+                <!-- ══════════════════════════════
+                     E-MART  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Production Live</div>
+
+                    <!-- ▼ REPLACE src="images/emart-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-1.png" alt="E-Mart — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-2.png" alt="E-Mart — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-3.png" alt="E-Mart — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-4.png" alt="E-Mart — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/emart-5.png" alt="E-Mart — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/emart-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END E-MART IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>E-Mart</h3><p class="pc-sub">Full Stack Marketplace Web App</p></div>
+                            <a href="https://e-mart-gamma-three.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jan 2026 – Feb 2026</p>
+                        <p class="pc-desc">Production-ready OLX-style marketplace with JWT auth, real-time chat via Socket.IO, cloud image storage, and optimized MongoDB schemas for fast search, filtering, sorting &amp; pagination.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>MongoDB</span><span>Socket.IO</span><span>Tailwind</span><span>JWT</span></div>
+                        <a href="https://e-mart-gamma-three.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🏆 <strong>Highlights:</strong> Real-time messaging, optimized pagination, role-based auth, cloud storage integration</p>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     V-MEET  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>WebRTC · Low-Latency</div>
+
+                    <!-- ▼ REPLACE src="images/vmeet-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-1.png" alt="V-Meet — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-2.png" alt="V-Meet — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-3.png" alt="V-Meet — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-4.png" alt="V-Meet — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/vmeet-5.png" alt="V-Meet — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/vmeet-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END V-MEET IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>V-Meet</h3><p class="pc-sub">Real-Time Video Meeting Platform</p></div>
+                            <a href="https://v-meet2.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Nov 2025 – Dec 2025</p>
+                        <p class="pc-desc">Scalable video conferencing platform using WebRTC for low-latency calls. Features secure auth, room creation, screen sharing, live chat, typing indicators, and real-time notifications.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>WebRTC</span><span>Socket.io</span><span>MongoDB</span></div>
+                        <a href="https://v-meet2.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">⚡ <strong>Tech:</strong> WebRTC P2P, Socket.io signaling, screen capture API, real-time presence</p>
+                    </div>
+                </div>
+
+
+                <!-- ══════════════════════════════
+                     CHESS ARENA  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>50+ Rooms · 100+ Players</div>
+
+                    <!-- ▼ REPLACE src="images/chess-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-1.png" alt="ChessArena — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-2.png" alt="ChessArena — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-3.png" alt="ChessArena — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-4.png" alt="ChessArena — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chess-5.png" alt="ChessArena — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chess-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END CHESS ARENA IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>ChessArena</h3><p class="pc-sub">Real-Time Multiplayer Chess</p></div>
+                            <a href="https://chessarena-w7fq.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Feb 2025 – Mar 2025</p>
+                        <p class="pc-desc">Multiplayer chess platform orchestrating 50+ concurrent game rooms with live state sync across 100+ players, sub-100ms latency, and 99.8% uptime via optimized WebSocket management.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>Socket.IO</span><span>Express.js</span><span>WebSocket</span></div>
+                        <a href="https://chessarena-w7fq.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">♟ <strong>Scale:</strong> 50+ concurrent rooms, &lt;100ms latency, 99.8% uptime, chess.js engine</p>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     SEVEN WONDERS  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Full CRUD · JWT</div>
+
+                    <!-- ▼ REPLACE src="images/seven-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-1.png" alt="Seven Wonders — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-2.png" alt="Seven Wonders — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-3.png" alt="Seven Wonders — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-4.png" alt="Seven Wonders — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/seven-5.png" alt="Seven Wonders — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/seven-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END SEVEN WONDERS IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Seven Wonders</h3><p class="pc-sub">Comprehensive Travel Platform</p></div>
+                            <a href="https://the-7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jan 2024 – Feb 2024</p>
+                        <p class="pc-desc">Travel web application showcasing the Seven Wonders with secure JWT auth, RESTful APIs for user management, CRUD reviews, and role-based access control.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>Express.js</span><span>MongoDB</span><span>JWT</span><span>bcrypt</span></div>
+                        <a href="https://the-7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🌍 <strong>Features:</strong> CRUD reviews, RESTful API design, bcrypt password hashing, RBAC</p>
+                    </div>
+                </div>
+        <!-- ══════════════════════════════
+                     QUIZ MASTER  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Live Timer · Leaderboard</div>
+
+                    <!-- ▼ REPLACE src="images/quiz-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-1.png" alt="Quiz Master — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-2.png" alt="Quiz Master — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-3.png" alt="Quiz Master — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-4.png" alt="Quiz Master — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/quiz-5.png" alt="Quiz Master — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/quiz-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END QUIZ MASTER IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Quiz Master</h3><p class="pc-sub">Online Assessment Platform</p></div>
+                            <a href="https://quiz-master-zoo7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Sep 2023 – Oct 2023</p>
+                        <p class="pc-desc">Online assessment platform with JWT auth, role-based portals for teachers and students, real-time quiz timer with auto-submission, and competitive leaderboard across categories.</p>
+                        <div class="pc-stack"><span>Node.js</span><span>MongoDB</span><span>JWT</span><span>Express.js</span></div>
+                        <a href="https://quiz-master-zoo7.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">📊 <strong>Features:</strong> Teacher/student portals, auto-submit timer, category filters, real-time leaderboard</p>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════
+                     CYBER SECURITY TOOLS  — 5 slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>AES-256 · RBAC</div>
+
+                    <!-- ▼ REPLACE src="images/cyber-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-1.png" alt="Cyber Security Tools — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-2.png" alt="Cyber Security Tools — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-2.png</span>
+                                </div>
+                            </div>
+
+                            <!-- <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-3.png" alt="Cyber Security Tools — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-4.png" alt="Cyber Security Tools — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/cyber-5.png" alt="Cyber Security Tools — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/cyber-5.png</span>
+                                </div>
+                            </div> -->
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END CYBER TOOLS IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Cyber Security Tools</h3><p class="pc-sub">Security Utility Platform</p></div>
+                            <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jul 2025 – Sep 2025</p>
+                        <p class="pc-desc">Security utility platform with password analysis, hash generation (MD5/SHA-256), AES encryption/decryption, URL &amp; port scanning. Role-based access with JWT and refresh tokens.</p>
+                        <div class="pc-stack"><span>React.js</span><span>Node.js</span><span>JWT</span><span>RBAC</span><span>AES-256</span></div>
+                        <a href="https://cyber-security-tools-ruby.vercel.app" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">🔒 <strong>Security:</strong> AES-256, bcrypt hashing, refresh token rotation, RBAC middleware</p>
+                    </div>
+                </div>
+                <!-- ══════════════════════════════
+                     CHAT APP  — 5 real image slots
+                ══════════════════════════════ -->
+                <div class="project-card reveal tilt-card">
+                    <div class="pc-metric"><span class="pc-metric-dot"></span>Socket.io · Real-Time</div>
+
+                    <!-- ▼ REPLACE src="images/chat-N.png" with your actual screenshots ▼ -->
+                    <div class="pc-slideshow" data-slides="5">
+                        <div class="pc-slides-track">
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="/profile.jpg" alt="Chat App — Screenshot 1"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-1.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-2.png" alt="Chat App — Screenshot 2"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-2.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-3.png" alt="Chat App — Screenshot 3"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-3.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-4.png" alt="Chat App — Screenshot 4"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-4.png</span>
+                                </div>
+                            </div>
+
+                            <div class="pc-slide" style="background:#0a0a0a; padding:0;">
+                                <img src="images/chat-5.png" alt="Chat App — Screenshot 5"
+                                     class="pc-img-slide"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="pc-img-placeholder" style="display:none;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>images/chat-5.png</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button class="ps-prev" onclick="slidePrev(this)" aria-label="Previous slide">‹</button>
+                        <button class="ps-next" onclick="slideNext(this)" aria-label="Next slide">›</button>
+                        <div class="ps-dots" role="tablist">
+                            <span class="ps-dot-ind active" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                            <span class="ps-dot-ind" role="tab"></span>
+                        </div>
+                    </div>
+                    <!-- ▲ END CHAT APP IMAGE SLOTS ▲ -->
+
+                    <div class="pc-body">
+                        <div class="pc-title-row">
+                            <div><h3>Chat Application</h3><p class="pc-sub">Full-Stack Real-Time Messaging</p></div>
+                            <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-ext-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Live
+                            </a>
+                        </div>
+                        <p class="pc-duration">Jun 2023 – Aug 2023</p>
+                        <p class="pc-desc">Full-stack chat application with RESTful APIs, real-time communication via Socket.io, and a responsive UI for seamless user experience. Deployed on Render with MongoDB backend.</p>
+                        <div class="pc-stack"><span>React</span><span>Express.js</span><span>MongoDB</span><span>Socket.io</span></div>
+                        <a href="https://chatapp-drt5.onrender.com" target="_blank" rel="noopener noreferrer" class="pc-cta">View Project →</a>
+                    </div>
+                    <div class="pc-hover-detail">
+                        <p class="pc-highlight">💬 <strong>Features:</strong> Real-time presence, group rooms, persistent message history, responsive UI</p>
+                    </div>
+                </div>
+
+        
+            </div><!-- /projects-grid -->
+
+            
+
+
+
+<!-- 3D Roll Nav — mobile only -->
+<div class="roll-nav" id="rollNav">
+    <button class="roll-btn" id="rollPrev" aria-label="Previous">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="roll-counter-wrap">
+        <div class="roll-counter">
+            <span id="rollCurr">1</span> / <span id="rollTot">7</span>
+        </div>
+        <div class="roll-dots" id="rollDots"></div>
+    </div>
+    <button class="roll-btn" id="rollNext" aria-label="Next">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+
+<!-- 3D Fan Nav — desktop only -->
+<div class="fan-nav" id="fanNav">
+    <button class="fan-btn" id="fanPrev" aria-label="Previous project">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="fan-counter-wrap">
+        <div class="fan-counter">
+            <span id="fanCurr">1</span> / <span id="fanTot">7</span>
+        </div>
+        <div class="fan-dots" id="fanDots"></div>
+    </div>
+    <button class="fan-btn" id="fanNext" aria-label="Next project">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+<p class="fan-hint" id="fanHint">
+    <kbd>←</kbd> <kbd>→</kbd> keyboard · click side cards · drag to rotate
+</p>
+</div>
+
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             GITHUB ACTIVITY
+        ════════════════════════════════════════════ -->
+        <section id="github-activity" class="github-section">
+            <div class="section-header">
+                <span class="section-tag">Activity</span>
+                <h2 class="section-title">GitHub Contributions</h2>
+            </div>
+            <div class="github-card reveal">
+                <div class="github-card-header">
+                    <div class="github-profile-info">
+                        <div class="gh-avatar">A</div>
+                        <div>
+                            <div class="gh-name">Amitnayak01</div>
+                            <div class="gh-handle">github.com/Amitnayak01</div>
+                        </div>
+                    </div>
+                    <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-outline gh-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        View Profile
+                    </a>
+                </div>
+                <div class="github-graph-wrap">
+                    <img src="https://github-readme-activity-graph.vercel.app/graph?username=Amitnayak01&theme=github-dark&bg_color=0e0e0e&color=c9b896&line=c9b896&point=e8dcc8&area=true&area_color=c9b896&hide_border=true"
+                        alt="GitHub Activity Graph — Amitnayak01"
+                        class="github-graph-img" loading="lazy"
+                        onerror="this.style.display='none'; document.querySelector('.gh-fallback').style.display='flex';">
+                    <div class="gh-fallback" style="display:none;">
+                        <div class="gh-graph-grid" id="ghGrid"></div>
+                        <p>Visit <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener">github.com/Amitnayak01</a> to see contributions</p>
+                    </div>
+                </div>
+                <div class="github-stats-row">
+                    <div class="gh-stat">
+                        <span class="gh-stat-num"><span class="count-up" data-target="7" data-suffix="+">0</span></span>
+                        <span class="gh-stat-label">Repositories</span>
+                    </div>
+                    <div class="gh-stat">
+                        <span class="gh-stat-num"><span class="count-up" data-target="3" data-suffix="+">0</span></span>
+                        <span class="gh-stat-label">Years Active</span>
+                    </div>
+                    <div class="gh-stat">
+                        <span class="gh-stat-num">Full</span>
+                        <span class="gh-stat-label">Stack Focus</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             CONTACT
+        ════════════════════════════════════════════ -->
+        <section id="contact">
+            <div class="section-header">
+                <span class="section-tag">Contact</span>
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-sub">Open to new opportunities — let's build something great together.</p>
+            </div>
+            <div class="contact-grid">
+                <a href="mailto:amitkumarnayak330@gmail.com" class="contact-card reveal">
+                    <div class="cc-icon-wrap">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>Email</h3>
+                        <span><span class="__cf_email__" data-cfemail="6d0c0004190618000c1f030c140c065e5e5d2d0a000c0401430e0200">[email&#160;protected]</span></span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+                <a href="https://linkedin.com/in/amit-nayak-738024344" target="_blank" rel="noopener" class="contact-card reveal">
+                    <div class="cc-icon-wrap linkedin-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>LinkedIn</h3>
+                        <span>amit-nayak-738024344</span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+                <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="contact-card reveal">
+                    <div class="cc-icon-wrap github-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </div>
+                    <div class="cc-info">
+                        <h3>GitHub</h3>
+                        <span>github.com/Amitnayak01</span>
+                    </div>
+                    <div class="cc-arrow" aria-hidden="true">→</div>
+                </a>
+            </div>
+        </section>
+
+    </div><!-- /container -->
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">AKN</div>
+            <p>© 2025 Amit Kumar Nayak · Full Stack Developer · Bhubaneswar, Odisha</p>
+            <p class="footer-langs">Odia · Hindi · English</p>
+        </div>
+    </footer>
+
+ <script src="script.js" defer></script>
+ <script src="sound.js" defer></script>
+</body>
+</html>

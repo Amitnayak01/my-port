@@ -12,70 +12,254 @@
     const roleEl = document.getElementById('lockRoleType');
     if (!screen || !thumb) return;
 
-    /* ── Particle canvas ── */
-    const canvas = document.getElementById('lockCanvas');
-    const ctx    = canvas && canvas.getContext('2d');
-    let particles = [], animId;
 
-    function resizeCanvas() {
-        if (!canvas) return;
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
+    /* ── Particle canvas — enhanced ── */
+const canvas = document.getElementById('lockCanvas');
+const ctx    = canvas && canvas.getContext('2d');
+let particles = [], shootingStars = [], animId;
 
-    function spawnParticles() {
-        particles = [];
-        const n = Math.min(60, Math.floor(window.innerWidth / 14));
-        for (let i = 0; i < n; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                r: Math.random() * 1.2 + 0.3,
-                dx: (Math.random() - 0.5) * 0.3,
-                dy: (Math.random() - 0.5) * 0.3,
-                o: Math.random() * 0.5 + 0.1,
-                pulse: Math.random() * Math.PI * 2
-            });
-        }
-    }
+function resizeCanvas() {
+    if (!canvas) return;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 
-    function drawParticles() {
-        if (!ctx) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const t = Date.now() / 1000;
-        particles.forEach(p => {
-            p.x += p.dx; p.y += p.dy; p.pulse += 0.02;
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width)  p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
-            const alpha = p.o * (0.6 + 0.4 * Math.sin(p.pulse));
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(201,169,110,${alpha})`;
-            ctx.fill();
+function spawnParticles() {
+    particles = [];
+    shootingStars = [];
+    const n = Math.min(90, Math.floor(window.innerWidth / 10));
+    const COLORS = [
+        [201,169,110],[201,169,110],[201,169,110],
+        [232,200,140],[90,155,110],[255,255,240],
+    ];
+    for (let i = 0; i < n; i++) {
+        const col = COLORS[Math.floor(Math.random() * COLORS.length)];
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.8 + 0.2,
+            dx: (Math.random() - 0.5) * 0.32,
+            dy: (Math.random() - 0.5) * 0.32,
+            o: Math.random() * 0.55 + 0.1,
+            pulse: Math.random() * Math.PI * 2,
+            col,
         });
-        /* Faint connection lines */
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 100) {
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.strokeStyle = `rgba(201,169,110,${0.06 * (1 - dist/100)})`;
-                    ctx.lineWidth = 0.5;
-                    ctx.stroke();
-                }
+    }
+}
+
+
+
+function spawnShootingStar() {
+    if (shootingStars.length >= 3) return;
+    shootingStars.push({
+        x: Math.random() * canvas.width * 0.65,
+        y: Math.random() * canvas.height * 0.45,
+        len: Math.random() * 130 + 60,
+        speed: Math.random() * 9 + 6,
+        opacity: 1,
+        angle: Math.PI / 4 + (Math.random() - 0.5) * 0.35,
+        width: Math.random() * 1.4 + 0.4,
+    });
+}
+
+function drawParticles() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+/* Soft nebula glows */
+    const t = Date.now() / 9000;
+    [
+        { bx: 0.18, by: 0.22, r: 280, col: '201,169,110', base: 0.09  },
+        { bx: 0.82, by: 0.75, r: 240, col: '90,155,110',  base: 0.07  },
+        { bx: 0.50, by: 0.10, r: 200, col: '201,169,110', base: 0.065 },
+        { bx: 0.15, by: 0.78, r: 180, col: '110,141,201', base: 0.05  },
+        { bx: 0.88, by: 0.20, r: 160, col: '201,155,90',  base: 0.055 },
+    ].forEach((nb, i) => {
+        const pulse = 0.75 + 0.25 * Math.sin(t * Math.PI * 2 + i * 1.8);
+        const cx = nb.bx * canvas.width  + Math.sin(t * 1.1 + i) * 55;
+        const cy = nb.by * canvas.height + Math.cos(t * 0.9 + i * 1.4) * 40;
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, nb.r * pulse);
+        g.addColorStop(0,   `rgba(${nb.col},${nb.base * pulse})`);
+        g.addColorStop(0.5, `rgba(${nb.col},${nb.base * pulse * 0.4})`);
+        g.addColorStop(1,   `rgba(${nb.col},0)`);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+
+    
+    /* Particles */
+    particles.forEach(p => {
+        p.x += p.dx; p.y += p.dy; p.pulse += 0.018;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width)  p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        const alpha = p.o * (0.5 + 0.5 * Math.sin(p.pulse));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.col.join(',')},${alpha})`;
+        ctx.fill();
+    });
+
+    /* Connection lines */
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 95) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(201,169,110,${0.08 * (1 - dist/95)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
             }
         }
-        animId = requestAnimationFrame(drawParticles);
     }
 
-    resizeCanvas(); spawnParticles(); drawParticles();
+    /* Shooting stars */
+    if (Math.random() < 0.004) spawnShootingStar();
+    shootingStars = shootingStars.filter(s => s.opacity > 0.02);
+    shootingStars.forEach(s => {
+        const tx = s.x + Math.cos(s.angle) * s.len;
+        const ty = s.y + Math.sin(s.angle) * s.len;
+        const sg = ctx.createLinearGradient(s.x, s.y, tx, ty);
+        sg.addColorStop(0,   `rgba(255,255,255,0)`);
+        sg.addColorStop(0.3, `rgba(201,169,110,${s.opacity * 0.55})`);
+        sg.addColorStop(1,   `rgba(255,255,255,${s.opacity})`);
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(tx, ty);
+        ctx.strokeStyle = sg;
+        ctx.lineWidth = s.width;
+        ctx.stroke();
+        s.x += Math.cos(s.angle) * s.speed;
+        s.y += Math.sin(s.angle) * s.speed;
+        s.opacity -= 0.016;
+    });
+
+    animId = requestAnimationFrame(drawParticles);
+}
+
+resizeCanvas(); spawnParticles(); drawParticles();
+window.addEventListener('resize', () => { resizeCanvas(); spawnParticles(); });
+
+
+resizeCanvas(); spawnParticles(); drawParticles();
     window.addEventListener('resize', () => { resizeCanvas(); spawnParticles(); });
+
+    // ← PASTE HERE ↓
+
+    /* ── Avatar canvas particle ring ── */
+    (function () {
+        const avatarWrap = document.querySelector('.lock-avatar-wrap');
+        if (!avatarWrap) return;
+
+        const ac = document.createElement('canvas');
+        Object.assign(ac.style, {
+            position: 'absolute',
+            inset: '-80px',
+            width: 'calc(100% + 160px)',
+            height: 'calc(100% + 160px)',
+            pointerEvents: 'none',
+            zIndex: '0',
+            borderRadius: '50%',
+        });
+        avatarWrap.prepend(ac);
+
+        const actx = ac.getContext('2d');
+        let AW, AH, apts = [], araf;
+
+        function resizeAv() {
+            const r = avatarWrap.getBoundingClientRect();
+            AW = ac.width  = r.width  + 160;
+            AH = ac.height = r.height + 160;
+        }
+
+        function spawnAv() {
+            apts = [];
+            for (let i = 0; i < 38; i++) {
+                apts.push({
+                    x:  Math.random() * AW,
+                    y:  Math.random() * AH,
+                    r:  Math.random() * 1.6 + 0.3,
+                    dx: (Math.random() - 0.5) * 0.45,
+                    dy: (Math.random() - 0.5) * 0.45,
+                    o:  Math.random() * 0.55 + 0.1,
+                    ph: Math.random() * Math.PI * 2,
+                    col: Math.random() > 0.7
+                        ? [90,155,110]
+                        : [201,169,110],
+                });
+            }
+        }
+
+        function drawAv() {
+            araf = requestAnimationFrame(drawAv);
+            if (document.hidden) return;
+            actx.clearRect(0, 0, AW, AH);
+
+            const cx = AW / 2, cy = AH / 2;
+            const t  = Date.now() / 7000;
+
+            /* Pulsing nebula glow */
+            const pulse = 0.05 + 0.03 * Math.sin(t * Math.PI * 2);
+            const g = actx.createRadialGradient(cx, cy, 0, cx, cy, AW * 0.46);
+            g.addColorStop(0,   `rgba(201,169,110,${pulse * 2})`);
+            g.addColorStop(0.4, `rgba(201,169,110,${pulse})`);
+            g.addColorStop(1,   'rgba(201,169,110,0)');
+            actx.fillStyle = g;
+            actx.fillRect(0, 0, AW, AH);
+
+            /* Second nebula — green tint */
+            const g2 = actx.createRadialGradient(cx, cy, 0, cx, cy, AW * 0.38);
+            g2.addColorStop(0,   `rgba(90,155,110,${pulse * 1.2})`);
+            g2.addColorStop(1,   'rgba(90,155,110,0)');
+            actx.fillStyle = g2;
+            actx.fillRect(0, 0, AW, AH);
+
+            /* Particles */
+            apts.forEach(p => {
+                p.x += p.dx; p.y += p.dy; p.ph += 0.018;
+                if (p.x < 0) p.x = AW; if (p.x > AW) p.x = 0;
+                if (p.y < 0) p.y = AH; if (p.y > AH) p.y = 0;
+                const alpha = p.o * (0.5 + 0.5 * Math.sin(p.ph));
+                actx.beginPath();
+                actx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                actx.fillStyle = `rgba(${p.col.join(',')},${alpha})`;
+                actx.fill();
+            });
+
+            /* Connection lines */
+            for (let i = 0; i < apts.length; i++) {
+                for (let j = i + 1; j < apts.length; j++) {
+                    const dx = apts[i].x - apts[j].x;
+                    const dy = apts[i].y - apts[j].y;
+                    const d  = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 85) {
+                        actx.beginPath();
+                        actx.moveTo(apts[i].x, apts[i].y);
+                        actx.lineTo(apts[j].x, apts[j].y);
+                        actx.strokeStyle = `rgba(201,169,110,${0.09 * (1 - d / 85)})`;
+                        actx.lineWidth = 0.5;
+                        actx.stroke();
+                    }
+                }
+            }
+
+            /* Shooting stars */
+            if (Math.random() < 0.008 && !window._avStars) {
+                window._avStars = window._avStars || [];
+            }
+        }
+
+        resizeAv(); spawnAv(); drawAv();
+        window.addEventListener('resize', () => { resizeAv(); spawnAv(); });
+    })();
+
+    // ← END OF PASTE ↑
 
     /* ── Role typing ── */
     const roles = ['Full Stack Developer', 'React · Node.js · WebRTC', 'Real-Time App Builder'];
@@ -113,15 +297,21 @@
         label.style.opacity = Math.max(0, 1 - pct * 2.5);
     }
 
-    function unlock() {
-        const ripple = document.createElement('div');
-        ripple.className = 'lock-ripple';
-        track.appendChild(ripple);
-        screen.classList.add('lock-flash');
-        cancelAnimationFrame(animId);
-        setTimeout(() => { screen.classList.add('lock-unlocked'); }, 380);
-        setTimeout(() => { screen.style.display = 'none'; }, 1100);
-    }
+ // ── Lock body scroll while lock screen is visible ──
+document.body.style.overflow = 'hidden';
+
+function unlock() {
+    const ripple = document.createElement('div');
+    ripple.className = 'lock-ripple';
+    track.appendChild(ripple);
+    screen.classList.add('lock-flash');
+    cancelAnimationFrame(animId);
+    setTimeout(() => { screen.classList.add('lock-unlocked'); }, 380);
+    setTimeout(() => {
+        screen.style.display = 'none';
+        document.body.style.overflow = ''; // ── Restore scrolling ──
+    }, 1100);
+}
 
     function snapBack() {
         thumb.style.transition = 'left 0.45s cubic-bezier(0.34,1.2,0.64,1)';
@@ -165,9 +355,104 @@
 })();
 
 
+/* ── Hero Comets — same as lock screen ── */
+(function () {
+    const hero = document.getElementById('hero');
+    if (!hero) return;
+
+    const canvas = document.createElement('canvas');
+    Object.assign(canvas.style, {
+        position:      'absolute',
+        inset:         '0',
+        width:         '100%',
+        height:        '100%',
+        pointerEvents: 'none',
+        zIndex:        '0',
+    });
+
+    const parallax = hero.querySelector('.hero-parallax-bg');
+    if (parallax) parallax.appendChild(canvas);
+    else hero.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let W, H, stars = [], raf;
+
+    function resize() {
+        const r = hero.getBoundingClientRect();
+        W = canvas.width  = r.width;
+        H = canvas.height = r.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function spawnStar() {
+        if (stars.length >= 6) return;
+        stars.push({
+            x:       Math.random() * W * 0.65,
+            y:       Math.random() * H * 0.45,
+            len:     Math.random() * 130 + 60,
+            speed:   Math.random() * 9 + 6,
+            opacity: 1,
+            angle:   Math.PI / 4 + (Math.random() - 0.5) * 0.35,
+            width:   Math.random() * 1.4 + 0.4,
+        });
+    }
+
+    let last = performance.now();
+
+    function draw(now) {
+        raf = requestAnimationFrame(draw);
+        ctx.clearRect(0, 0, W, H);
+
+        /* spawn */
+        if (Math.random() < 0.025) spawnStar();
+
+        /* filter dead */
+        stars = stars.filter(s => s.opacity > 0.02);
+
+        stars.forEach(s => {
+            const tx = s.x + Math.cos(s.angle) * s.len;
+            const ty = s.y + Math.sin(s.angle) * s.len;
+
+            const sg = ctx.createLinearGradient(s.x, s.y, tx, ty);
+            sg.addColorStop(0,   `rgba(255,255,255,0)`);
+            sg.addColorStop(0.3, `rgba(201,169,110,${s.opacity * 0.55})`);
+            sg.addColorStop(1,   `rgba(255,255,255,${s.opacity})`);
+
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(tx, ty);
+            ctx.strokeStyle = sg;
+            ctx.lineWidth   = s.width;
+            ctx.lineCap     = 'round';
+            ctx.stroke();
+
+            s.x       += Math.cos(s.angle) * s.speed;
+            s.y       += Math.sin(s.angle) * s.speed;
+            s.opacity -= 0.016;
+        });
+    }
+
+    raf = requestAnimationFrame(draw);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(raf);
+        else { last = performance.now(); raf = requestAnimationFrame(draw); }
+    });
+})();
 
 
+// flip rofile img
 
+function flipHeroAvatar() {
+    const card = document.querySelector('.hero-img-outer');
+    card.classList.toggle('flipped');
+}
+
+function flipAvatar() {
+    const card = document.getElementById('lockAvatarCard');
+    card.classList.toggle('flipped');
+}
 /* ════════════════════════════════════════════════════
        ALL JS UNCHANGED FROM ORIGINAL
     ════════════════════════════════════════════════════ */
