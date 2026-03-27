@@ -377,21 +377,20 @@
                     <div class="hero-glow-ring" aria-hidden="true"></div>
                     <div class="hero-glow-ring-2" aria-hidden="true"></div>
 
-                    <div class="hero-img-outer" onclick="flipHeroAvatar()">
+<div class="hero-img-outer" id="heroImgOuter" onclick="flipHeroAvatar()">
+
+    <!-- FRONT: profile.jpg -->
     <img src="profile.jpg" alt="Amit Kumar Nayak" class="hero-img" loading="eager">
 
-    <!-- Back face -->
+    <!-- BACK: profile1.jpg -->
     <div class="hero-img-back">
-        <div class="hb-initials">AKN</div>
-        <div class="hb-name">Amit Kumar<br>Nayak</div>
-        <div class="hb-role">Full Stack Developer</div>
-        <div class="hb-stack">
-            <span>React</span>
-            <span>Node.js</span>
-            <span>WebRTC</span>
-            <span>MongoDB</span>
-        </div>
+        <img src="profile1.jpg" alt="Amit Kumar Nayak" class="hb-photo">
     </div>
+
+    <!-- Tap hint -->
+    <div class="hero-tap-hint">tap to flip</div>
+
+</div>
 
     <!-- Tap hint -->
     <div class="hero-tap-hint">tap to flip</div>

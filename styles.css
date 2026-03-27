@@ -4864,3 +4864,300 @@ transform-origin: top center;
         display: none !important;
     }
 }
+
+
+
+
+
+
+/* ══════════════════════════════════════════════════
+   AVATAR FLIP — COMPLETE FIX v2
+   Root cause: overflow:hidden on a preserve-3d element
+   flattens the 3D context → backface-visibility stops
+   working → both faces render at the same time.
+   Fix: remove overflow from container, clip each face
+   individually with border-radius on the face itself.
+   Paste at very bottom of styles.css.
+══════════════════════════════════════════════════ */
+
+/* ── 1. Container: 3D scene, NO overflow ── */
+#lockAvatarCard {
+    overflow: visible !important;
+    transform-style: preserve-3d !important;
+    transition: transform 0.8s cubic-bezier(0.34, 1.1, 0.64, 1) !important;
+    transform: rotateY(0deg) !important;
+    animation: lockAvatarGlow 5s ease-in-out infinite !important;
+    position: relative !important;
+    cursor: pointer !important;
+    /* Border stays on container for the ring glow */
+    border: 2.5px solid rgba(201,169,110,0.45) !important;
+    background: transparent !important;
+}
+
+/* ── 2. Flipped state ── */
+#lockAvatarCard.flipped {
+    transform: rotateY(180deg) !important;
+}
+
+/* ── 3. Front face: profile.jpg ──
+   Absolutely positioned, clips itself to circle,
+   disappears when card flips. */
+#lockAvatarCard > img:first-of-type {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;   /* clips the photo to circle */
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    z-index: 1 !important;
+    display: block !important;
+}
+
+/* Fallback span (shown when profile.jpg missing) */
+#lockAvatarCard > span:first-of-type {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+/* ── 4. Back face: .lock-avatar-back ──
+   Pre-rotated 180° so it starts face-down.
+   overflow:hidden here (not on parent) clips profile1.jpg. */
+#lockAvatarCard .lock-avatar-back {
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;        /* safe here — not a preserve-3d parent */
+    transform: rotateY(180deg) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    z-index: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, #1a1410, #2a2018) !important;
+}
+
+/* ── 5. profile1.jpg inside back face ── */
+#lockAvatarCard .lock-avatar-back-img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;  /* parent's overflow:hidden clips it */
+    z-index: 1 !important;
+    display: block !important;
+}
+
+/* Fallback initials/name block sits above the image */
+#lockAvatarCard .lock-avatar-back-fallback {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+/* ── 6. Aurora sweeps — keep behind both faces ── */
+#lockAvatarCard::before,
+#lockAvatarCard::after {
+    z-index: 0 !important;
+    border-radius: 50% !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+/* ── Remove disk/ring animations ── */
+#lockAvatarCard::before,
+#lockAvatarCard::after {
+    display: none !important;
+}
+
+/* ── 7. Tap hint ── */
+#lockAvatarCard .lock-avatar-tap-hint {
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 3 !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+#lockAvatarCard.flipped .lock-avatar-tap-hint {
+    opacity: 0 !important;
+}
+
+
+
+
+/* ══════════════════════════════════════════════════
+   AVATAR FLIP — BACK FACE PHOTO SAFETY NET
+   Paste at very bottom of styles.css (after v2 fix).
+   
+   If profile1.jpg exists  → it shows via the <img> tag.
+   If profile1.jpg missing → CSS background-image shows
+                             profile.jpg as a fallback,
+                             and the AKN text is hidden.
+══════════════════════════════════════════════════ */
+
+/* Always load profile.jpg as a CSS bg on the back face.
+   The <img> (profile1.jpg) sits on top via z-index and
+   covers this if it loads successfully. */
+#lockAvatarCard .lock-avatar-back {
+    background-image: url('profile.jpg') !important;
+    background-size: cover !important;
+    background-position: center top !important;
+}
+
+/* Hide the text fallback — the bg photo covers it.
+   If you want the initials when truly no photo exists,
+   remove these two rules. */
+#lockAvatarCard .lock-avatar-back-fallback {
+    display: none !important;
+}
+
+/* Make the back-img z-index higher so profile1.jpg
+   covers the bg when it does load */
+#lockAvatarCard .lock-avatar-back-img {
+    z-index: 2 !important;
+}
+
+
+
+
+
+
+
+/* ══════════════════════════════════════════════════
+   HERO FLIP — COMPLETE REWRITE (fixes overflow:hidden
+   flattening the 3D context and both faces showing)
+══════════════════════════════════════════════════ */
+
+/* Container: 3D scene, NO overflow (this was the bug) */
+.hero-img-outer {
+    overflow: visible !important;
+    transform-style: preserve-3d !important;
+    transition: transform 0.8s cubic-bezier(0.34, 1.1, 0.64, 1) !important;
+    animation: none !important;
+    cursor: pointer !important;
+    /* rings/glow stay on the container */
+}
+
+.hero-img-outer.flipped {
+    transform: rotateY(180deg) !important;
+}
+
+/* ── Front face: profile.jpg ── */
+.hero-img {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center top !important;
+    border-radius: 50% !important;   /* clips itself — no parent overflow needed */
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    z-index: 1 !important;
+    transform: rotateY(0deg) !important;
+}
+
+/* ── Back face wrapper ── */
+.hero-img-back {
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;     /* safe here — not a preserve-3d parent */
+    transform: rotateY(180deg) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    z-index: 1 !important;
+    background: #0e0c08 !important;
+    /* kill the old flex/text layout */
+    display: block !important;
+    gap: unset !important;
+}
+
+/* ── Back face photo: profile1.jpg ── */
+.hero-img-back .hb-photo {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center top !important;
+    border-radius: 0 !important; /* parent clips to circle */
+    backface-visibility: hidden !important;
+}
+
+/* Hide old text children on back face */
+.hero-img-back .hb-initials,
+.hero-img-back .hb-name,
+.hero-img-back .hb-role,
+.hero-img-back .hb-stack {
+    display: none !important;
+}
+
+/* ── Tap hint stays on front only ── */
+.hero-tap-hint {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transition: opacity 0.3s ease !important;
+}
+.hero-img-outer.flipped .hero-tap-hint {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ── Stat cards & orbit dots stay on top ── */
+.hero-stat-card,
+.hero-orbit-dot {
+    transform-style: flat !important;
+    backface-visibility: visible !important;
+    z-index: 10 !important;
+}
+
+/* ── Mobile: same behaviour ── */
+@media (max-width: 768px) {
+    .hero-img-outer {
+        overflow: visible !important;
+    }
+}
+
+
+
+
+/* ── Remove aurora animation from hero back face only ── */
+.hero-img-back::before,
+.hero-img-back::after {
+    display: none !important;
+    content: none !important;
+}
+
+.hero-img-back {
+    background: #0e0c08 !important;
+}
+
+
+/* ── Hero tap hint — force above front photo ── */
+.hero-tap-hint {
+    z-index: 20 !important;
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    pointer-events: none !important;
+    white-space: nowrap !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8) !important;
+    background: rgba(0,0,0,0.45) !important;
+    padding: 3px 10px !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    font-size: 0.52rem !important;
+    letter-spacing: 0.12em !important;
+    color: rgba(255,255,255,0.55) !important;
+}
