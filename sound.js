@@ -919,6 +919,76 @@ function playUIClick() {
     } catch(e) {}
 }
 
+
+/* ════════════════════════════════════════════════════
+   SOUND 19 — Avatar Flip
+════════════════════════════════════════════════════ */
+function playFlip() {
+    if (!soundEnabled) return;
+    try {
+        var ctx = getCtx(); if (!ctx) return;
+        var t   = ctx.currentTime;
+
+        /* Whoosh sweep */
+        var osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(280, t);
+        osc.frequency.exponentialRampToValueAtTime(520, t + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(180, t + 0.18);
+        var og = ctx.createGain();
+        og.gain.setValueAtTime(0.0001, t);
+        og.gain.linearRampToValueAtTime(0.18, t + 0.04);
+        og.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        osc.connect(og); og.connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.24);
+
+        /* Air whoosh noise */
+        var wSize = Math.floor(ctx.sampleRate * 0.18);
+        var wBuf  = ctx.createBuffer(1, wSize, ctx.sampleRate);
+        var wd    = wBuf.getChannelData(0);
+        for (var i = 0; i < wSize; i++)
+            wd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / wSize, 1.8);
+        var wn = ctx.createBufferSource();
+        wn.buffer = wBuf;
+        var wf = ctx.createBiquadFilter();
+        wf.type = 'bandpass'; wf.frequency.value = 1800; wf.Q.value = 0.7;
+        var wg = ctx.createGain();
+        wg.gain.setValueAtTime(0.0001, t);
+        wg.gain.linearRampToValueAtTime(0.09, t + 0.05);
+        wg.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+        wn.connect(wf); wf.connect(wg); wg.connect(ctx.destination);
+        wn.start(t); wn.stop(t + 0.2);
+
+        /* Snap on land */
+        var sSize = Math.floor(ctx.sampleRate * 0.018);
+        var sBuf  = ctx.createBuffer(1, sSize, ctx.sampleRate);
+        var sd    = sBuf.getChannelData(0);
+        for (var j = 0; j < sSize; j++)
+            sd[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / sSize, 14);
+        var snap = ctx.createBufferSource();
+        snap.buffer = sBuf;
+        var sf = ctx.createBiquadFilter();
+        sf.type = 'bandpass'; sf.frequency.value = 2600; sf.Q.value = 1.4;
+        var sg = ctx.createGain();
+        sg.gain.setValueAtTime(0.24, t + 0.17);
+        sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+        snap.connect(sf); sf.connect(sg); sg.connect(ctx.destination);
+        snap.start(t + 0.17); snap.stop(t + 0.22);
+
+        /* Soft thud on settle */
+        var thud = ctx.createOscillator();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(120, t + 0.18);
+        thud.frequency.exponentialRampToValueAtTime(45, t + 0.28);
+        var tg = ctx.createGain();
+        tg.gain.setValueAtTime(0.16, t + 0.18);
+        tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        thud.connect(tg); tg.connect(ctx.destination);
+        thud.start(t + 0.18); thud.stop(t + 0.32);
+    } catch(e) {}
+}
+
+
 /* ════════════════════════════════════════════════════
    SOUND TOGGLE
 ════════════════════════════════════════════════════ */
@@ -1085,6 +1155,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }).observe(lockScreen, { attributes: true, attributeFilter: ['class'] });
     }
+
+    /* ── Hero avatar flip ── */
+var heroOuter = document.querySelector('.hero-img-outer');
+if (heroOuter) {
+    heroOuter.addEventListener('pointerup', function() {
+        setTimeout(playFlip, 90); /* matches the 90ms flip delay */
+    });
+}
+
+/* ── Lock screen avatar flip ── */
+var lockAvatar = document.getElementById('lockAvatarCard');
+if (lockAvatar) {
+    lockAvatar.addEventListener('click', function() {
+        playFlip();
+    });
+}
+
+
     /* ── V-Meet mosaic ── */
     var vmGallery = document.getElementById('vmGallery');
     if (vmGallery) {

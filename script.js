@@ -444,10 +444,71 @@ function unlock() {
 
 // flip rofile img
 
-function flipHeroAvatar() {
-    const card = document.querySelector('.hero-img-outer');
-    card.classList.toggle('flipped');
+
+/* ── Hero Avatar Flip + Hand Hint ── */
+(function () {
+    const outer      = document.querySelector('.hero-img-outer');
+    const heroHand   = document.getElementById('heroHandHint');
+    const handIcon   = document.getElementById('heroHandIcon');
+    const handRipple = document.getElementById('heroHandRipple');
+    if (!outer) return;
+
+    let pressing    = false;
+    let heroClicked = false;
+
+    function refireEl(el, cls) {
+        if (!el) return;
+        el.classList.remove(cls);
+        void el.offsetWidth;
+        el.classList.add(cls);
+    }
+
+    /* auto-demo: hand clicks itself every 2.8s */
+    function autoDemo() {
+        if (heroClicked) return;
+        refireEl(handIcon,   'clicking');
+        refireEl(handRipple, 'fire');
+        setTimeout(() => { if (!heroClicked) autoDemo(); }, 2800);
+    }
+    setTimeout(autoDemo, 2000);
+
+    /* press down */
+    function onDown() {
+        pressing = true;
+        outer.classList.remove('bounce', 'flash');
+        refireEl(handIcon,   'clicking');
+        refireEl(handRipple, 'fire');
+    }
+
+    /* release → flip */
+    function onUp() {
+        if (!pressing) return;
+        pressing = false;
+        refireEl(outer, 'bounce');
+        setTimeout(() => refireEl(outer, 'flash'), 30);
+        setTimeout(() => {
+            /* FLIP */
+            outer.classList.toggle('flipped');
+            /* hide hand forever after first real tap */
+            if (!heroClicked && heroHand) {
+                heroClicked = true;
+                heroHand.classList.add('done');
+            }
+        }, 90);
+    }
+
+    outer.addEventListener('pointerdown',  onDown);
+    outer.addEventListener('pointerup',    onUp);
+    outer.addEventListener('pointerleave', () => { if (pressing) onUp(); });
+    outer.addEventListener('touchstart',   e => { e.preventDefault(); onDown(); }, { passive: false });
+    outer.addEventListener('touchend',     e => { e.preventDefault(); onUp();   }, { passive: false });
+})();
+
+function flipAvatar() {
+    const card = document.getElementById('lockAvatarCard');
+    if (card) card.classList.toggle('flipped');
 }
+
 
 function flipAvatar() {
     const card = document.getElementById('lockAvatarCard');
