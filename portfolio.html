@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
     <style>
         /* ── Image slot styles ── */
@@ -380,13 +382,16 @@
 
 
 
-                    <div class="hero-hand-hint" id="heroHandHint">
-  <div class="hero-hand-ripple-bg"></div>
-  <div class="hero-hand-ripple" id="heroHandRipple"></div>
-  <span class="hero-hand-icon" id="heroHandIcon">👆</span>
+<div class="hero-hand-hint" id="heroHandHint">
+  <canvas class="hero-hand-particles" id="heroHandParticles" width="120" height="120"></canvas>
+  <div class="hero-hand-glow" id="heroHandGlow"></div>
+  <div class="hero-hand-icon-wrap">
+    <div class="hero-hand-ring ring-1" id="heroHandRing1"></div>
+    <div class="hero-hand-ring ring-2" id="heroHandRing2"></div>
+    <div class="hero-hand-ring ring-3" id="heroHandRing3"></div>
+    <span class="hero-hand-icon" id="heroHandIcon">👆</span>
+  </div>
 </div>
-
-
 
 
 <div class="hero-img-outer" id="heroImgOuter" onclick="flipHeroAvatar()">
@@ -613,172 +618,7 @@
             </div>
         </section>
 
-        <!-- ════════════════════════════════════════════
-             FEATURED PROJECT
-        ════════════════════════════════════════════ -->
-        <section id="featured" class="featured-section">
-            <div class="section-header">
-                <span class="section-tag">Featured</span>
-                <h2 class="section-title">Spotlight Project</h2>
-            </div>
-            <div class="featured-card reveal blur-reveal">
-                <div class="featured-preview-wrap">
-                    <div class="vmg-mosaic" id="vmGallery">
-                        <div class="vmg-cell vmg-large" data-index="0" role="button" tabindex="0" aria-label="Open screenshot 1 fullscreen">
-                            <div class="vmg-screenshot vmg-s0">
-                                <div class="vmg-s-topbar">
-                                    <span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span>
-                                    <span class="vmg-s-url">v-meet2.vercel.app</span>
-                                    <span class="vmg-s-rec">⬤ REC</span>
-                                </div>
-                                <div class="vmg-s-body">
-                                    <div class="vmg-grid4">
-                                        <div class="vmg-vcell vmg-active"><div class="vmg-av" style="background:linear-gradient(135deg,#c9a96e,#7a5520)">A</div><div class="vmg-vname">Amit<span class="vmg-host">Host</span></div><div class="vmg-vring"></div><div class="vmg-vbar"><span></span><span></span><span></span><span></span><span></span></div></div>
-                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-vname">Remote</div></div>
-                                        <div class="vmg-vcell"><div class="vmg-av" style="background:linear-gradient(135deg,#6e8dc9,#3a5ea0)">S</div><div class="vmg-vname">Sarah</div></div>
-                                        <div class="vmg-vcell vmg-screenshare"><div class="vmg-ss-label">🖥️ Sharing</div><div class="vmg-ssbar"><i></i><i></i><i></i><i></i><i></i></div></div>
-                                    </div>
-                                    <div class="vmg-ctrl-row">
-                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg></button>
-                                        <button class="vmg-cb vmg-cb-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
-                                        <button class="vmg-cb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg></button>
-                                        <button class="vmg-cb vmg-cb-end"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.4 21 3 13.6 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="vmg-overlay"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span>Fullscreen</span></div>
-                            <div class="vmg-label">Zoom Grid Call</div>
-                        </div>
-                        <div class="vmg-right-col">
-                            <div class="vmg-cell vmg-small" data-index="1" role="button" tabindex="0" aria-label="Open screenshot 2">
-                                <div class="vmg-screenshot vmg-s1">
-                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Chat</span></div>
-                                    <div class="vmg-chat-mini">
-                                        <div class="vmg-chat-sb">
-                                            <div class="vmg-csb-item active"><div class="vmg-cav" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div><div class="vmg-cn">Amit</div><div class="vmg-cl">Hey! 👋</div></div></div>
-                                            <div class="vmg-csb-item"><div class="vmg-cav" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div><div><div class="vmg-cn">Remote</div><div class="vmg-cl">Joining...</div></div><span class="vmg-badge">2</span></div>
-                                            <div class="vmg-csb-item"><div class="vmg-cav vmg-grp">👥</div><div><div class="vmg-cn">Dev Team</div><div class="vmg-cl">Sarah: pushed</div></div><span class="vmg-badge">5</span></div>
-                                        </div>
-                                        <div class="vmg-chat-msgs">
-                                            <div class="vmg-msg in">Can we start? 👋<span>10:42</span></div>
-                                            <div class="vmg-msg out">Yes! Starting... <span>10:43 ✓✓</span></div>
-                                            <div class="vmg-msg in vmg-file"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> design.pdf<span>10:44</span></div>
-                                            <div class="vmg-msg out">Got it! 😊<span>10:44 ✓✓</span></div>
-                                            <div class="vmg-typing"><span></span><span></span><span></span><em>typing…</em></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
-                                <div class="vmg-label">WhatsApp Chat</div>
-                            </div>
-                            <div class="vmg-cell vmg-small" data-index="2" role="button" tabindex="0" aria-label="Open screenshot 3">
-                                <div class="vmg-screenshot vmg-s2">
-                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Audio Conference</span><span class="vmg-s-rec">● LIVE</span></div>
-                                    <div class="vmg-audio-mini">
-                                        <div class="vmg-audio-center-mini"><div class="vmg-pulse-ring"></div><div class="vmg-pulse-ring vmg-pr2"></div><div class="vmg-av-large" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><div class="vmg-speak-label">Speaking</div></div>
-                                        <div class="vmg-orb-row">
-                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#5a9b6e,#3a7a4e)">R</div>
-                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div>
-                                            <div class="vmg-mini-orb vmg-orb-muted" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div>
-                                            <div class="vmg-mini-orb" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div>
-                                        </div>
-                                        <div class="vmg-audio-stat">🎙 3 speaking · 🔇 2 muted</div>
-                                    </div>
-                                </div>
-                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
-                                <div class="vmg-label">Audio Conference</div>
-                            </div>
-                            <div class="vmg-cell vmg-small" data-index="3" role="button" tabindex="0" aria-label="Open screenshot 4">
-                                <div class="vmg-screenshot vmg-s3">
-                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">Dev Team · 6 members</span><span class="vmg-s-rec">⬤ REC</span></div>
-                                    <div class="vmg-group-mini">
-                                        <div class="vmg-pin-stage"><div class="vmg-av-large" style="background:linear-gradient(135deg,#5a9b6e,#2a6a3e)">R</div><div class="vmg-pin-wave"><i></i><i></i><i></i><i></i><i></i></div><div class="vmg-pin-tag">📌 Pinned · Speaking</div></div>
-                                        <div class="vmg-strip-mini">
-                                            <div class="vmg-sm-cell vmg-sm-me"><div class="vmg-av sm" style="background:linear-gradient(135deg,#c9a96e,#a07c45)">A</div><small>You</small></div>
-                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#6e8dc9,#4a6ea0)">S</div><small>Sarah</small></div>
-                                            <div class="vmg-sm-cell vmg-muted"><div class="vmg-av sm" style="background:linear-gradient(135deg,#9b6e5a,#7a4e3a)">J</div><small>John🔇</small></div>
-                                            <div class="vmg-sm-cell"><div class="vmg-av sm" style="background:linear-gradient(135deg,#8dc96e,#6eab4a)">M</div><small>Maya</small></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
-                                <div class="vmg-label">Group Call</div>
-                            </div>
-                            <div class="vmg-cell vmg-small" data-index="4" role="button" tabindex="0" aria-label="Open screenshot 5">
-                                <div class="vmg-screenshot vmg-s4">
-                                    <div class="vmg-s-topbar sm"><span class="vmg-dot r"></span><span class="vmg-dot y"></span><span class="vmg-dot g"></span><span class="vmg-s-url">v-meet — Dashboard</span></div>
-                                    <div class="vmg-dash-mini">
-                                        <div class="vmg-dash-welcome">Welcome back, Amit 👋</div>
-                                        <div class="vmg-dash-row">
-                                            <div class="vmg-dash-btn vmg-new-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> New Meeting</div>
-                                            <div class="vmg-dash-btn vmg-join-meet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Join Room</div>
-                                        </div>
-                                        <div class="vmg-input-mini"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Enter meeting ID…</div>
-                                        <div class="vmg-recent-label">Recent Rooms</div>
-                                        <div class="vmg-recent-row">
-                                            <div class="vmg-recent-item">vm-x9k2p</div>
-                                            <div class="vmg-recent-item">vm-8x3tz</div>
-                                            <div class="vmg-recent-item">vm-dev21</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="vmg-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
-                                <div class="vmg-label">Meeting Dashboard</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="vm-feature-pills">
-                        <span class="vm-pill">🔒 E2E Encrypted</span>
-                        <span class="vm-pill">⚡ &lt;50ms latency</span>
-                        <span class="vm-pill">🌐 No install needed</span>
-                        <span class="vm-pill">📸 5 screens · tap to expand</span>
-                    </div>
-                </div>
 
-                <!-- LIGHTBOX (unchanged) -->
-                <div class="vmg-lightbox" id="vmgLightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer">
-                    <div class="vmg-lb-backdrop"></div>
-                    <div class="vmg-lb-inner">
-                        <div class="vmg-lb-counter"><span id="vmgLbCurr">1</span> / <span id="vmgLbTotal">5</span></div>
-                        <button class="vmg-lb-close" id="vmgLbClose" aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-                        <button class="vmg-lb-nav vmg-lb-prev" id="vmgLbPrev" aria-label="Previous screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-                        <div class="vmg-lb-stage" id="vmgLbStage"></div>
-                        <div class="vmg-lb-caption" id="vmgLbCaption"></div>
-                        <button class="vmg-lb-nav vmg-lb-next" id="vmgLbNext" aria-label="Next screenshot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-                        <div class="vmg-lb-dots" id="vmgLbDots"></div>
-                    </div>
-                </div>
-
-                <!-- RIGHT INFO -->
-                <div class="featured-info">
-                    <span class="featured-number">01</span>
-                    <h3 class="featured-title">V-Meet</h3>
-                    <p class="featured-subtitle">Real-Time Video, Audio &amp; Chat Platform</p>
-                    <p class="featured-desc">Built V-Meet — a full-featured real-time communication platform powered by WebRTC peer connections. Supports Zoom-style grid video conferencing and WhatsApp-style 1-on-1 messaging in one unified app.</p>
-                    <div class="featured-features">
-                        <div class="ff-item"><span class="ff-check">✓</span> Zoom-style grid layout + pinned speaker mode</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> WhatsApp-style chat — read receipts, emoji, file sharing</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> Audio conference with mute, noise suppression &amp; push-to-talk</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> Group calling — dynamic pin, strip view, 6+ participants</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> Screen sharing with live annotation overlay</div>
-                        <div class="ff-item"><span class="ff-check">✓</span> WebRTC E2E encryption + JWT-secured auth</div>
-                    </div>
-                    <div class="featured-stack">
-                        <span>React.js</span><span>Node.js</span><span>Socket.io</span><span>WebRTC</span><span>MongoDB</span>
-                    </div>
-                    <div class="featured-actions">
-                        <a href="https://v-meet2.vercel.app" class="btn btn-primary btn-magnetic" target="_blank" rel="noopener">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                            Live Demo
-                        </a>
-                        <a href="https://github.com/Amitnayak01" target="_blank" rel="noopener" class="btn btn-outline">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                            View Code
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- ════════════════════════════════════════════
              PROJECTS GRID  ← ONLY SLIDESHOWS CHANGED
