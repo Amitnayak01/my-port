@@ -1,9 +1,13 @@
+
 /* ══════════════════════════════════════════════════════════════════
-   HUD RING CANVAS  —  Arc Reactor Edition  v6.0  (COMPRESSED + 3D)
-   ✦ Rings pulled TIGHT — no sprawl, maximum density
-   ✦ 3× faster rotation + energy flow
-   ✦ Dramatic perspective tilt (CSS 3D, 500px POV)
-   ✦ 3D depth illusion: rings drawn as perspective ellipses on tilt
+   HUD RING CANVAS  —  Arc Reactor Edition  v5.0
+   Senior Frontend / Animation Engineer Build
+   ✦ Arc reactor white panel lights with bloom + flicker
+   ✦ White-hot center core  (white → cyan → transparent)
+   ✦ Energy-flow sequential activation across ring panels
+   ✦ Click shockwave  →  flash  →  particle burst  →  ripple rings
+   ✦ Hover magnetic pull  +  proximity brightness boost
+   ✦ Cinematic lens streaks, light rays, parallax tilt
    ✦ All original logic preserved and extended
 ══════════════════════════════════════════════════════════════════ */
 (function () {
@@ -29,9 +33,6 @@
     'z-index:0',
   ].join(';');
   wrap.style.overflow = 'visible';
-  /* give the wrap a 3-D stage so CSS perspective works on the canvas */
-  wrap.style.perspective      = '700px';
-  wrap.style.transformStyle   = 'preserve-3d';
   wrap.insertBefore(canvas, wrap.firstChild);
 
   const ctx = canvas.getContext('2d');
@@ -58,6 +59,10 @@
   function rgba(col, a) {
     return `rgba(${col[0]},${col[1]},${col[2]},${+a.toFixed(3)})`;
   }
+  function hexRgba(hex, a) {
+    const n = parseInt(hex.replace('#',''), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${+a.toFixed(3)})`;
+  }
 
   /* ─────────────────────── State ─────────────────────── */
   let t             = 0;
@@ -73,15 +78,15 @@
   let tiltY         = 0;
 
   /* click state */
-  let clickShock    = 0;
-  let clickPulse    = 0;
-  let clickFlash    = 0;
+  let clickShock    = 0;   // 0-1 shockwave progress
+  let clickPulse    = 0;   // extra brightness boost
+  let clickFlash    = 0;   // white-flash intensity
   let clickX        = cx;
   let clickY        = cy;
-  let shockRipples  = [];
+  let shockRipples  = [];  // multiple expanding rings per click
 
-  /* energy-flow */
-  let energyFlow    = 0;
+  /* energy-flow state — drives sequential panel activation */
+  let energyFlow    = 0;   // 0-1 around the ring, loops
 
   /* ─────────────────────── Mouse ─────────────────────── */
   document.addEventListener('mousemove', e => {
@@ -96,9 +101,8 @@
     mouseRingDist  = Math.min(dist / maxD, 1);
     hoverX         = dx / maxD;
     hoverY         = dy / maxD;
-    /* ↑ 22° tilt range for a dramatic 3-D lean */
-    targetTiltX    = -hoverY * 22;
-    targetTiltY    =  hoverX * 22;
+    targetTiltX    = -hoverY * 10;
+    targetTiltY    =  hoverX * 10;
     hoverActive    = dist < r.width * 0.82;
   });
 
@@ -115,9 +119,11 @@
     clickPulse = 4.0;
     clickFlash = 1.0;
 
+    /* spawn 3 staggered ripple rings */
     for (let i = 0; i < 3; i++) {
-      shockRipples.push({ r: BASE * 0.05, maxR: BASE * (2.0 + i * 0.35), alpha: 1, delay: i * 5 });
+      shockRipples.push({ r: BASE * 0.05, maxR: BASE * (2.4 + i * 0.4), alpha: 1, delay: i * 6 });
     }
+    /* burst particles */
     spawnClickBurst(cx + dx, cy + dy, 60);
   });
 
@@ -126,61 +132,35 @@
     return (hoverActive ? 1.4 : 1.0) + clickPulse * 0.5;
   }
 
+  /* distance in canvas coords from the mouse (approx) */
   function distFromMouse(px, py) {
     const mxCanvas = cx + hoverX * BASE * 0.75;
     const myCanvas = cy + hoverY * BASE * 0.75;
     return Math.sqrt((px - mxCanvas) ** 2 + (py - myCanvas) ** 2);
   }
 
-  /* ─────────────────────── 3-D ring helper ─────────────────
-     Draws a ring (or arc) as a perspective ellipse based on current tilt,
-     creating the illusion of a flat disc tilted in 3-D space.
-  ────────────────────────────────────────────────────────── */
-  function drawRing3D(radius, startAngle, endAngle, full) {
-    /* tilt in radians (small-angle — visually driven) */
-    const tiltXRad = tiltX * (Math.PI / 180) * 0.55;
-    const tiltYRad = tiltY * (Math.PI / 180) * 0.55;
-
-    /* the ring lives in XZ plane; tilt collapses Y by cos of pitch */
-    const cosPitch = Math.cos(tiltXRad);
-    const sinPitch = Math.sin(tiltXRad);
-    const cosYaw   = Math.cos(tiltYRad);
-    const sinYaw   = Math.sin(tiltYRad);
-
-    /* step through the ring and project each point */
-    const STEPS = full ? 80 : Math.max(24, Math.round((endAngle - startAngle) / (Math.PI * 2) * 80));
-    ctx.beginPath();
-    for (let i = 0; i <= STEPS; i++) {
-      const a = full
-        ? (i / STEPS) * Math.PI * 2
-        : startAngle + (i / STEPS) * (endAngle - startAngle);
-      /* ring in XZ */
-      const rx = Math.cos(a) * radius;
-      const rz = Math.sin(a) * radius;
-      /* apply pitch (tiltX) around X-axis  => rz becomes y-offset */
-      const projX = rx * cosYaw + rz * sinYaw;
-      const projY = -(rx * sinYaw * sinPitch) + rz * cosPitch;
-      if (i === 0) ctx.moveTo(cx + projX, cy + projY);
-      else         ctx.lineTo(cx + projX, cy + projY);
-    }
-    if (full) ctx.closePath();
-  }
-
   /* ══════════════════════════════════════════════════════
-     ①  ARC REACTOR PANEL LIGHTS  (radii compressed)
+     ①  ARC REACTOR PANEL LIGHTS
   ══════════════════════════════════════════════════════ */
-  /* r values: scale factor applied → new_r = 1 + (old_r − 1) × 0.62 */
+  /*
+     Four rings of rectangular panels, each with:
+     - per-panel random flicker seed
+     - sequential energy-flow activation
+     - hover proximity brightness boost
+     - micro-rotation keyed to energyFlow
+  */
   const REACTOR_RINGS = [
-    { r:0.62, count: 6, segW:5,  segH:12, col:[220,248,255], a:0.85, spd: 1.54, phaseSpd:2.8, energyFrac:0.06 },
+    { r:0.62, count: 6, segW:5,  segH:12, col:[220,248,255], a:0.85, spd: 0.55, phaseSpd:2.8, energyFrac:0.06 },
     { r:1.00, count:10, segW:6,  segH:16, col:[255,255,255], a:1.00, spd: 0.00, phaseSpd:2.2, energyFrac:0.10 },
-    { r:1.10, count:14, segW:6,  segH:20, col:[255,252,240], a:0.98, spd: 1.06, phaseSpd:2.0, energyFrac:0.12 },
-    { r:1.17, count:10, segW:5,  segH:15, col:[255,248,220], a:0.80, spd:-0.62, phaseSpd:2.5, energyFrac:0.09 },
-    { r:1.26, count:10, segW:8,  segH:26, col:[255,255,255], a:1.00, spd: 0.39, phaseSpd:1.8, energyFrac:0.08 },
-    { r:1.35, count:16, segW:4,  segH:12, col:[210,242,255], a:0.65, spd:-0.28, phaseSpd:3.0, energyFrac:0.07 },
-    { r:1.45, count:18, segW:5,  segH:14, col:[255,255,255], a:0.78, spd: 0.20, phaseSpd:2.6, energyFrac:0.06 },
-    { r:1.56, count:24, segW:3,  segH: 9, col:[230,245,255], a:0.55, spd:-0.11, phaseSpd:3.2, energyFrac:0.05 },
+    { r:1.16, count:14, segW:6,  segH:20, col:[255,252,240], a:0.98, spd: 0.38, phaseSpd:2.0, energyFrac:0.12 },
+    { r:1.28, count:10, segW:5,  segH:15, col:[255,248,220], a:0.80, spd:-0.22, phaseSpd:2.5, energyFrac:0.09 },
+    { r:1.42, count:10, segW:8,  segH:26, col:[255,255,255], a:1.00, spd: 0.14, phaseSpd:1.8, energyFrac:0.08 },
+    { r:1.57, count:16, segW:4,  segH:12, col:[210,242,255], a:0.65, spd:-0.10, phaseSpd:3.0, energyFrac:0.07 },
+    { r:1.72, count:18, segW:5,  segH:14, col:[255,255,255], a:0.78, spd: 0.07, phaseSpd:2.6, energyFrac:0.06 },
+    { r:1.90, count:24, segW:3,  segH: 9, col:[230,245,255], a:0.55, spd:-0.04, phaseSpd:3.2, energyFrac:0.05 },
   ];
 
+  /* per-panel flicker seeds — generated once */
   const REACTOR_SEEDS = REACTOR_RINGS.map(ring =>
     Array.from({ length: ring.count }, () => ({
       flickerPhase:  Math.random() * Math.PI * 2,
@@ -207,6 +187,8 @@
         const sd    = seeds[i];
         const angle = (i / ring.count) * Math.PI * 2 + rot;
 
+        /* --- energy-flow sequential activation ---
+           panels light up in a travelling wave around the ring */
         const panelFrac  = i / ring.count;
         const flowDelta  = ((panelFrac - energyFlow % 1 + 1) % 1);
         const flowWindow = ring.energyFrac;
@@ -214,24 +196,38 @@
           ? Math.sin((flowDelta / flowWindow) * Math.PI) * 1.8
           : 0;
 
-        const pulse   = 0.55 + 0.45 * Math.sin(t * ring.phaseSpd + sd.pulsePhase);
+        /* --- per-panel breathing pulse --- */
+        const pulse = 0.55 + 0.45 * Math.sin(t * ring.phaseSpd + sd.pulsePhase);
+
+        /* --- flicker (high-freq noise) --- */
         const flicker = 1 - sd.flickerDepth * Math.abs(Math.sin(t * sd.flickerSpeed + sd.flickerPhase));
 
+        /* --- hover proximity boost (magnetic brightness) --- */
         const px0 = Math.cos(angle) * r;
         const py0 = Math.sin(angle) * r;
         const worldDist = distFromMouse(cx + px0, cy + py0);
-        const proxBoost = hoverActive ? Math.max(0, 1 - worldDist / (BASE * 0.5)) * 0.9 : 0;
+        const proxBoost = hoverActive
+          ? Math.max(0, 1 - worldDist / (BASE * 0.5)) * 0.9
+          : 0;
+
+        /* --- click brightness spike --- */
         const clickBoost = clickPulse * 0.35;
-        const alpha = Math.min(1, ring.a * pulse * flicker * (1 + proxBoost + flowBoost) + clickBoost);
+
+        const alpha = Math.min(1,
+          ring.a * pulse * flicker * (1 + proxBoost + flowBoost) + clickBoost
+        );
 
         const hw = ring.segW / 2;
         const hh = ring.segH / 2;
+
+        /* micro-rotation — panels rotate a tiny amount driven by energy flow */
         const microRot = sd.microRotSeed * Math.sin(energyFlow * Math.PI * 2 + sd.pulsePhase) * 0.18;
 
         ctx.save();
         ctx.translate(px0, py0);
         ctx.rotate(angle + Math.PI / 2 + microRot);
 
+        /* ── ① outer diffuse bloom ── */
         const bloomR = hh * (3.0 + proxBoost * 1.5 + flowBoost * 0.8);
         const bloom  = ctx.createRadialGradient(0, 0, 0, 0, 0, bloomR);
         bloom.addColorStop(0,    `rgba(${R},${G},${B},${alpha * 0.28})`);
@@ -242,10 +238,15 @@
         ctx.arc(0, 0, bloomR, 0, Math.PI * 2);
         ctx.fill();
 
-        const glowAmt = 16 + 22 * pulse * flicker + proxBoost * 30 + flowBoost * 20 + clickPulse * 18;
+        /* ── ② inner hard glow (shadowBlur) ── */
+        const glowAmt = 16 + 22 * pulse * flicker
+          + proxBoost * 30
+          + flowBoost * 20
+          + clickPulse * 18;
         ctx.shadowBlur  = glowAmt;
         ctx.shadowColor = `rgba(${R},${G},${B},${alpha * 0.95})`;
 
+        /* ── ③ panel body — face gradient (bright centre, dim edges) ── */
         const face = ctx.createLinearGradient(0, -hh, 0, hh);
         face.addColorStop(0,    `rgba(${R},${G},${B},${alpha * 0.28})`);
         face.addColorStop(0.20, `rgba(${R},${G},${B},${alpha})`);
@@ -253,6 +254,7 @@
         face.addColorStop(1,    `rgba(${R},${G},${B},${alpha * 0.35})`);
         ctx.fillStyle = face;
 
+        /* sharp inner base, rounded outer tip */
         ctx.beginPath();
         ctx.moveTo(-hw, -hh);
         ctx.lineTo( hw, -hh);
@@ -263,10 +265,12 @@
         ctx.closePath();
         ctx.fill();
 
+        /* ── ④ cyan tint side-edges (gives depth / bevelled look) ── */
         ctx.strokeStyle = `rgba(${R},${G},${B},${alpha * 0.5})`;
         ctx.lineWidth   = 0.5;
         ctx.stroke();
 
+        /* ── ⑤ bright specular centre line ── */
         ctx.shadowBlur  = 5 + proxBoost * 8;
         ctx.shadowColor = `rgba(255,255,255,${alpha})`;
         ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.90})`;
@@ -277,6 +281,7 @@
         ctx.lineTo(0,  hh - 4);
         ctx.stroke();
 
+        /* ── ⑥ hot-spot dot at tip ── */
         ctx.shadowBlur  = 10;
         ctx.shadowColor = `rgba(255,255,255,${alpha})`;
         ctx.fillStyle   = `rgba(255,255,255,${alpha * 0.85})`;
@@ -300,6 +305,7 @@
     const flicker = pulse * flutter * (1 + clickPulse * 0.4);
     const coreR   = BASE * 0.13 * flicker;
 
+    /* innermost white-hot point */
     const g0 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
     g0.addColorStop(0,   `rgba(255,255,255,${0.95 * flicker})`);
     g0.addColorStop(0.3, `rgba(210,248,255,${0.75 * flicker})`);
@@ -314,6 +320,7 @@
     ctx.fill();
     ctx.restore();
 
+    /* mid cyan glow */
     const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, BASE * 0.30 * flicker);
     g1.addColorStop(0,   `rgba(180,240,255,${0.20 * flicker})`);
     g1.addColorStop(0.5, `rgba(120,210,255,${0.10 * flicker})`);
@@ -323,6 +330,7 @@
     ctx.arc(cx, cy, BASE * 0.30 * flicker, 0, Math.PI * 2);
     ctx.fill();
 
+    /* outer warm ambient from original drawCenterBurst (preserved + enhanced) */
     const pulse2 = 0.06 + 0.035 * Math.sin(t * 1.8) + (hoverActive ? 0.04 : 0);
     const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, BASE * 1.10);
     g2.addColorStop(0,   rgba(GOLD, 0.10 + 0.04 * Math.sin(t * 0.9)));
@@ -340,8 +348,9 @@
   function updateShockwave() {
     if (clickShock <= 0 && shockRipples.length === 0) return;
 
+    /* white screen flash — radial from click point */
     if (clickFlash > 0) {
-      const flashR = BASE * 2.2;
+      const flashR = BASE * 2.5;
       const gf = ctx.createRadialGradient(clickX, clickY, 0, clickX, clickY, flashR);
       gf.addColorStop(0,   `rgba(255,255,255,${clickFlash * 0.45})`);
       gf.addColorStop(0.2, `rgba(220,248,255,${clickFlash * 0.18})`);
@@ -352,11 +361,12 @@
       ctx.fill();
     }
 
+    /* expanding ripple rings */
     for (let i = shockRipples.length - 1; i >= 0; i--) {
       const rp = shockRipples[i];
       if (rp.delay > 0) { rp.delay--; continue; }
-      rp.r   += (rp.maxR - rp.r) * 0.065 + 3.0;
-      rp.alpha = Math.max(0, rp.alpha - 0.028);
+      rp.r   += (rp.maxR - rp.r) * 0.055 + 2.5;
+      rp.alpha = Math.max(0, rp.alpha - 0.025);
       if (rp.alpha <= 0 || rp.r >= rp.maxR) { shockRipples.splice(i, 1); continue; }
 
       ctx.save();
@@ -369,6 +379,7 @@
       ctx.arc(clickX, clickY, rp.r, 0, Math.PI * 2);
       ctx.stroke();
 
+      /* secondary gold ripple slightly behind */
       ctx.shadowColor = rgba(GOLDX, rp.alpha * 0.5);
       ctx.strokeStyle = rgba(GOLDX, rp.alpha * 0.5 * (1 - prog * 0.8));
       ctx.lineWidth   = 1.2 * (1 - prog * 0.5);
@@ -380,7 +391,7 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     ④  CLICK PARTICLE BURST
+     ④  CLICK PARTICLE BURST (white + gold)
   ══════════════════════════════════════════════════════ */
   const PARTICLES = [];
 
@@ -404,12 +415,13 @@
     }
   }
 
+  /* micro-burst from ring edges (unchanged concept, new implementation) */
   const BURSTS = [];
   let burstTimer = 0;
 
   function spawnBurst() {
     const angle = Math.random() * Math.PI * 2;
-    const r = BASE * (0.88 + Math.random() * 0.80);  /* stays within compressed rings */
+    const r = BASE * (0.9 + Math.random() * 1.1);
     const ox = cx + Math.cos(angle) * r;
     const oy = cy + Math.sin(angle) * r;
     for (let i = 0; i < 4 + Math.floor(Math.random() * 6); i++) {
@@ -426,6 +438,7 @@
   }
 
   function updateParticles() {
+    /* click burst particles */
     ctx.save();
     for (let i = PARTICLES.length - 1; i >= 0; i--) {
       const p = PARTICLES[i];
@@ -438,6 +451,7 @@
       p.life -= p.decay;
       if (p.life <= 0) { PARTICLES.splice(i, 1); continue; }
 
+      /* draw trail */
       for (let j = 0; j < p.trail.length - 1; j++) {
         const tf = j / p.trail.length;
         ctx.strokeStyle = rgba(p.col, p.trail[j].a * tf * 0.5);
@@ -448,6 +462,7 @@
         ctx.lineTo(p.trail[j + 1].x, p.trail[j + 1].y);
         ctx.stroke();
       }
+      /* draw head */
       ctx.shadowBlur  = 14;
       ctx.shadowColor = rgba(p.col, p.life);
       ctx.fillStyle   = rgba(p.col, p.life);
@@ -457,8 +472,9 @@
     }
     ctx.restore();
 
+    /* ambient ring micro-bursts */
     burstTimer++;
-    if (burstTimer % Math.floor(60 + Math.random() * 90) === 0) spawnBurst();
+    if (burstTimer % Math.floor(80 + Math.random() * 120) === 0) spawnBurst();
     if (clickPulse > 0.5) { spawnBurst(); spawnBurst(); }
     ctx.save();
     for (let i = BURSTS.length - 1; i >= 0; i--) {
@@ -478,7 +494,7 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     ⑤  PLASMA RING  (original, tighter radius)
+     ⑤  PLASMA RING  (original, preserved)
   ══════════════════════════════════════════════════════ */
   const PLASMA_NODES = Array.from({ length: 60 }, (_, i) => ({
     angle:    (i / 60) * Math.PI * 2,
@@ -534,42 +550,45 @@
     ctx.save();
     ctx.translate(cx, cy);
 
+    /* white arc snap */
     ctx.shadowBlur  = 60 * intens;
     ctx.shadowColor = `rgba(255,255,255,${0.8 * intens})`;
     ctx.strokeStyle = `rgba(255,255,255,${0.65 * intens})`;
     ctx.lineWidth = 3; ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(0, 0, BASE * 1.10, start, end);
+    ctx.arc(0, 0, BASE * 1.16, start, end);
     ctx.stroke();
 
+    /* cyan secondary arc */
     ctx.shadowBlur  = 40 * intens;
     ctx.shadowColor = `rgba(180,240,255,${0.6 * intens})`;
     ctx.strokeStyle = `rgba(180,240,255,${0.45 * intens})`;
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.arc(0, 0, BASE * 1.10, start - 0.06, end + 0.06);
+    ctx.arc(0, 0, BASE * 1.16, start - 0.06, end + 0.06);
     ctx.stroke();
 
+    /* gold outer arc */
     ctx.shadowBlur  = 25 * intens;
     ctx.shadowColor = rgba(GOLDX, 0.5 * intens);
     ctx.strokeStyle = rgba(GOLDX, 0.30 * intens);
     ctx.lineWidth = 8;
     ctx.beginPath();
-    ctx.arc(0, 0, BASE * 1.35, start * 0.92, end * 0.92);
+    ctx.arc(0, 0, BASE * 1.42, start * 0.92, end * 0.92);
     ctx.stroke();
 
     ctx.restore();
   }
 
   /* ══════════════════════════════════════════════════════
-     ⑦  CINEMATIC LENS STREAK FLARES  (radii compressed)
+     ⑦  CINEMATIC LENS STREAK FLARES
   ══════════════════════════════════════════════════════ */
   const STREAK_FLARES = [
-    { r:1.10, ao:0.0,      spd: 1.06, len:110, w:1.5, col:[255,255,255], a:0.22 },
-    { r:1.10, ao:Math.PI,  spd: 1.06, len: 90, w:1.2, col:CYANX,        a:0.18 },
-    { r:1.35, ao:0.8,      spd: 0.39, len:140, w:1.8, col:[255,255,255], a:0.20 },
-    { r:1.45, ao:2.4,      spd: 0.20, len: 80, w:1.0, col:GOLDX,        a:0.16 },
-    { r:1.17, ao:1.6,      spd:-0.62, len:100, w:1.3, col:CYANX,        a:0.15 },
+    { r:1.16, ao:0.0,      spd: 0.38, len:110, w:1.5, col:[255,255,255], a:0.22 },
+    { r:1.16, ao:Math.PI,  spd: 0.38, len: 90, w:1.2, col:CYANX,        a:0.18 },
+    { r:1.42, ao:0.8,      spd: 0.14, len:140, w:1.8, col:[255,255,255], a:0.20 },
+    { r:1.72, ao:2.4,      spd: 0.07, len: 80, w:1.0, col:GOLDX,        a:0.16 },
+    { r:1.28, ao:1.6,      spd:-0.22, len:100, w:1.3, col:CYANX,        a:0.15 },
   ];
 
   function drawLensFlares() {
@@ -581,6 +600,7 @@
       const py = cy + Math.sin(angle) * BASE * f.r;
       const [R,G,B] = f.col;
 
+      /* soft ambient blob */
       const blobR = f.len * 0.55;
       const blob  = ctx.createRadialGradient(px, py, 0, px, py, blobR);
       blob.addColorStop(0,   `rgba(${R},${G},${B},${f.a * 0.30})`);
@@ -591,6 +611,7 @@
       ctx.arc(px, py, blobR, 0, Math.PI * 2);
       ctx.fill();
 
+      /* tangential streak line */
       const tx = -Math.sin(angle);
       const ty =  Math.cos(angle);
       const halfLen = f.len / 2;
@@ -611,6 +632,7 @@
       ctx.lineTo(px + tx * halfLen, py + ty * halfLen);
       ctx.stroke();
 
+      /* hot dot */
       ctx.shadowBlur  = 12;
       ctx.shadowColor = `rgba(255,255,255,${f.a})`;
       ctx.fillStyle   = `rgba(255,255,255,${f.a * 0.85})`;
@@ -622,12 +644,12 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     ⑧  LIGHT RAYS FROM CENTRE
+     ⑧  LIGHT RAYS FROM CENTRE  (enhanced)
   ══════════════════════════════════════════════════════ */
   const RAYS = Array.from({ length: 12 }, (_, i) => ({
     angle: (i / 12) * Math.PI * 2,
     spd:   0.004 + i * 0.0005,
-    len:   0.50 + Math.random() * 0.45,
+    len:   0.55 + Math.random() * 0.55,
     width: 0.4  + Math.random() * 1.0,
     phase: (i / 12) * Math.PI * 2,
     isWhite: i % 3 === 0,
@@ -658,47 +680,47 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     ⑨  RING SYSTEM  (all radii compressed, speeds ×2.8)
+     ⑨  ORIGINAL RING SYSTEM  (all preserved)
   ══════════════════════════════════════════════════════ */
   const RINGS = [
     { r:1.00, spd:0,      lw:2.5, dash:[],        col:GOLD,  a:1.0,  gl:28 },
-    { r:1.04, spd: 1.54,  lw:1.0, dash:[4,6],     col:GOLDL, a:0.55, gl:6  },
-    { r:1.10, spd: 1.06,  lw:1.5, dash:[],         col:WHITE, a:0.65, gl:10 },
-    { r:1.17, spd:-0.62,  lw:0.8, dash:[18,7],    col:GOLD,  a:0.50, gl:12 },
-    { r:1.26, spd: 0.39,  lw:2.0, dash:[22,5],    col:GOLDL, a:0.60, gl:14 },
-    { r:1.35, spd:-0.28,  lw:0.7, dash:[2,9],     col:WHITE, a:0.28, gl:4  },
-    { r:1.45, spd: 0.20,  lw:1.2, dash:[55,16],   col:GOLD,  a:0.38, gl:8  },
-    { r:1.56, spd:-0.11,  lw:0.5, dash:[8,22],    col:CREAM, a:0.18, gl:2  },
-    { r:1.68, spd: 0.07,  lw:0.4, dash:[120,35],  col:GOLD,  a:0.10, gl:0  },
+    { r:1.07, spd: 0.55,  lw:1.0, dash:[4,6],     col:GOLDL, a:0.55, gl:6  },
+    { r:1.16, spd: 0.38,  lw:1.5, dash:[],         col:WHITE, a:0.65, gl:10 },
+    { r:1.28, spd:-0.22,  lw:0.8, dash:[18,7],    col:GOLD,  a:0.50, gl:12 },
+    { r:1.42, spd: 0.14,  lw:2.0, dash:[22,5],    col:GOLDL, a:0.60, gl:14 },
+    { r:1.57, spd:-0.10,  lw:0.7, dash:[2,9],     col:WHITE, a:0.28, gl:4  },
+    { r:1.72, spd: 0.07,  lw:1.2, dash:[55,16],   col:GOLD,  a:0.38, gl:8  },
+    { r:1.90, spd:-0.04,  lw:0.5, dash:[8,22],    col:CREAM, a:0.18, gl:2  },
+    { r:2.10, spd: 0.025, lw:0.4, dash:[120,35],  col:GOLD,  a:0.10, gl:0  },
   ];
 
   const ARCS = [
-    { r:1.10, spd: 1.06,  span:0.65, lw:4.0, col:GOLDX },
-    { r:1.17, spd:-0.62,  span:1.10, lw:2.5, col:WHITE  },
-    { r:1.26, spd: 0.39,  span:0.45, lw:5.0, col:GOLDL  },
-    { r:1.45, spd: 0.20,  span:0.75, lw:2.0, col:GOLD   },
+    { r:1.16, spd: 0.38,  span:0.65, lw:4.0, col:GOLDX },
+    { r:1.28, spd:-0.22,  span:1.10, lw:2.5, col:WHITE  },
+    { r:1.42, spd: 0.14,  span:0.45, lw:5.0, col:GOLDL  },
+    { r:1.72, spd: 0.07,  span:0.75, lw:2.0, col:GOLD   },
   ];
 
   const TICKS = [
-    { r:1.10, n:72, len:6,  sub:3, col:GOLD,  a:0.85, spd: 1.06 },
-    { r:1.26, n:48, len:9,  sub:3, col:WHITE, a:0.55, spd: 0.39 },
-    { r:1.45, n:24, len:14, sub:4, col:GOLD,  a:0.45, spd: 0.20 },
+    { r:1.16, n:72, len:6,  sub:3, col:GOLD,  a:0.85, spd: 0.38 },
+    { r:1.42, n:48, len:9,  sub:3, col:WHITE, a:0.55, spd: 0.14 },
+    { r:1.72, n:24, len:14, sub:4, col:GOLD,  a:0.45, spd: 0.07 },
   ];
 
   const ORBS = [
-    { r:1.10, spd: 1.06,  size:4.5, col:GOLDX },
-    { r:1.17, spd:-0.62,  size:3.5, col:WHITE  },
-    { r:1.26, spd: 0.39,  size:3.8, col:GOLDL  },
-    { r:1.35, spd:-0.28,  size:2.2, col:WHITE  },
-    { r:1.45, spd: 0.20,  size:2.8, col:GOLD   },
-    { r:1.56, spd:-0.11,  size:1.5, col:CREAM  },
+    { r:1.16, spd: 0.38,  size:4.5, col:GOLDX },
+    { r:1.28, spd:-0.22,  size:3.5, col:WHITE  },
+    { r:1.42, spd: 0.14,  size:3.8, col:GOLDL  },
+    { r:1.57, spd:-0.10,  size:2.2, col:WHITE  },
+    { r:1.72, spd: 0.07,  size:2.8, col:GOLD   },
+    { r:1.90, spd:-0.04,  size:1.5, col:CREAM  },
   ];
 
   const SPARKS = Array.from({ length: 28 }, () => ({
     angle:  Math.random() * Math.PI * 2,
-    r:      0.85 + Math.random() * 0.82,  /* compressed to match ring band */
-    spd:    (Math.random() - 0.5) * 0.55, /* faster drift */
-    drift:  (Math.random() - 0.5) * 0.012,
+    r:      0.85 + Math.random() * 1.30,
+    spd:    (Math.random() - 0.5) * 0.25,
+    drift:  (Math.random() - 0.5) * 0.008,
     size:   0.8 + Math.random() * 2.2,
     phase:  Math.random() * Math.PI * 2,
     blinkF: 1.2 + Math.random() * 2.8,
@@ -706,10 +728,10 @@
   }));
 
   const POOLS = [
-    { r:1.10, angle:0.0, spd: 1.06, size:0.16, col:GOLDX, a:0.18 },
-    { r:1.26, angle:2.0, spd: 0.39, size:0.18, col:GOLDL, a:0.14 },
-    { r:1.45, angle:4.2, spd: 0.20, size:0.20, col:GOLD,  a:0.10 },
-    { r:1.17, angle:1.1, spd:-0.62, size:0.14, col:WHITE, a:0.12 },
+    { r:1.16, angle:0.0, spd: 0.38,  size:0.18, col:GOLDX, a:0.18 },
+    { r:1.42, angle:2.0, spd: 0.14,  size:0.22, col:GOLDL, a:0.14 },
+    { r:1.72, angle:4.2, spd: 0.07,  size:0.26, col:GOLD,  a:0.10 },
+    { r:1.28, angle:1.1, spd:-0.22,  size:0.16, col:WHITE, a:0.12 },
   ];
 
   const CARDINALS = [
@@ -732,27 +754,24 @@
   ];
 
   const LABELS = [
-    { angle:-0.55, r:1.45, text:'v3.1.4', phase:0   },
-    { angle: 0.80, r:1.45, text:'SYNC',   phase:1.8 },
-    { angle: 2.20, r:1.56, text:'100%',   phase:3.4 },
-    { angle:-2.00, r:1.35, text:'NODE',   phase:5.0 },
+    { angle:-0.55, r:1.72, text:'v3.1.4', phase:0   },
+    { angle: 0.80, r:1.72, text:'SYNC',   phase:1.8 },
+    { angle: 2.20, r:1.90, text:'100%',   phase:3.4 },
+    { angle:-2.00, r:1.57, text:'NODE',   phase:5.0 },
   ];
 
-  /* ── draw functions ── */
+  /* ── original draw functions (all preserved) ── */
   function drawRing(cfg, rot) {
     const sm = getSpeedMult();
     const gBoost = hoverActive ? 1.4 : 1.0;
     ctx.save();
+    ctx.translate(cx, cy); ctx.rotate(rot * sm);
     ctx.shadowBlur  = cfg.gl * gBoost + clickPulse * 8;
     ctx.shadowColor = rgba(cfg.col, 0.9);
     ctx.strokeStyle = rgba(cfg.col, Math.min(1, cfg.a * (hoverActive ? 1.2 : 1)));
-    ctx.lineWidth = cfg.lw;
-    ctx.setLineDash(cfg.dash);
-    /* draw as 3-D perspective ellipse */
-    drawRing3D(BASE * cfg.r, 0, Math.PI * 2, true);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
+    ctx.lineWidth = cfg.lw; ctx.setLineDash(cfg.dash);
+    ctx.beginPath(); ctx.arc(0, 0, BASE * cfg.r, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
   }
 
   function drawArc(cfg, rot) {
@@ -798,11 +817,11 @@
     const TRAIL = 8;
     for (let i = TRAIL; i >= 1; i--) {
       const ta = angle - i * 0.04 * Math.sign(cfg.spd);
-      const tx2 = cx + Math.cos(ta) * BASE * cfg.r;
-      const ty2 = cy + Math.sin(ta) * BASE * cfg.r;
+      const tx = cx + Math.cos(ta) * BASE * cfg.r;
+      const ty = cy + Math.sin(ta) * BASE * cfg.r;
       ctx.fillStyle = rgba(cfg.col, Math.max(0, 0.4 - i * 0.05));
       ctx.beginPath();
-      ctx.arc(tx2, ty2, Math.max(0.5, cfg.size * sb * (1 - i * 0.12)), 0, Math.PI * 2);
+      ctx.arc(tx, ty, Math.max(0.5, cfg.size * sb * (1 - i * 0.12)), 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.save();
@@ -816,7 +835,7 @@
     const sm = getSpeedMult();
     ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot * sm * 0.4);
     CARDINALS.forEach((a, idx) => {
-      const rDist = idx % 2 === 0 ? BASE * 1.26 : BASE * 1.10;
+      const rDist = idx % 2 === 0 ? BASE * 1.42 : BASE * 1.16;
       const sz    = idx % 4 === 0 ? 5 : 3;
       const alpha = idx % 4 === 0 ? 0.45 : 0.22;
       const px = Math.cos(a) * rDist; const py = Math.sin(a) * rDist;
@@ -837,13 +856,13 @@
   }
 
   function drawDataSegments() {
-    const r   = BASE * 1.56;
+    const r   = BASE * 1.90;
     const gap = 0.025;
     const seg = (Math.PI * 2 / DATA_SEGS.length);
     const sm  = getSpeedMult();
     ctx.save(); ctx.translate(cx, cy);
     DATA_SEGS.forEach((s, i) => {
-      const startA = i * seg + gap / 2 + t * 0.050 * sm;
+      const startA = i * seg + gap / 2 + t * 0.018 * sm;
       const endA   = startA + seg - gap;
       let a = s.lit
         ? (s.blink ? 0.25 + 0.25 * Math.sin(t * 2.2 + s.phase) : 0.45 + 0.15 * Math.sin(t * 0.8 + s.phase))
@@ -894,17 +913,17 @@
 
   function drawGlowCore() {
     const pulse = 0.06 + 0.03 * Math.sin(t * 2.4) + (hoverActive ? 0.04 : 0);
-    const g = ctx.createRadialGradient(cx, cy, BASE * 0.82, cx, cy, BASE * 1.15);
+    const g = ctx.createRadialGradient(cx, cy, BASE * 0.82, cx, cy, BASE * 1.25);
     g.addColorStop(0,   rgba(GOLD, 0));
     g.addColorStop(0.5, rgba(GOLD, pulse));
     g.addColorStop(1,   rgba(GOLD, 0));
     ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(cx, cy, BASE * 1.15, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, BASE * 1.25, 0, Math.PI * 2); ctx.fill();
   }
 
   function drawGrid() {
     const gs = 26;
-    ctx.strokeStyle = rgba(GOLD, 0.032); ctx.lineWidth = 0.5;
+    ctx.strokeStyle = rgba(GOLD, 0.038); ctx.lineWidth = 0.5;
     for (let x = 0; x < SIZE; x += gs) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, SIZE); ctx.stroke();
     }
@@ -914,9 +933,9 @@
   }
 
   function drawCrosshair() {
-    const r = BASE * 1.85;
+    const r = BASE * 2.1;
     ctx.save();
-    ctx.strokeStyle = rgba(GOLD, 0.045); ctx.lineWidth = 0.5; ctx.setLineDash([4, 10]);
+    ctx.strokeStyle = rgba(GOLD, 0.055); ctx.lineWidth = 0.5; ctx.setLineDash([4, 10]);
     ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
     ctx.setLineDash([]); ctx.restore();
@@ -924,9 +943,9 @@
 
   function drawHudArcs() {
     const defs = [
-      { r:0.78, startFrac:0.05, endFrac:0.40, col:GOLD,  lw:3, spd: 0.34 },
-      { r:0.78, startFrac:0.55, endFrac:0.85, col:GOLDL, lw:2, spd: 0.34 },
-      { r:0.88, startFrac:0.10, endFrac:0.65, col:WHITE, lw:2, spd:-0.25 },
+      { r:0.78, startFrac:0.05, endFrac:0.40, col:GOLD,  lw:3, spd: 0.12 },
+      { r:0.78, startFrac:0.55, endFrac:0.85, col:GOLDL, lw:2, spd: 0.12 },
+      { r:0.88, startFrac:0.10, endFrac:0.65, col:WHITE, lw:2, spd:-0.09 },
     ];
     const sm = getSpeedMult();
     ctx.save(); ctx.translate(cx, cy);
@@ -946,7 +965,7 @@
     const sm = getSpeedMult();
     ctx.save();
     SPARKS.forEach(s => {
-      s.angle += s.spd * 0.010 * sm + s.drift;
+      s.angle += s.spd * 0.007 * sm + s.drift;
       const px = cx + Math.cos(s.angle) * BASE * s.r;
       const py = cy + Math.sin(s.angle) * BASE * s.r;
       const pulse = 0.45 + 0.55 * Math.abs(Math.sin(t * s.blinkF + s.phase));
@@ -986,7 +1005,7 @@
   function drawLabels() {
     ctx.save();
     LABELS.forEach(lb => {
-      const a  = lb.angle + t * 0.06;
+      const a  = lb.angle + t * 0.02;
       const lx = cx + Math.cos(a) * BASE * lb.r;
       const ly = cy + Math.sin(a) * BASE * lb.r;
       const alpha = 0.35 + 0.2 * Math.sin(t * 1.1 + lb.phase);
@@ -1000,31 +1019,23 @@
     ctx.restore();
   }
 
-  /* ── parallax + perspective 3-D tilt ── */
+  /* ── parallax tilt (parallax on the wrap element's image, not the canvas) ── */
   function updateTilt() {
-    const ease = 0.065;
+    const ease = 0.07;
     tiltX += (targetTiltX - tiltX) * ease;
     tiltY += (targetTiltY - tiltY) * ease;
-
-    /*
-      Full CSS 3-D:
-        • perspective(500px) — tight vanishing point for dramatic depth
-        • rotateX / rotateY — 1.8× multiplier turns 22° input → ~40° visual lean
-        • scale(1.06) — slight zoom-in so edges don't clip
-    */
+    /* apply subtle canvas skew illusion via existing transform – non-destructive */
     canvas.style.transform = [
       'translate(-50%,-50%)',
-      'perspective(500px)',
-      `rotateX(${tiltX * 1.8}deg)`,
-      `rotateY(${tiltY * 1.8}deg)`,
-      `scale(${1.05 + Math.abs(tiltX + tiltY) * 0.001})`,
+      `rotateX(${tiltX * 0.4}deg)`,
+      `rotateY(${tiltY * 0.4}deg)`,
     ].join(' ');
   }
 
   function decayClick() {
-    if (clickShock > 0) clickShock = Math.max(0, clickShock - 0.018);
-    if (clickPulse > 0) clickPulse = Math.max(0, clickPulse - 0.042);
-    if (clickFlash > 0) clickFlash = Math.max(0, clickFlash - 0.060);
+    if (clickShock > 0) clickShock = Math.max(0, clickShock - 0.016);
+    if (clickPulse > 0) clickPulse = Math.max(0, clickPulse - 0.040);
+    if (clickFlash > 0) clickFlash = Math.max(0, clickFlash - 0.055);
   }
 
   /* ══════════════════════════════════════════════════════
@@ -1037,44 +1048,88 @@
     ctx.clearRect(0, 0, SIZE, SIZE);
 
     const sm = getSpeedMult();
-    /* ↑ 3× base speed vs v5 */
-    t           += 0.021 * (1 + clickPulse * 0.15);
-    radarAngle   = (radarAngle + 0.052 * sm) % (Math.PI * 2);
-    energyFlow  += 0.0056 * sm;
+    t           += 0.007 * (1 + clickPulse * 0.15);
+    radarAngle   = (radarAngle + 0.018 * sm) % (Math.PI * 2);
+    energyFlow  += 0.0018 * sm;    /* drives sequential panel activation */
 
     updateTilt();
     decayClick();
 
     /* ── LAYER ORDER (back → front) ── */
+
+    /* 1. Background grid + crosshair */
     drawGrid();
     drawCrosshair();
+
+    /* 2. Centre light rays */
     drawLightRays();
+
+    /* 3. Ambient warm glow */
     drawGlowCore();
+
+    /* 4. Ambient pools */
     drawAmbientPools();
+
+    /* 5. Inner rings */
     drawInnerRings();
+
+    /* 6. HUD inner arcs */
     drawHudArcs();
+
+    /* 7. Radar sweep */
     drawRadar();
+
+    /* 8. Plasma ring (original) */
     drawPlasmaRing();
+
+    /* 9. Ring circles */
     RINGS.forEach(r => drawRing(r, t * r.spd));
+
+    /* 10. Rotating arcs */
     ARCS.forEach(a => drawArc(a, t * a.spd));
+
+    /* 11. Tick marks */
     TICKS.forEach(tk => drawTicks(tk, t * tk.spd));
-    drawCardinals(t * 0.40);
+
+    /* 12. Cardinal diamond markers */
+    drawCardinals(t * 0.14);
+
+    /* 13. Data segments outer ring */
     drawDataSegments();
+
+    /* 14. ★ ARC REACTOR PANEL LIGHTS (key new layer) */
     drawArcReactorLights();
+
+    /* 15. Ambient pools again (front-facing pass) */
     drawAmbientPools();
+
+    /* 16. Sparks */
     drawSparks();
+
+    /* 17. Lens streak flares */
     drawLensFlares();
+
+    /* 18. Hover magnetic arc */
     drawMouseLightArc();
+
+    /* 19. Click shockwave rings + flash */
     updateShockwave();
+
+    /* 20. Labels */
     drawLabels();
+
+    /* 21. Particles (click burst + micro bursts) */
     updateParticles();
+
+    /* 22. Orbiting dots (on top so trails are visible) */
     ORBS.forEach(o => drawOrb(o));
+
+    /* 23. ★ White-hot center core (very last — always brightest) */
     drawCoreReactor();
   }
 
   frame();
 })();
-
 
 
 
