@@ -126,35 +126,11 @@ body {
     box-shadow: 0 0 10px var(--gold), 0 0 20px rgba(201,169,110,0.3);
 }
 
-/* ── Cursor Glow (enhanced) ────────────────────────── */
-.cursor-glow {
-    position: fixed; pointer-events: none; z-index: 9998;
-    width: 420px; height: 420px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 68%);
-    transform: translate(-50%, -50%);
-    will-change: left, top, width, height;
-    transition: left 0.12s ease, top 0.12s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
-}
-.cursor-glow.fast {
-    width: 560px; height: 560px;
-    background: radial-gradient(circle, rgba(201,169,110,0.1) 0%, transparent 68%);
-}
-@media (pointer: coarse) { .cursor-glow { display: none; } }
+
 
 /* ── Particles ─────────────────────────────────────── */
 .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-.particle {
-    position: absolute; border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,169,110,0.12), transparent 70%);
-    animation: particleFloat 22s infinite ease-in-out;
-    will-change: transform;
-}
-@keyframes particleFloat {
-    0%,100% { transform: translateY(0) translateX(0) scale(1); }
-    25%      { transform: translateY(-90px) translateX(45px) scale(1.05); }
-    50%      { transform: translateY(-45px) translateX(-65px) scale(0.95); }
-    75%      { transform: translateY(-130px) translateX(22px) scale(1.02); }
-}
+
 .noise-overlay {
     position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.022;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -4609,6 +4585,8 @@ transform-origin: top center;
     100% { opacity: 0;   transform: translateX(-50%) translateY(0px)   scale(0.75); filter: blur(5px); }
   }
 }
+
+
 
 
 
