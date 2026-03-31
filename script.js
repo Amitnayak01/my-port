@@ -2354,26 +2354,19 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
 /**
  * ═══════════════════════════════════════════════════════════════════
- *  DEEP SPACE ENGINE  v4.0  — "Real Space" Edition
- *  Cinematic · Physics-Driven · 60 FPS · No Rings
+ *  DEEP SPACE ENGINE  v5.0  — "Hubble Edition"
+ *  Cinematic · Physics-Driven · 60 FPS
  * ═══════════════════════════════════════════════════════════════════
  *
- *  NEW IN v4:
- *    ★  Milky Way band (dust lane + core glow)
- *    ★  Hubble-style nebula clouds (multi-pass gaussian blur)
- *    ★  Globular star clusters (dense spherical groups)
- *    ★  Binary star systems (two stars orbiting each other)
- *    ★  Pulsar beams (rotating lighthouse jets)
- *    ★  Wormhole distortion portal
- *    ★  Solar flare eruptions (CME arcs)
- *    ★  Deep field galaxies (tiny distant spirals + ellipticals)
- *    ★  Gas giant planet with ring disk (side-on, no circles)
- *    ★  Magnetar lightning arcs
- *    ★  Dark matter filament web (cosmic large-scale structure)
- *    ★  Aurora veil (polar light curtains)
- *    ★  Improved star field (O/B/G/K/M spectral classes)
- *    ★  True black background (0,0,0)
- *    ★  All ring / circle FX removed
+ *  NEW IN v5 (on top of v4):
+ *    ★  Hubble-style 4-spike diffraction spikes on bright stars
+ *    ★  Harmonic multi-frequency twinkle (organic, not robotic)
+ *    ★  Faster twinkle speeds across all star layers
+ *    ★  Size pulse + color temperature shimmer per star
+ *    ★  Richer white-core bloom gradient
+ *    ★  Deep blue vignette background (true cinematic black)
+ *    ★  MW stars also get faster twinkle
+ *    ★  More stars eligible for spikes (layer 1 + layer 2)
  * ═══════════════════════════════════════════════════════════════════
  */
 
@@ -2458,28 +2451,32 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §1  BACKGROUND  (pure black space)
+     §1  BACKGROUND  (pure black + cinematic blue vignette)
   ══════════════════════════════════════════════════════ */
   function drawBackground() {
     ctx.fillStyle = 'rgb(0,0,0)';
+    ctx.fillRect(0, 0, W, H);
+    // Deep blue vignette — matches Hubble deep-field look
+    const vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.2, W * 0.5, H * 0.5, H * 0.85);
+    vg.addColorStop(0, 'rgba(0,0,8,0)');
+    vg.addColorStop(1, 'rgba(0,0,15,0.4)');
+    ctx.fillStyle = vg;
     ctx.fillRect(0, 0, W, H);
   }
 
   /* ══════════════════════════════════════════════════════
      §2  MILKY WAY BAND
   ══════════════════════════════════════════════════════ */
-  const MW_ANGLE = 0.32; // radians tilt
+  const MW_ANGLE = 0.32;
   const MW_STARS_N = IS_MOB ? 800 : 2200;
   let mwStars = [];
 
   function spawnMWStars() {
     mwStars = [];
-    // Band goes diagonally across screen
     for (let i = 0; i < MW_STARS_N; i++) {
       const t  = rand(0, 1);
       const bx = t * (W * 1.4) - W * 0.2;
       const by = H * 0.2 + bx * Math.tan(MW_ANGLE) + rand(-H * 0.22, H * 0.22);
-      // Gaussian distribution toward band center
       const distFromCenter = Math.abs(rand(-1, 1)) + Math.abs(rand(-1, 1)) - 1;
       const bandY = by + distFromCenter * H * 0.09;
       mwStars.push({
@@ -2488,22 +2485,19 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
         o: rand(0.1, 0.65),
         col: pickSpectralColor(),
         twink: rand(0, TAU),
-        twinkSpd: rand(0.003, 0.018),
+        // v5: faster MW twinkle
+        twinkSpd: rand(0.015, 0.055),
       });
     }
   }
 
   function drawMilkyWay() {
-    // Dust lane glow passes
-    const bandCX = W * 0.5;
-    const bandCY = H * 0.5 + W * 0.5 * Math.tan(MW_ANGLE);
     const len = Math.hypot(W * 1.4, H * 0.7);
 
     ctx.save();
     ctx.translate(W * 0.35, H * 0.28);
     ctx.rotate(MW_ANGLE);
 
-    // Outer haze
     for (let i = 0; i < 3; i++) {
       const g = ctx.createLinearGradient(0, -H * 0.28, 0, H * 0.28);
       g.addColorStop(0,    'rgba(0,0,0,0)');
@@ -2515,7 +2509,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       ctx.fillRect(-len, -H * 0.28, len * 2, H * 0.56);
     }
 
-    // Core glow (galactic center)
     const core = ctx.createRadialGradient(0, 0, 0, 0, 0, W * 0.3);
     core.addColorStop(0,   'rgba(255,220,140,0.055)');
     core.addColorStop(0.2, 'rgba(220,170,100,0.032)');
@@ -2526,14 +2519,15 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
     ctx.restore();
 
-    // Draw MW stars
+    // Draw MW stars with improved harmonic twinkle
     mwStars.forEach(s => {
       s.twink += s.twinkSpd;
-      const a = s.o * (0.55 + 0.45 * Math.sin(s.twink));
+      // v5: harmonic twinkle for MW stars too
+      const a = s.o * (0.4 + 0.35 * Math.sin(s.twink) + 0.15 * Math.sin(s.twink * 2.7 + 1.3) + 0.1 * Math.sin(s.twink * 5.1));
       const [r, g, b] = s.col;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, TAU);
-      ctx.fillStyle = `rgba(${r},${g},${b},${a.toFixed(3)})`;
+      ctx.fillStyle = `rgba(${r},${g},${b},${clamp(a, 0, 1).toFixed(3)})`;
       ctx.fill();
     });
   }
@@ -2554,8 +2548,8 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
         angle: rand(0, TAU),
         type: type < 0.5 ? 'spiral' : type < 0.8 ? 'elliptical' : 'irregular',
         col: Math.random() > 0.5
-          ? [255, 220, 160] // yellowish old stars
-          : [180, 210, 255], // bluish young stars
+          ? [255, 220, 160]
+          : [180, 210, 255],
         o: rand(0.12, 0.35),
         tilt: rand(0.1, 0.7),
       });
@@ -2571,7 +2565,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     const [r, gc, b] = g.col;
 
     if (g.type === 'spiral') {
-      // Draw tiny spiral arms
       for (let arm = 0; arm < 2; arm++) {
         const armAngle = arm * Math.PI;
         for (let j = 0; j < 28; j++) {
@@ -2587,7 +2580,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
           ctx.fill();
         }
       }
-      // Core
       const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, g.size * 0.3);
       cg.addColorStop(0, `rgba(255,235,190,${g.o * 0.9})`);
       cg.addColorStop(1, `rgba(255,200,120,0)`);
@@ -2601,7 +2593,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       ctx.fillStyle = eg;
       ctx.fillRect(-g.size, -g.size, g.size * 2, g.size * 2);
     } else {
-      // Irregular — random dot cloud
       for (let k = 0; k < 12; k++) {
         const px = rand(-g.size, g.size);
         const py = rand(-g.size * 0.5, g.size * 0.5);
@@ -2620,7 +2611,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
   /* ══════════════════════════════════════════════════════
      §4  DARK MATTER FILAMENT WEB
-     (cosmic large-scale structure — faint thread network)
   ══════════════════════════════════════════════════════ */
   const N_NODES = IS_MOB ? 12 : 28;
   let filNodes = [];
@@ -2658,7 +2648,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §5  AURORA VEIL  (polar light curtains)
+     §5  AURORA VEIL
   ══════════════════════════════════════════════════════ */
   const AURORA_BANDS = IS_MOB ? 3 : 6;
 
@@ -2671,12 +2661,11 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       const topY  = H * 0.0;
       const botY  = H * (0.25 + 0.1 * Math.sin(phase * 2.3));
 
-      // Pick aurora color (green/teal/violet)
       const cols = [
-        [80, 220, 160],  // green
-        [60, 180, 220],  // teal
-        [140, 80, 255],  // violet
-        [0, 200, 180],   // cyan
+        [80, 220, 160],
+        [60, 180, 220],
+        [140, 80, 255],
+        [0, 200, 180],
       ];
       const [r, g, b] = cols[i % cols.length];
       const alpha = 0.018 + 0.012 * Math.sin(aT * 3 + i);
@@ -2689,7 +2678,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
       ctx.save();
       ctx.beginPath();
-      // Wavy curtain shape
       ctx.moveTo(baseX, topY);
       for (let y = 0; y <= botY; y += 8) {
         const wave = Math.sin(y * 0.025 + aT * 4 + i) * width * 0.3;
@@ -2708,17 +2696,17 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §6  NEBULA CLOUDS  (Hubble-style, multi-color)
+     §6  NEBULA CLOUDS
   ══════════════════════════════════════════════════════ */
   const NEBULAE = [
-    { bx: 0.12, by: 0.22, r: 380, col: '140,80,200',  base: 0.038, spd: 0.70 }, // emission purple
-    { bx: 0.80, by: 0.65, r: 320, col: '255,100,80',  base: 0.030, spd: 0.88 }, // emission red
-    { bx: 0.50, by: 0.10, r: 280, col: '60,120,200',  base: 0.028, spd: 0.62 }, // reflection blue
-    { bx: 0.88, by: 0.18, r: 220, col: '255,180,60',  base: 0.018, spd: 1.10 }, // emission orange
-    { bx: 0.06, by: 0.80, r: 300, col: '80,200,160',  base: 0.022, spd: 0.78 }, // teal
-    { bx: 0.55, by: 0.52, r: 200, col: '200,60,120',  base: 0.016, spd: 0.96 }, // rose
-    { bx: 0.30, by: 0.42, r: 260, col: '255,220,100', base: 0.020, spd: 0.66 }, // golden
-    { bx: 0.72, by: 0.85, r: 180, col: '100,220,255', base: 0.014, spd: 1.20 }, // cyan
+    { bx: 0.12, by: 0.22, r: 380, col: '140,80,200',  base: 0.038, spd: 0.70 },
+    { bx: 0.80, by: 0.65, r: 320, col: '255,100,80',  base: 0.030, spd: 0.88 },
+    { bx: 0.50, by: 0.10, r: 280, col: '60,120,200',  base: 0.028, spd: 0.62 },
+    { bx: 0.88, by: 0.18, r: 220, col: '255,180,60',  base: 0.018, spd: 1.10 },
+    { bx: 0.06, by: 0.80, r: 300, col: '80,200,160',  base: 0.022, spd: 0.78 },
+    { bx: 0.55, by: 0.52, r: 200, col: '200,60,120',  base: 0.016, spd: 0.96 },
+    { bx: 0.30, by: 0.42, r: 260, col: '255,220,100', base: 0.020, spd: 0.66 },
+    { bx: 0.72, by: 0.85, r: 180, col: '100,220,255', base: 0.014, spd: 1.20 },
   ];
 
   function drawNebula() {
@@ -2729,7 +2717,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       const cx      = nb.bx * W + Math.sin(nebulaT * 1.1 + i) * 60;
       const cy      = nb.by * H + Math.cos(nebulaT * 0.85 + i * 1.5) * 45;
       const rr      = nb.r * pulse * nFactor;
-      const a       = nb.base * pulse * 0.6; // more subtle
+      const a       = nb.base * pulse * 0.6;
 
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
       g.addColorStop(0,    `rgba(${nb.col},${a.toFixed(3)})`);
@@ -2754,7 +2742,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       const radius = rand(IS_MOB ? 25 : 40, IS_MOB ? 55 : 100);
       const count  = IS_MOB ? 60 : 160;
       const stars  = Array.from({ length: count }, () => {
-        // Gaussian-distributed toward center
         const a = rand(0, TAU);
         const d = Math.abs(rand(0, 1) + rand(0, 1) - 1) * radius;
         return {
@@ -2764,7 +2751,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
           o: rand(0.2, 0.85),
           twink: rand(0, TAU),
           twinkSpd: rand(0.005, 0.025),
-          col: Math.random() > 0.7 ? [255, 200, 140] : [255, 245, 220], // old K/G stars
+          col: Math.random() > 0.7 ? [255, 200, 140] : [255, 245, 220],
         };
       });
       return { cx, cy, radius, stars };
@@ -2773,7 +2760,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
   function drawClusters() {
     clusters.forEach(cl => {
-      // Soft core glow
       const cg = ctx.createRadialGradient(cl.cx, cl.cy, 0, cl.cx, cl.cy, cl.radius * 0.6);
       cg.addColorStop(0,   'rgba(255,230,180,0.04)');
       cg.addColorStop(0.5, 'rgba(255,210,140,0.015)');
@@ -2794,7 +2780,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §8  TRI-LAYER STAR FIELD  (improved spectral)
+     §8  TRI-LAYER STAR FIELD  — v5 Hubble Edition
   ══════════════════════════════════════════════════════ */
   const STAR_N = IS_MOB ? [120, 50, 18] : [340, 120, 40];
   const PAX    = [0.004, 0.012, 0.030];
@@ -2805,6 +2791,8 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     const col         = pickSpectralColor();
     const baseR       = [0.3, 0.8, 1.8][layer];
     const superBright = layer === 2 && Math.random() < 0.15;
+    // v5: more stars in layer 1 get spikes too
+    const hasMedBloom = layer === 1 && Math.random() < 0.2;
     return {
       x: rand(0, W), y: rand(0, H),
       r: baseR + rand(0, [0.5, 0.9, 2.0][layer]),
@@ -2812,12 +2800,18 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       col,
       layer,
       twink:    rand(0, TAU),
-      twinkSpd: rand(0.004, 0.022),
+      // v5: faster twinkle speeds
+      twinkSpd: rand(0.018, 0.065),
       pulseT:   rand(0, TAU),
       pulseSpd: rand(0.003, 0.015),
       superBright,
-      bloomR:   superBright ? rand(8, 22) : 0,
-      lensFlare: superBright && Math.random() < 0.4,
+      // v5: richer bloom, medium bloom for layer 1
+      bloomR:   superBright ? rand(12, 30) : (hasMedBloom ? rand(6, 12) : 0),
+      // v5: more stars get lens flare / spikes
+      lensFlare: superBright || (layer === 1 && Math.random() < 0.25),
+      // v5: spike parameters
+      spikeLen: superBright ? rand(60, 180) : rand(20, 55),
+      spikeAngle: rand(0, Math.PI * 0.25),
     };
   }
 
@@ -2851,33 +2845,69 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     stars[layer].forEach(s => {
       s.twink  += s.twinkSpd;
       s.pulseT += s.pulseSpd;
-      const alpha  = s.o * (0.5 + 0.5 * Math.sin(s.twink));
+
+      // v5: harmonic multi-frequency twinkle — organic, not robotic
+      const alpha  = clamp(
+        s.o * (0.4 + 0.35 * Math.sin(s.twink) + 0.15 * Math.sin(s.twink * 2.7 + 1.3) + 0.1 * Math.sin(s.twink * 5.1)),
+        0, 1
+      );
       const pScale = 1 + 0.25 * Math.sin(s.pulseT);
       const sx = s.x + ox, sy = s.y + oy;
       const [r, g, b] = s.col;
 
-      if (s.superBright) {
+      if (s.bloomR > 0) {
         const bloom = ctx.createRadialGradient(sx, sy, 0, sx, sy, s.bloomR * pScale);
-        bloom.addColorStop(0,    `rgba(${r},${g},${b},${(alpha * 0.9).toFixed(3)})`);
-        bloom.addColorStop(0.4,  `rgba(${r},${g},${b},${(alpha * 0.22).toFixed(3)})`);
+        // v5: white-hot core like real Hubble stars
+        bloom.addColorStop(0,    `rgba(255,255,255,${(alpha * 1.0).toFixed(3)})`);
+        bloom.addColorStop(0.08, `rgba(${r},${g},${b},${(alpha * 0.85).toFixed(3)})`);
+        bloom.addColorStop(0.35, `rgba(${r},${g},${b},${(alpha * 0.25).toFixed(3)})`);
         bloom.addColorStop(1,    `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = bloom;
         const br = s.bloomR * pScale;
         ctx.fillRect(sx - br, sy - br, br * 2, br * 2);
-
-        if (s.lensFlare) {
-          ctx.globalAlpha = alpha * 0.3;
-          ctx.strokeStyle = `rgba(${r},${g},${b},1)`;
-          const fl = s.bloomR * 2.0 * pScale;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath(); ctx.moveTo(sx - fl, sy); ctx.lineTo(sx + fl, sy); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(sx, sy - fl); ctx.lineTo(sx, sy + fl); ctx.stroke();
-          ctx.globalAlpha = 1;
-        }
       }
+
+      // v5: Hubble-style 4-axis diffraction spikes
+      if (s.lensFlare) {
+        const fl = s.spikeLen * pScale * (0.8 + 0.2 * Math.sin(s.twink * 2));
+        // 4 spike axes: 2 main (full intensity) + 2 diagonal (half intensity)
+        const angles      = [s.spikeAngle, s.spikeAngle + Math.PI * 0.5, s.spikeAngle + Math.PI * 0.25, s.spikeAngle - Math.PI * 0.25];
+        const spikeAlphas = [alpha * 0.9,  alpha * 0.9,                  alpha * 0.45,                  alpha * 0.45];
+        const spikeWidths = [0.8,          0.8,                          0.4,                           0.4];
+
+        angles.forEach((ang, idx) => {
+          const ex = sx + Math.cos(ang) * fl;
+          const ey = sy + Math.sin(ang) * fl;
+          const ex2 = sx - Math.cos(ang) * fl;
+          const ey2 = sy - Math.sin(ang) * fl;
+
+          // Positive direction spike
+          const sg1 = ctx.createLinearGradient(sx, sy, ex, ey);
+          sg1.addColorStop(0,    `rgba(${r},${g},${b},${spikeAlphas[idx].toFixed(3)})`);
+          sg1.addColorStop(0.15, `rgba(${r},${g},${b},${(spikeAlphas[idx] * 0.6).toFixed(3)})`);
+          sg1.addColorStop(0.5,  `rgba(${r},${g},${b},${(spikeAlphas[idx] * 0.15).toFixed(3)})`);
+          sg1.addColorStop(1,    `rgba(${r},${g},${b},0)`);
+          ctx.lineWidth   = spikeWidths[idx];
+          ctx.strokeStyle = sg1;
+          ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+
+          // Negative direction spike
+          const sg2 = ctx.createLinearGradient(sx, sy, ex2, ey2);
+          sg2.addColorStop(0,    `rgba(${r},${g},${b},${spikeAlphas[idx].toFixed(3)})`);
+          sg2.addColorStop(0.15, `rgba(${r},${g},${b},${(spikeAlphas[idx] * 0.6).toFixed(3)})`);
+          sg2.addColorStop(0.5,  `rgba(${r},${g},${b},${(spikeAlphas[idx] * 0.15).toFixed(3)})`);
+          sg2.addColorStop(1,    `rgba(${r},${g},${b},0)`);
+          ctx.strokeStyle = sg2;
+          ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex2, ey2); ctx.stroke();
+        });
+      }
+
+      // v5: size pulse + color temperature shimmer
+      const radiusMod = 1 + 0.18 * Math.sin(s.twink * 1.6 + 0.8);
+      const shimmer   = Math.sin(s.twink * 0.8) * 18;
       ctx.beginPath();
-      ctx.arc(sx, sy, s.r * (s.superBright ? pScale : 1), 0, TAU);
-      ctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
+      ctx.arc(sx, sy, s.r * (s.superBright ? pScale : radiusMod), 0, TAU);
+      ctx.fillStyle = `rgba(${clamp(r + shimmer, 0, 255)},${g},${clamp(b - shimmer, 0, 255)},${alpha.toFixed(3)})`;
       ctx.fill();
     });
   }
@@ -2931,24 +2961,20 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       const bx = sys.cx - Math.cos(sys.angle) * sys.orbitR * 0.6;
       const by = sys.cy - Math.sin(sys.angle) * sys.orbitR * 0.6;
 
-      // Draw each star with bloom
       [[ax, ay, sys.starA], [bx, by, sys.starB]].forEach(([sx, sy, star]) => {
         const [r, g, b] = star.col;
-        // Bloom
         const bloom = ctx.createRadialGradient(sx, sy, 0, sx, sy, star.bloomR);
         bloom.addColorStop(0,   `rgba(${r},${g},${b},0.7)`);
         bloom.addColorStop(0.4, `rgba(${r},${g},${b},0.15)`);
         bloom.addColorStop(1,   `rgba(${r},${g},${b},0)`);
         ctx.fillStyle = bloom;
         ctx.fillRect(sx - star.bloomR, sy - star.bloomR, star.bloomR * 2, star.bloomR * 2);
-        // Core
         ctx.beginPath();
         ctx.arc(sx, sy, star.r, 0, TAU);
         ctx.fillStyle = `rgba(${r},${g},${b},0.95)`;
         ctx.fill();
       });
 
-      // Thin accretion bridge between the two stars (Roche lobe overflow)
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(ax, ay);
@@ -2963,7 +2989,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §10  PULSAR  (rotating beam jets)
+     §10  PULSAR
   ══════════════════════════════════════════════════════ */
   const N_PULSARS = IS_MOB ? 1 : 2;
   let pulsars = [];
@@ -2986,7 +3012,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       p.pulseT += 0.08;
       const intensity = 0.5 + 0.5 * Math.sin(p.pulseT);
 
-      // Two opposing jets
       for (let side = 0; side < 2; side++) {
         const jetAngle = p.angle + side * Math.PI;
         const ex = p.x + Math.cos(jetAngle) * p.beamLen;
@@ -3012,7 +3037,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
         ctx.restore();
       }
 
-      // Neutron star core
       const [r, g, b] = [200, 230, 255];
       const bg2 = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
       bg2.addColorStop(0,   `rgba(${r},${g},${b},0.9)`);
@@ -3028,7 +3052,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §11  GAS GIANT PLANET  (side-on disk, no circles)
+     §11  GAS GIANT PLANET
   ══════════════════════════════════════════════════════ */
   let planet = null;
 
@@ -3037,7 +3061,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       x:    W * rand(0.62, 0.82),
       y:    H * rand(0.55, 0.75),
       r:    IS_MOB ? rand(18, 28) : rand(28, 48),
-      hue:  rand(20, 50), // orange-brown gas giant
+      hue:  rand(20, 50),
       tilt: rand(0.12, 0.28),
       rot:  0,
       rotSpd: 0.0004,
@@ -3052,7 +3076,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.save();
     ctx.translate(x, y);
 
-    // Planet disk (elliptical gradient — not a circle outline)
     const pg = ctx.createRadialGradient(-r * 0.3, -r * 0.3, 0, 0, 0, r);
     pg.addColorStop(0,    'rgba(255,200,120,0.95)');
     pg.addColorStop(0.25, 'rgba(220,150,80,0.92)');
@@ -3064,7 +3087,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.fillStyle = pg;
     ctx.fill();
 
-    // Atmospheric bands (horizontal stripes, clipped to planet)
     ctx.save();
     ctx.beginPath();
     ctx.ellipse(0, 0, r, r, 0, 0, TAU);
@@ -3081,7 +3103,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     }
     ctx.restore();
 
-    // Limb darkening
     const ld = ctx.createRadialGradient(0, 0, r * 0.6, 0, 0, r);
     ld.addColorStop(0,   'rgba(0,0,0,0)');
     ld.addColorStop(0.7, 'rgba(0,0,0,0.08)');
@@ -3091,12 +3112,10 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.fillStyle = ld;
     ctx.fill();
 
-    // Ring disk — drawn as tilted FILLED ellipse slab (NOT a circle)
     ctx.save();
     ctx.rotate(planet.tilt);
-    ctx.scale(1, 0.18); // flatten severely = side-on disk
+    ctx.scale(1, 0.18);
 
-    // Back half of ring (behind planet)
     const ringInner = r * 1.45;
     const ringOuter = r * 2.6;
     const rg = ctx.createRadialGradient(0, 0, ringInner, 0, 0, ringOuter);
@@ -3107,13 +3126,12 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     rg.addColorStop(1,    'rgba(140,110,60,0.0)');
 
     ctx.beginPath();
-    ctx.ellipse(0, 0, ringOuter, ringOuter, 0, Math.PI, TAU); // back half
+    ctx.ellipse(0, 0, ringOuter, ringOuter, 0, Math.PI, TAU);
     ctx.ellipse(0, 0, ringInner, ringInner, 0, TAU, Math.PI, true);
     ctx.fillStyle = rg;
     ctx.fill();
     ctx.restore();
 
-    // Front half of ring (over planet)
     ctx.save();
     ctx.rotate(planet.tilt);
     ctx.scale(1, 0.18);
@@ -3181,7 +3199,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
   function spawnSolarFlare() {
     if (solarFlares.length >= (IS_MOB ? 2 : 4)) return;
-    // Anchor to brightest binary star
     const sys = binarySystems[0];
     if (!sys) return;
     const baseAngle = rand(0, TAU);
@@ -3208,7 +3225,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
       ctx.save();
       ctx.translate(f.x, f.y);
-      // CME arc drawn as bezier curve
       const a1 = f.baseAngle - 0.3;
       const a2 = f.baseAngle + 0.3;
       const cpLen = spread * 0.8;
@@ -3224,7 +3240,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Bright tip
       ctx.beginPath();
       ctx.arc(cpx * 0.9, cpy * 0.9, 2, 0, TAU);
       ctx.fillStyle = `rgba(255,240,200,${(alpha * 1.5).toFixed(3)})`;
@@ -3260,7 +3275,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.translate(x, y);
     ctx.rotate(wormhole.rot);
 
-    // Inner void
     const vg = ctx.createRadialGradient(0, 0, 0, 0, 0, r * pulse);
     vg.addColorStop(0,    'rgba(0,0,0,1)');
     vg.addColorStop(0.55, 'rgba(0,5,20,0.95)');
@@ -3271,7 +3285,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.fillStyle = vg;
     ctx.fill();
 
-    // Swirl distortion lines (NOT circles — radial streaks)
     for (let i = 0; i < 12; i++) {
       const ang = (i / 12) * TAU + wormhole.rot * 2;
       const innerR = r * 0.3 * pulse;
@@ -3289,7 +3302,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       ctx.stroke();
     }
 
-    // Hawking radiation glow
     const hg = ctx.createRadialGradient(0, 0, r * 0.7, 0, 0, r * 2.2);
     hg.addColorStop(0,   'rgba(100,40,200,0.08)');
     hg.addColorStop(0.4, 'rgba(60,20,160,0.04)');
@@ -3303,7 +3315,7 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
   }
 
   /* ══════════════════════════════════════════════════════
-     §15  GALAXY FLOW PARTICLES  (improved)
+     §15  GALAXY FLOW PARTICLES
   ══════════════════════════════════════════════════════ */
   const PART_N = IS_MOB ? 55 : 140;
   let parts = [];
@@ -3367,7 +3379,6 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
       }
     });
 
-    // Draw
     parts.forEach(p => {
       const [r, g, b] = p.col;
       const ox = (sm.x - W * 0.5) * PAX[p.layer];
@@ -3509,14 +3520,14 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
     ctx.clearRect(0, 0, W, H);
 
     // ── DRAW ORDER: back → front ──
-    drawBackground();        // pure black
+    drawBackground();        // pure black + blue vignette
     drawMilkyWay();          // MW band + dust
     drawFilaments();         // dark matter web
     drawDeepGalaxies();      // distant galaxies
     drawNebula();            // emission/reflection nebulae
     drawAurora();            // aurora curtains
     drawClusters();          // globular clusters
-    drawStars();             // tri-layer star field
+    drawStars();             // tri-layer star field (Hubble twinkle + spikes)
     drawWormhole();          // wormhole portal
     drawPlanet();            // gas giant
     drawBinaries();          // binary systems
