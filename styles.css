@@ -169,16 +169,7 @@ nav a::after {
 nav a:hover::after, nav a.active::after { left: 14px; right: 14px; }
 nav a:hover, nav a.active { color: var(--gold); background: rgba(201,169,110,0.07); }
 
-/* Nav Controls (theme + cmd palette) */
-.nav-controls { display: flex; align-items: center; gap: 0.5rem; margin-left: 0.75rem; flex-shrink: 0; }
-.nav-icon-btn {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text-dim); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all var(--transition); font-size: 0.85rem;
-    flex-shrink: 0;
-}
+
 .nav-icon-btn:hover { background: rgba(201,169,110,0.1); border-color: var(--border-hover); color: var(--gold); }
 .nav-resume-btn {
     margin-left: 0.25rem; flex-shrink: 0; padding: 0.45rem 1rem;
@@ -204,77 +195,6 @@ nav a:hover, nav a.active { color: var(--gold); background: rgba(201,169,110,0.0
 .menu-toggle.active span:nth-child(2) { opacity: 0; transform: translateX(-8px); }
 .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-/* ── Command Palette ───────────────────────────────── */
-.cmd-overlay {
-    position: fixed; inset: 0; z-index: 10000;
-    background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
-    display: none; align-items: flex-start; justify-content: center;
-    padding-top: 14vh;
-    animation: cmdFadeIn 0.18s ease both;
-}
-.cmd-overlay.open { display: flex; }
-@keyframes cmdFadeIn { from { opacity: 0; } to { opacity: 1; } }
-.cmd-palette {
-    width: min(560px, 90vw);
-    background: var(--bg-glass);
-    border: 1px solid var(--border-hover);
-    border-radius: var(--radius-lg);
-    backdrop-filter: blur(32px) saturate(180%);
-    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.04);
-    overflow: hidden;
-    animation: cmdSlideIn 0.22s cubic-bezier(0.34,1.36,0.64,1) both;
-}
-@keyframes cmdSlideIn { from { opacity:0; transform:scale(0.94) translateY(-12px); } to { opacity:1; transform:scale(1) translateY(0); } }
-.cmd-input-wrap {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
-}
-.cmd-icon { color: var(--text-muted); flex-shrink: 0; font-size: 1rem; }
-.cmd-input {
-    flex: 1; background: none; border: none; outline: none;
-    font-family: 'DM Sans', sans-serif; font-size: 1rem;
-    color: var(--text); caret-color: var(--gold);
-}
-.cmd-input::placeholder { color: var(--text-muted); }
-.cmd-kbd {
-    font-size: 0.7rem; color: var(--text-muted);
-    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-    padding: 0.15rem 0.45rem; border-radius: 5px; font-family: monospace;
-    flex-shrink: 0;
-}
-.cmd-results { max-height: 340px; overflow-y: auto; padding: 0.5rem; }
-.cmd-group-label {
-    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--text-muted);
-    padding: 0.5rem 0.75rem 0.3rem;
-}
-.cmd-item {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.7rem 0.75rem; border-radius: 10px;
-    cursor: pointer; transition: all var(--transition);
-    color: var(--text-dim); font-size: 0.9rem;
-}
-.cmd-item:hover, .cmd-item.selected {
-    background: rgba(201,169,110,0.1); color: var(--gold);
-    transform: translateX(4px);
-}
-.cmd-item-icon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; }
-.cmd-item-label { flex: 1; }
-.cmd-item-shortcut {
-    font-size: 0.7rem; color: var(--text-muted);
-    background: rgba(255,255,255,0.05); padding: 0.15rem 0.45rem;
-    border-radius: 4px; font-family: monospace;
-}
-.cmd-footer {
-    padding: 0.6rem 1.25rem; border-top: 1px solid var(--border);
-    display: flex; gap: 1rem; align-items: center;
-}
-.cmd-hint { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem; }
-.cmd-hint kbd {
-    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-    border-radius: 3px; padding: 0.1rem 0.35rem; font-size: 0.65rem;
-    font-family: monospace; color: var(--text-dim);
-}
 
 /* ── Container ─────────────────────────────────────── */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
@@ -1333,7 +1253,6 @@ footer p { color: var(--text-muted); font-size: 0.82rem; }
     .github-stats-row { gap: 1.5rem; }
     .gh-graph-grid { grid-template-columns: repeat(26, 1fr); }
     .hire-float { bottom: 1.2rem; right: 1.2rem; font-size: 0.76rem; padding: 0.55rem 1rem; }
-    .cmd-overlay { padding-top: 8vh; }
 }
 
 

@@ -1208,26 +1208,6 @@ if (lockAvatar) {
         link.addEventListener('click', playNavClick);
     });
 
-    /* ── Theme toggle + cmd trigger ── */
-    var themeToggle = document.getElementById('themeToggle');
-    var cmdTrigger  = document.getElementById('cmdTrigger');
-    if (themeToggle) themeToggle.addEventListener('click', function() { playToggle(true); });
-    if (cmdTrigger)  cmdTrigger.addEventListener('click',  playUIClick);
-
-    /* ── Command palette ── */
-    var cmdOverlay = document.getElementById('cmdOverlay');
-    if (cmdOverlay) {
-        var cmdWasOpen = false;
-        new MutationObserver(function() {
-            var isOpen = cmdOverlay.classList.contains('open');
-            if (isOpen && !cmdWasOpen) { playModalOpen();  cmdWasOpen = true;  }
-            if (!isOpen && cmdWasOpen) { playModalClose(); cmdWasOpen = false; }
-        }).observe(cmdOverlay, { attributes: true, attributeFilter: ['class'] });
-
-        cmdOverlay.addEventListener('click', function(e) {
-            if (e.target.closest('.cmd-item')) playUIClick();
-        });
-    }
 
     /* ── Project detail modal ── */
     var projectModal = document.getElementById('projectModal');

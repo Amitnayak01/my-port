@@ -1322,12 +1322,19 @@ function flipAvatar() {
     const navbar           = document.getElementById('navbar');
     const menuToggle       = document.getElementById('menuToggle');
     const navMenu          = document.getElementById('navMenu');
-    const cmdTrigger       = document.getElementById('cmdTrigger');
-    const cmdOverlay       = document.getElementById('cmdOverlay');
-    const cmdInput         = document.getElementById('cmdInput');
-    const cmdResults       = document.getElementById('cmdResults');
     const hireFloat        = document.getElementById('hireFloat');
     const html             = document.documentElement;
+   
+   menuToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+    menuToggle.classList.toggle('active');
+    menuToggle.setAttribute('aria-expanded', 
+        navMenu.classList.contains('active').toString());
+    document.body.style.overflow = 
+        navMenu.classList.contains('active') ? 'hidden' : '';
+});
+   
+   
     let lastScrollY = 0;
     const handleScroll = throttle(() => {
         const scrollY   = window.scrollY;
@@ -1375,35 +1382,8 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
         { group: 'Quick Actions', items: [ { label: 'Download Resume', icon: '📄', action: () => window.open('Amit Nayak-Resume.pdf', '_blank') }, { label: 'View GitHub', icon: '⑂', action: () => window.open('https://github.com/Amitnayak01', '_blank') }, { label: 'View LinkedIn', icon: '🔗', action: () => window.open('https://linkedin.com/in/amit-nayak-738024344', '_blank') }, { label: 'Send Email', icon: '✉️', action: () => window.open('mailto:amitkumarnayak330@gmail.com') },   ] },
         { group: 'Projects', items: [ { label: 'Open V-Meet', icon: '📹', action: () => window.open('https://v-meet2.vercel.app', '_blank') }, { label: 'Open E-Mart', icon: '🛒', action: () => window.open('https://e-mart-gamma-three.vercel.app', '_blank') }, { label: 'Open ChessArena', icon: '♟', action: () => window.open('https://chessarena-w7fq.onrender.com', '_blank') }, { label: 'Open Cyber Tools', icon: '🔐', action: () => window.open('https://cyber-security-tools-ruby.vercel.app', '_blank') } ] }
     ];
-    function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
-    let cmdSelected = 0, filteredItems = [];
-    function buildCmdResults(query) {
-        cmdResults.innerHTML = ''; filteredItems = []; const q = query.toLowerCase().trim(); const frag = document.createDocumentFragment();
-        commands.forEach(group => {
-            const filtered = group.items.filter(item => !q || item.label.toLowerCase().includes(q) || (item.shortcut && item.shortcut.toLowerCase() === q));
-            if (!filtered.length) return;
-            const label = document.createElement('div'); label.className = 'cmd-group-label'; label.textContent = group.group; frag.appendChild(label);
-            filtered.forEach(item => { const idx = filteredItems.length; filteredItems.push(item); const el = document.createElement('div'); el.className = 'cmd-item'; el.setAttribute('role', 'option'); el.dataset.idx = idx; el.innerHTML = `<span class="cmd-item-icon">${item.icon}</span><span class="cmd-item-label">${item.label}</span>${item.shortcut ? `<span class="cmd-item-shortcut">${item.shortcut}</span>` : ''}`; el.addEventListener('click', () => { execCmd(idx); }); frag.appendChild(el); });
-        });
-        cmdResults.appendChild(frag); cmdSelected = 0; highlightCmd(0);
-    }
-    function highlightCmd(idx) { document.querySelectorAll('.cmd-item').forEach((el, i) => { el.classList.toggle('selected', i === idx); if (i === idx) el.scrollIntoView({ block: 'nearest' }); }); }
-    function execCmd(idx) { const item = filteredItems[idx]; if (item) { item.action(); closeCmdPalette(); } }
-    function openCmdPalette() { cmdOverlay.classList.add('open'); cmdInput.value = ''; buildCmdResults(''); requestAnimationFrame(() => cmdInput.focus()); }
-    function closeCmdPalette() { cmdOverlay.classList.remove('open'); }
-    cmdTrigger.addEventListener('click', openCmdPalette);
-    cmdOverlay.addEventListener('click', (e) => { if (e.target === cmdOverlay) closeCmdPalette(); });
-    cmdInput.addEventListener('input', (e) => { buildCmdResults(e.target.value); });
-    cmdInput.addEventListener('keydown', (e) => {
-        const items = document.querySelectorAll('.cmd-item');
-        if (e.key === 'ArrowDown') { e.preventDefault(); cmdSelected = Math.min(cmdSelected + 1, items.length - 1); highlightCmd(cmdSelected); }
-        else if (e.key === 'ArrowUp') { e.preventDefault(); cmdSelected = Math.max(cmdSelected - 1, 0); highlightCmd(cmdSelected); }
-        else if (e.key === 'Enter') { execCmd(cmdSelected); }
-        else if (e.key === 'Escape') { closeCmdPalette(); }
-    });
+    
     document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); cmdOverlay.classList.contains('open') ? closeCmdPalette() : openCmdPalette(); }
-        if (e.key === 'Escape' && cmdOverlay.classList.contains('open')) closeCmdPalette();
     });
     const roles = ['Full Stack Developer', 'React + Node.js Dev', 'WebRTC Specialist', 'Real-Time App Builder', 'Problem Solver'];
     let roleIdx = 0, charIdx = 0, isDeleting = false;
@@ -4129,4 +4109,3 @@ if (!c._hitProfile && typeof window._profileCometCheck === 'function'
   }
 
 })();
-

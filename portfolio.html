@@ -256,23 +256,6 @@
     <div class="particles" id="particles"></div>
     <div class="noise-overlay" aria-hidden="true"></div>
 
-    <!-- ── Command Palette ── -->
-    <div class="cmd-overlay" id="cmdOverlay" role="dialog" aria-label="Command palette" aria-modal="true">
-        <div class="cmd-palette" id="cmdPalette">
-            <div class="cmd-input-wrap">
-                <span class="cmd-icon">⌕</span>
-                <input type="text" class="cmd-input" id="cmdInput" placeholder="Search… type a command" autocomplete="off" spellcheck="false">
-                <span class="cmd-kbd">ESC</span>
-            </div>
-            <div class="cmd-results" id="cmdResults" role="listbox"></div>
-            <div class="cmd-footer">
-                <span class="cmd-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
-                <span class="cmd-hint"><kbd>↵</kbd> select</span>
-                <span class="cmd-hint"><kbd>esc</kbd> close</span>
-            </div>
-        </div>
-    </div>
-
     <!-- ── Navigation ── -->
     <nav id="navbar">
         <div class="nav-container">
@@ -280,16 +263,41 @@
                 <span class="brand-dot"></span>AKN
             </div>
 
-            <ul id="navMenu" role="menubar">
-                <li role="none"><a href="#hero"       class="active" role="menuitem">Home</a></li>
-                <li role="none"><a href="#about"      role="menuitem">About</a></li>
-                <li role="none"><a href="#skills"     role="menuitem">Skills</a></li>
-                <li role="none"><a href="#experience" role="menuitem">Experience</a></li>
-                <li role="none"><a href="#projects"   role="menuitem">Projects</a></li>
-                <li role="none"><a href="#contact"    role="menuitem">Contact</a></li>
-            </ul>
+
+<ul id="navMenu" role="menubar">
+    <li role="none">
+        <a href="#hero" class="active" role="menuitem">
+            <span class="nav-icon">⌂</span>Home
+        </a>
+    </li>
+    <li role="none">
+        <a href="#about" role="menuitem">
+            <span class="nav-icon">◉</span>About
+        </a>
+    </li>
+    <li role="none">
+        <a href="#skills" role="menuitem">
+            <span class="nav-icon">⚡</span>Skills
+        </a>
+    </li>
+    <li role="none">
+        <a href="#experience" role="menuitem">
+            <span class="nav-icon">◈</span>Experience
+        </a>
+    </li>
+    <li role="none">
+        <a href="#projects" role="menuitem">
+            <span class="nav-icon">⊞</span>Projects
+        </a>
+    </li>
+    <li role="none">
+        <a href="#contact" role="menuitem">
+            <span class="nav-icon">✉</span>Contact
+        </a>
+    </li>
+</ul>
+
             <div class="nav-controls">
-                <button class="nav-icon-btn" id="cmdTrigger" aria-label="Open command palette" title="Command palette (Ctrl+K)">⌘</button>
                 <a href="Amit Nayak-Resume.pdf" class="nav-resume-btn" target="_blank" rel="noopener">Resume ↗</a>
                 <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
                 <span></span><span></span><span></span>
