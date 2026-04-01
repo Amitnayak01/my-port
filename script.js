@@ -2352,6 +2352,8 @@ window.addEventListener('resize', throttle(() => { spawnParticles(0); }, 300));
 
 
 
+
+
 /**
  * ═══════════════════════════════════════════════════════════════════
  *  DEEP SPACE ENGINE  v5.0  — "Hubble Edition"

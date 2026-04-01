@@ -431,6 +431,8 @@ function playCameraClick() {
 var _scrollSoundLast = 0;
 var _scrollTickCount = 0;
 
+
+
 function playScroll(direction) {
     if (!soundEnabled) return;
     var now = Date.now();
