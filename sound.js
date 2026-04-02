@@ -992,6 +992,85 @@ function playFlip() {
 
 
 /* ════════════════════════════════════════════════════
+   SOUND 20 — Comet Impact
+════════════════════════════════════════════════════ */
+function playCometImpact() {
+    if (!soundEnabled) return;
+    try {
+        var ctx = getCtx(); if (!ctx) return;
+        var t   = ctx.currentTime;
+
+        /* ── Low-end boom ── */
+        var boom = ctx.createOscillator();
+        boom.type = 'sine';
+        boom.frequency.setValueAtTime(90, t);
+        boom.frequency.exponentialRampToValueAtTime(22, t + 0.55);
+        var boomGain = ctx.createGain();
+        boomGain.gain.setValueAtTime(0.0001, t);
+        boomGain.gain.linearRampToValueAtTime(0.55, t + 0.012);
+        boomGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.60);
+        boom.connect(boomGain); boomGain.connect(ctx.destination);
+        boom.start(t); boom.stop(t + 0.65);
+
+        /* ── Sub thud ── */
+        var sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(55, t);
+        sub.frequency.exponentialRampToValueAtTime(18, t + 0.40);
+        var subGain = ctx.createGain();
+        subGain.gain.setValueAtTime(0.42, t);
+        subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+        sub.connect(subGain); subGain.connect(ctx.destination);
+        sub.start(t); sub.stop(t + 0.48);
+
+        /* ── Impact crack (noise burst) ── */
+        var crackSize = Math.floor(ctx.sampleRate * 0.06);
+        var crackBuf  = ctx.createBuffer(1, crackSize, ctx.sampleRate);
+        var cd        = crackBuf.getChannelData(0);
+        for (var i = 0; i < crackSize; i++)
+            cd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / crackSize, 5);
+        var crack = ctx.createBufferSource();
+        crack.buffer = crackBuf;
+        var crackBpf = ctx.createBiquadFilter();
+        crackBpf.type = 'bandpass'; crackBpf.frequency.value = 3200; crackBpf.Q.value = 0.8;
+        var crackGain = ctx.createGain();
+        crackGain.gain.setValueAtTime(0.70, t);
+        crackGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+        crack.connect(crackBpf); crackBpf.connect(crackGain); crackGain.connect(ctx.destination);
+        crack.start(t); crack.stop(t + 0.07);
+
+        /* ── High sizzle / energy discharge ── */
+        var sizzSize = Math.floor(ctx.sampleRate * 0.18);
+        var sizzBuf  = ctx.createBuffer(1, sizzSize, ctx.sampleRate);
+        var sz       = sizzBuf.getChannelData(0);
+        for (var j = 0; j < sizzSize; j++)
+            sz[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / sizzSize, 2.2);
+        var sizz = ctx.createBufferSource();
+        sizz.buffer = sizzBuf;
+        var sizzHpf = ctx.createBiquadFilter();
+        sizzHpf.type = 'highpass'; sizzHpf.frequency.value = 5500;
+        var sizzGain = ctx.createGain();
+        sizzGain.gain.setValueAtTime(0.30, t + 0.01);
+        sizzGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.20);
+        sizz.connect(sizzHpf); sizzHpf.connect(sizzGain); sizzGain.connect(ctx.destination);
+        sizz.start(t + 0.01); sizz.stop(t + 0.22);
+
+        /* ── Resonant ring-out (sci-fi metallic tone) ── */
+        var ring = ctx.createOscillator();
+        ring.type = 'sine';
+        ring.frequency.setValueAtTime(520, t + 0.02);
+        ring.frequency.exponentialRampToValueAtTime(210, t + 0.55);
+        var ringGain = ctx.createGain();
+        ringGain.gain.setValueAtTime(0.0001, t + 0.02);
+        ringGain.gain.linearRampToValueAtTime(0.09, t + 0.04);
+        ringGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.58);
+        ring.connect(ringGain); ringGain.connect(ctx.destination);
+        ring.start(t + 0.02); ring.stop(t + 0.60);
+
+    } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════════
    SOUND TOGGLE
 ════════════════════════════════════════════════════ */
 function toggleSound() {

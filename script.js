@@ -1,19 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════════════
- *  HUD RING  — RESPONSIVE EDITION
- * ═══════════════════════════════════════════════════════════════════
- *  RESPONSIVE CHANGES vs original:
- *    ✦  SIZE and BASE are computed from the wrap element's live
- *       dimensions — no more hardcoded 720 / 160
- *    ✦  ResizeObserver watches the wrap; rebuilds on any size change
- *       (handles orientation flip, browser zoom, fluid layouts)
- *    ✦  Canvas element resizes in place — no DOM removal/re-insertion
- *    ✦  Device pixel ratio support: canvas backing store scaled by
- *       DPR (up to 2×), CSS size stays at SIZE px
- *    ✦  All draw functions read BASE as a live variable, not const
- *    ✦  Touch-start fires the same click effect as mouse click
- *    ✦  mousemove handler recalculates wrap center each call (needed
- *       when layout shifts after resize)
+ *  HUD RING  — RESPONSIVE EDITION  (+ Enhanced r:1.57 ring patch)
  * ═══════════════════════════════════════════════════════════════════
  */
 
@@ -39,32 +26,19 @@
 
   const ctx = canvas.getContext('2d');
 
-  /* ── Live sizing ─────────────────────────────────────────────────
-     SIZE  = CSS pixel side-length of the canvas square
-             We give it 2.25× the wrap width so the outermost rings
-             (which reach BASE × 2.1 from centre) have breathing room.
-     BASE  = half the wrap width = the "base orbit radius"
-             Matches the original: 320px wrap → BASE = 160
-     DPR   = device pixel ratio (capped at 2 for performance)
-  ──────────────────────────────────────────────────────────────────*/
   let SIZE, BASE, DPR, cx, cy;
 
   function computeSize() {
     DPR  = Math.min(window.devicePixelRatio || 1, 2);
-    // Use the wrap's current rendered width; fall back to 320
     const wrapW = wrap.offsetWidth || 320;
     BASE = wrapW / 2;
-    SIZE = Math.round(wrapW * 2.25);
+    SIZE = Math.round(wrapW * 2.5);
     cx   = SIZE / 2;
     cy   = SIZE / 2;
-
-    // Physical backing pixels
     canvas.width  = SIZE * DPR;
     canvas.height = SIZE * DPR;
-    // CSS display size
     canvas.style.width  = SIZE + 'px';
     canvas.style.height = SIZE + 'px';
-    // Scale all draw calls so 1 CSS px = 1 logical px
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
@@ -92,7 +66,6 @@
   const RIPPLES = [];
 
   function getWrapCenter() {
-    // Always recalculate from DOM — works after layout shifts
     const r = wrap.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top + r.height / 2, hw: r.width };
   }
@@ -292,17 +265,14 @@
     { r:1.28, angle:1.1, spd:-0.22, size:0.16, col:WHITE, a:0.12 },
   ];
 
-  /* ── Ring layers ── */
+  /* ── Ring layers  (r:1.57 removed — replaced by drawEnhancedRing157) ── */
   const RINGS = [
     { r:1.00, spd:0,      lw:2.5, dash:[],       col:GOLD,  a:1.0,  gl:28 },
     { r:1.07, spd:0.55,   lw:1.0, dash:[4,6],    col:GOLDL, a:0.55, gl:6  },
     { r:1.16, spd:0.38,   lw:1.5, dash:[],       col:WHITE, a:0.65, gl:10 },
     { r:1.28, spd:-0.22,  lw:0.8, dash:[18,7],   col:GOLD,  a:0.50, gl:12 },
     { r:1.42, spd:0.14,   lw:2.0, dash:[22,5],   col:GOLDL, a:0.60, gl:14 },
-    { r:1.57, spd:-0.10,  lw:0.7, dash:[2,9],    col:WHITE, a:0.28, gl:4  },
     { r:1.72, spd:0.07,   lw:1.2, dash:[55,16],  col:GOLD,  a:0.38, gl:8  },
-    { r:1.90, spd:-0.04,  lw:0.5, dash:[8,22],   col:CREAM, a:0.18, gl:2  },
-    { r:2.10, spd:0.025,  lw:0.4, dash:[120,35], col:GOLD,  a:0.10, gl:0  },
   ];
 
   /* ── Arcs ── */
@@ -327,7 +297,6 @@
     { r:1.42, spd:0.14,  size:3.8, col:GOLDL  },
     { r:1.57, spd:-0.10, size:2.2, col:WHITE  },
     { r:1.72, spd:0.07,  size:2.8, col:GOLD   },
-    { r:1.90, spd:-0.04, size:1.5, col:CREAM  },
   ];
 
   const CARDINALS = [
@@ -335,6 +304,15 @@
     Math.PI, Math.PI*1.25, Math.PI*1.5, Math.PI*1.75,
     Math.PI/8, Math.PI*0.375, Math.PI*0.625, Math.PI*0.875,
     Math.PI*1.125, Math.PI*1.375, Math.PI*1.625, Math.PI*1.875,
+  ];
+
+  const OUTER_DIAMONDS = [
+    { angle: 0,            r: 1.72, sz: 4, a: 0.55 },
+    { angle: Math.PI/3,    r: 1.57, sz: 3, a: 0.40 },
+    { angle: Math.PI*0.8,  r: 1.90, sz: 5, a: 0.45 },
+    { angle: Math.PI*1.2,  r: 1.72, sz: 3, a: 0.35 },
+    { angle: Math.PI*1.6,  r: 1.57, sz: 4, a: 0.50 },
+    { angle: Math.PI*2.0,  r: 1.90, sz: 3, a: 0.38 },
   ];
 
   const DATA_SEGS = Array.from({ length: 32 }, (_, i) => ({
@@ -356,6 +334,217 @@
     { angle:2.20,  r:1.90, text:'100%',   phase:3.4 },
     { angle:-2.00, r:1.57, text:'NODE',   phase:5.0 },
   ];
+
+  /* ── Enhanced r:1.57 ring state ── */
+  const RING157_DOTS = 48;
+
+  let ring157CometAngle  = 0;
+  let ring157CometAngle2 = Math.PI;
+  const RING157_SPARKS   = [];
+  const COLLISION_PARTICLES = [];
+const SHOCKWAVES = [];
+let collisionFlash = 0;
+let cooldown157 = 0;
+let impactX = 0, impactY = 0;
+
+
+  function spawnRing157Spark(px, py, angle) {
+    for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+      const va  = angle + (Math.random() - 0.5) * 1.8;
+      const spd = 0.6 + Math.random() * 1.4;
+      RING157_SPARKS.push({
+        x: px, y: py,
+        vx: Math.cos(va) * spd, vy: Math.sin(va) * spd,
+        life: 1.0, decay: 0.035 + Math.random() * 0.025,
+        size: 0.8 + Math.random() * 1.6,
+      });
+    }
+  }
+
+  function boom157(ax, ay) {
+  impactX = ax; impactY = ay;
+  collisionFlash = 1.0; cooldown157 = 140;
+  const COLS = [[255,255,255],[255,245,180],[255,210,80],[255,140,30],[201,169,110]];
+  for (let i = 0; i < 70; i++) {
+    const va = Math.random() * Math.PI * 2, sp = 1.8 + Math.random() * 5.5;
+    const col = COLS[Math.floor(Math.random() * COLS.length)];
+    COLLISION_PARTICLES.push({ x:ax, y:ay, vx:Math.cos(va)*sp, vy:Math.sin(va)*sp,
+      life:1, decay:0.010+Math.random()*0.018, sz:1.0+Math.random()*3.5, col, glow:Math.random()>0.35 });
+  }
+  for (let j = 0; j < 5; j++) {
+    SHOCKWAVES.push({ x:ax, y:ay, r:2, maxR:50+j*20, a:1.0-j*0.14,
+      sp:5+j*1.1, lw:3.8-j*0.55,
+      col: j%2===0 ? [255,245,180] : [255,170,50], delay:j*5, tick:0 });
+  }
+}
+
+  function drawEnhancedRing157() {
+
+
+    // exact pixel position of each comet head
+const hax = cx + Math.cos(ring157CometAngle)  * BASE * 1.57;
+const hay = cy + Math.sin(ring157CometAngle)  * BASE * 1.57;
+const hbx = cx + Math.cos(ring157CometAngle2) * BASE * 1.57;
+const hby = cy + Math.sin(ring157CometAngle2) * BASE * 1.57;
+const dist = Math.hypot(hax - hbx, hay - hby);
+if (cooldown157 > 0) cooldown157--;
+if (dist < 14 && cooldown157 === 0) boom157((hax+hbx)/2, (hay+hby)/2);
+
+// flash at impact point
+if (collisionFlash > 0) {
+  const g = ctx.createRadialGradient(impactX,impactY,0, impactX,impactY, 88*collisionFlash);
+  g.addColorStop(0,   rgba(WHITE,  collisionFlash * 0.95));
+  g.addColorStop(0.18,rgba(HOT,    collisionFlash * 0.75));
+  g.addColorStop(0.5, rgba(HOT,    collisionFlash * 0.35));
+  g.addColorStop(1,   rgba(HOT,    0));
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(impactX, impactY, 88*collisionFlash, 0, Math.PI*2); ctx.fill();
+  collisionFlash = Math.max(0, collisionFlash - 0.038);
+}
+
+
+    const R  = BASE * 1.57;
+    const sm = getSpeedMult();
+
+    ring157CometAngle  -= 0.022 * sm;
+    ring157CometAngle2 += 0.014 * sm;
+
+    /* base dotted ring */
+    const breathe = 0.22 + 0.12 * Math.sin(t * 1.4);
+    ctx.save();
+    ctx.shadowBlur  = 5 + clickPulse * 6;
+    ctx.shadowColor = `rgba(255,255,255,${breathe})`;
+    ctx.strokeStyle = `rgba(255,255,255,${breathe})`;
+    ctx.lineWidth   = 0.7;
+    ctx.setLineDash([2, 9]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    /* sequential dot wave */
+    ctx.save();
+    const waveSpeed = t * 2.8 * sm;
+    for (let i = 0; i < RING157_DOTS; i++) {
+      const a  = (i / RING157_DOTS) * Math.PI * 2;
+      const wave  = 0.5 + 0.5 * Math.sin(a * 3 - waveSpeed);
+      const wave2 = 0.5 + 0.5 * Math.sin(a * 5 + waveSpeed * 0.7);
+      const combined = Math.max(wave, wave2) * (hoverActive ? 1.25 : 1.0);
+      if (combined < 0.35) continue;
+      const px = cx + Math.cos(a) * R;
+      const py = cy + Math.sin(a) * R;
+      const dotAlpha = combined * 0.7;
+      const dotSize  = 0.8 + combined * 1.4;
+      ctx.shadowBlur  = 8 * combined + clickPulse * 4;
+      ctx.shadowColor = `rgba(255,245,200,${dotAlpha})`;
+      ctx.fillStyle   = `rgba(255,255,255,${dotAlpha})`;
+      ctx.beginPath();
+      ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    /* two comets */
+    const COMET_TAIL = 22;
+    for (let c = 0; c < 2; c++) {
+      const baseAngle = c === 0 ? ring157CometAngle : ring157CometAngle2;
+      const dir       = c === 0 ? 1 : -1;
+      const cometCol  = c === 0 ? [255, 245, 200] : [201, 169, 110];
+      ctx.save();
+      for (let i = COMET_TAIL; i >= 0; i--) {
+        const tailAngle = baseAngle + dir * i * 0.055;
+        const frac   = 1 - i / COMET_TAIL;
+        const tAlpha = frac * frac * (0.9 - i * 0.01) * (hoverActive ? 1.2 : 1.0);
+        const tSize  = 0.5 + frac * 2.5;
+        const tx = cx + Math.cos(tailAngle) * R;
+        const ty = cy + Math.sin(tailAngle) * R;
+        if (i === 0) {
+          ctx.shadowBlur  = 20 + clickPulse * 14;
+          ctx.shadowColor = `rgba(${cometCol.join(',')},1)`;
+          ctx.fillStyle   = `rgba(255,255,255,1)`;
+          ctx.beginPath();
+          ctx.arc(tx, ty, tSize + 1, 0, Math.PI * 2);
+          ctx.fill();
+          if (Math.random() < 0.06) spawnRing157Spark(tx, ty, tailAngle);
+        } else {
+          ctx.shadowBlur  = 4 * frac;
+          ctx.shadowColor = `rgba(${cometCol.join(',')},${tAlpha})`;
+          ctx.fillStyle   = `rgba(${cometCol.join(',')},${tAlpha})`;
+          ctx.beginPath();
+          ctx.arc(tx, ty, tSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    /* energy arc near each comet head */
+    const arcAlpha = 0.18 + 0.10 * Math.sin(t * 3.2) + clickPulse * 0.12;
+    ctx.save();
+    ctx.shadowBlur  = 18 + clickPulse * 10;
+    ctx.shadowColor = `rgba(255,235,160,${arcAlpha})`;
+    ctx.strokeStyle = `rgba(255,235,160,${arcAlpha * 0.7})`;
+    ctx.lineWidth   = 2.5;
+    ctx.lineCap     = 'round';
+    [ring157CometAngle, ring157CometAngle2].forEach(a => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, a - 0.35, a + 0.35);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    /* discharge sparks */
+    ctx.save();
+    for (let i = RING157_SPARKS.length - 1; i >= 0; i--) {
+      const s = RING157_SPARKS[i];
+      s.x += s.vx; s.y += s.vy;
+      s.vx *= 0.93; s.vy *= 0.93;
+      s.life -= s.decay;
+      if (s.life <= 0) { RING157_SPARKS.splice(i, 1); continue; }
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = `rgba(255,245,200,${s.life * 0.7})`;
+      ctx.fillStyle   = `rgba(255,255,255,${s.life})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  
+  
+  
+  
+  // shockwave rings
+ctx.save();
+for (let i = SHOCKWAVES.length-1; i >= 0; i--) {
+  const sw = SHOCKWAVES[i]; sw.tick++;
+  if (sw.tick < sw.delay) continue;
+  sw.r += sw.sp;
+  const pr = (sw.r-2)/(sw.maxR-2), wa = sw.a*(1-pr);
+  if (sw.r >= sw.maxR || wa <= 0) { SHOCKWAVES.splice(i,1); continue; }
+  ctx.shadowBlur  = 16*(1-pr); ctx.shadowColor = rgba(sw.col, wa);
+  ctx.strokeStyle = rgba(sw.col, wa);
+  ctx.lineWidth   = Math.max(0.3, sw.lw*(1-pr*0.75));
+  ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI*2); ctx.stroke();
+}
+ctx.restore();
+
+// burst particles
+ctx.save();
+for (let i = COLLISION_PARTICLES.length-1; i >= 0; i--) {
+  const p = COLLISION_PARTICLES[i];
+  p.x += p.vx; p.y += p.vy; p.vx *= 0.93; p.vy *= 0.93; p.life -= p.decay;
+  if (p.life <= 0) { COLLISION_PARTICLES.splice(i,1); continue; }
+  ctx.shadowBlur  = p.glow ? 12 : 0;
+  ctx.shadowColor = p.glow ? rgba(p.col, p.life*0.8) : 'transparent';
+  ctx.fillStyle   = rgba(p.col, p.life);
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.sz*p.life, 0, Math.PI*2); ctx.fill();
+}
+ctx.restore();
+  
+  
+  
+  }
 
   /* ── Draw functions ── */
   function drawRing(cfg, rot) {
@@ -434,21 +623,7 @@
     ctx.restore();
   }
 
-  function drawDataSegments() {
-    const r = BASE*1.90, gap=0.025, seg=(Math.PI*2/DATA_SEGS.length), sm=getSpeedMult();
-    ctx.save(); ctx.translate(cx,cy);
-    DATA_SEGS.forEach((s,i) => {
-      const startA = i*seg+gap/2+t*0.018*sm, endA=startA+seg-gap;
-      let a = s.lit
-        ? (s.blink ? 0.25+0.25*Math.sin(t*2.2+s.phase) : 0.45+0.15*Math.sin(t*0.8+s.phase))
-        : 0.06;
-      if (hoverActive && s.lit) a = Math.min(1, a*1.4);
-      ctx.strokeStyle=rgba(s.lit?GOLDL:GOLD, a); ctx.lineWidth=4; ctx.lineCap='butt';
-      ctx.shadowBlur=s.lit?(10+clickPulse*8):0; ctx.shadowColor=rgba(GOLDL,0.8);
-      ctx.beginPath(); ctx.arc(0,0,r,startA,endA); ctx.stroke();
-    });
-    ctx.restore();
-  }
+
 
   function drawRadar() {
     const r=BASE*1.00, sm=getSpeedMult();
@@ -587,7 +762,6 @@
   }
 
   function drawLabels() {
-    // Scale font size with BASE so text stays readable at any wrap size
     const fontSize = Math.max(7, Math.round(BASE * 0.056));
     ctx.save();
     LABELS.forEach(lb=>{
@@ -607,6 +781,85 @@
     if(clickShock>0) clickShock=Math.max(0,clickShock-0.018);
     if(clickPulse>0) clickPulse=Math.max(0,clickPulse-0.045);
   }
+
+  function drawOuterDiamonds(rot) {
+    const sm = getSpeedMult();
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot * sm * 0.18);
+    OUTER_DIAMONDS.forEach(d => {
+      const px = Math.cos(d.angle) * BASE * d.r;
+      const py = Math.sin(d.angle) * BASE * d.r;
+      ctx.save(); ctx.translate(px, py); ctx.rotate(d.angle + Math.PI / 4);
+      ctx.shadowBlur  = 12 + clickPulse * 8;
+      ctx.shadowColor = rgba(GOLDX, d.a);
+      ctx.strokeStyle = rgba(GOLDX, d.a);
+      ctx.fillStyle   = rgba(GOLD,  d.a * 0.25);
+      ctx.lineWidth   = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(0, -d.sz); ctx.lineTo(d.sz, 0);
+      ctx.lineTo(0, d.sz);  ctx.lineTo(-d.sz, 0);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+
+  
+
+  function drawArcReactorBoxes() {
+  const sm = getSpeedMult();
+
+  function drawBoxRing(R, TOTAL, BIG_EVERY, rotSpd, colR, colG, colB, sizeScale = 1.0) {
+    ctx.save();
+    for (let i = 0; i < TOTAL; i++) {
+      const angle  = (i / TOTAL) * Math.PI * 2 + t * rotSpd * sm;
+      const isBig  = (i % BIG_EVERY === 0);
+      const isMed  = (i % 3 === 0 && !isBig);
+      const pulse   = 0.65 + 0.35 * Math.abs(Math.sin(t * 1.8 + (i / TOTAL) * Math.PI * 2));
+      const seqWave = 0.50 + 0.50 * Math.abs(Math.sin(t * 3.5 - (i / TOTAL) * Math.PI * 6));
+      const alpha   = Math.max(pulse, seqWave) * (isBig ? 1.0 : isMed ? 0.85 : 0.65);
+      const bw = (isBig ? 17 : isMed ? 12 : 8)  * sizeScale;
+      const bh = (isBig ? 10 : isMed ?  7 : 5)  * sizeScale;
+      const px = cx + Math.cos(angle) * R;
+      const py = cy + Math.sin(angle) * R;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(angle + Math.PI / 2);
+      /* layer 1 — halo */
+      ctx.shadowBlur  = isBig ? 55 : 30;
+      ctx.shadowColor = `rgba(${colR},${colG},${colB},${alpha})`;
+      ctx.fillStyle   = `rgba(${colR},${colG},${colB},${alpha * 0.10})`;
+      ctx.strokeStyle = `rgba(0,0,0,0)`;
+      ctx.beginPath(); ctx.rect(-(bw+6)/2, -(bh+6)/2, bw+6, bh+6); ctx.fill();
+      /* layer 2 — border */
+      ctx.shadowBlur  = isBig ? 40 : 22;
+      ctx.shadowColor = `rgba(${colR},${colG},${colB},${alpha})`;
+      ctx.strokeStyle = `rgba(${colR},${colG},${colB},${alpha})`;
+      ctx.fillStyle   = `rgba(${colR},${colG},${colB},${alpha * 0.22})`;
+      ctx.lineWidth   = isBig ? 1.8 : 1.1;
+      ctx.beginPath(); ctx.rect(-bw/2, -bh/2, bw, bh); ctx.fill(); ctx.stroke();
+      /* layer 3 — inner fill */
+      ctx.shadowBlur  = isBig ? 50 : 28;
+      ctx.shadowColor = `rgba(${colR},${colG},${colB},${alpha})`;
+      ctx.fillStyle   = `rgba(${colR},${colG},${colB},${alpha * (isBig ? 0.95 : 0.75)})`;
+      ctx.beginPath(); ctx.rect(-bw/2+1.5, -bh/2+1.5, bw-3, bh-3); ctx.fill();
+      /* layer 4 — core blast big panels */
+      if (isBig) {
+        ctx.shadowBlur  = 70;
+        ctx.shadowColor = `rgba(${colR},${colG},${colB},${alpha})`;
+        ctx.fillStyle   = `rgba(${colR},${colG},${colB},${alpha})`;
+        ctx.beginPath(); ctx.rect(-bw/2+3, -bh/2+2.5, bw-6, bh-5); ctx.fill();
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  drawBoxRing(BASE * 1.16, 24, 6,  0.38, 255, 255, 255, 2.0);
+drawBoxRing(BASE * 1.42, 18, 6,  0.14, 255, 255, 255, 2.0);
+drawBoxRing(BASE * 1.72, 12, 6,  0.07, 255, 255, 255, 2.0);
+}
+
 
   /* ── Main loop ── */
   let raf;
@@ -628,11 +881,14 @@
     drawHudArcs();
     drawRadar();
     drawPlasmaRing();
+    drawArcReactorBoxes();  
     RINGS.forEach(r  => drawRing(r,  t * r.spd));
+    drawEnhancedRing157();
     ARCS.forEach(a   => drawArc(a,   t * a.spd));
     TICKS.forEach(tk => drawTicks(tk, t * tk.spd));
     drawCardinals(t * 0.14);
-    drawDataSegments();
+    drawOuterDiamonds(t * 0.10);
+    // drawDataSegments();
     drawAmbientPools();
     drawSparks();
     drawFlares();
@@ -642,15 +898,13 @@
     ORBS.forEach(o => drawOrb(o));
   }
 
-  /* ── ResizeObserver: react to wrap element resizing ── */
+  /* ── ResizeObserver ── */
   const ro = new ResizeObserver(() => {
     computeSize();
-    // Update ripple maxR to new BASE (clear stale ripples)
     RIPPLES.length = 0;
   });
   ro.observe(wrap);
 
-  // Also handle window resize (e.g. orientation change on iOS)
   window.addEventListener('resize', computeSize);
 
   computeSize();
@@ -3628,6 +3882,7 @@ if (!c._hitProfile && typeof window._profileCometCheck === 'function'
 
     /* ── SVG glass warp ── */
     startWarp();
+    playCometImpact();
 
     /* ── Trigger HUD ring pulse ── */
     wrap.dispatchEvent(new MouseEvent('click', { bubbles: false }));
@@ -3974,7 +4229,7 @@ if (!c._hitProfile && typeof window._profileCometCheck === 'function'
     }, 30);
   }
 
-  waitForEngine(() => setTimeout(launch, 2000));
+  waitForEngine(() => setTimeout(launch, 1500));
 
   /* ── Palette (same gold/white as the HUD ring) ── */
   const COLORS = [
