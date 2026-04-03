@@ -49,6 +49,9 @@
   const CREAM = [255,245,220];
   const WHITE = [255,255,255];
   const HOT   = [255,180,80];
+const COOL  = [100, 180, 255];
+const COOLL = [160, 220, 255];
+
 
   function rgba(col, a) {
     return `rgba(${col[0]},${col[1]},${col[2]},${+a.toFixed(3)})`;
@@ -336,32 +339,54 @@
   ];
 
   /* ── Enhanced r:1.57 ring state ── */
-  const RING157_DOTS = 48;
 
-  let ring157CometAngle  = 0;
-  let ring157CometAngle2 = Math.PI;
-  const RING157_SPARKS   = [];
-  const COLLISION_PARTICLES = [];
-const SHOCKWAVES = [];
-let collisionFlash = 0;
-let cooldown157 = 0;
-let impactX = 0, impactY = 0;
+/* ── Enhanced r:1.57 ring state ── */
+const RING157_DOTS = 48;
 
+let ring157CometAngle  = 0;
+let ring157CometAngle2 = Math.PI;
+let ring157CometAngle3 = 0;
+let ring157CometAngle4 = Math.PI;
+const RING157_SPARKS   = [];
+const RING157_SPARKS2  = [];
+const COLLISION_PARTICLES  = [];
+const COLLISION_PARTICLES2 = [];
+const SHOCKWAVES  = [];
+const SHOCKWAVES2 = [];
+let collisionFlash  = 0;
+let collisionFlash2 = 0;
+let cooldown157  = 0;
+let cooldown157b = 0;
+let impactX = 0, impactY  = 0;
+let impactX2= 0, impactY2 = 0;
 
-  function spawnRing157Spark(px, py, angle) {
-    for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
-      const va  = angle + (Math.random() - 0.5) * 1.8;
-      const spd = 0.6 + Math.random() * 1.4;
-      RING157_SPARKS.push({
-        x: px, y: py,
-        vx: Math.cos(va) * spd, vy: Math.sin(va) * spd,
-        life: 1.0, decay: 0.035 + Math.random() * 0.025,
-        size: 0.8 + Math.random() * 1.6,
-      });
-    }
+function spawnRing157Spark(px, py, angle) {
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+    const va  = angle + (Math.random() - 0.5) * 1.8;
+    const spd = 0.6 + Math.random() * 1.4;
+    RING157_SPARKS.push({
+      x: px, y: py,
+      vx: Math.cos(va) * spd, vy: Math.sin(va) * spd,
+      life: 1.0, decay: 0.035 + Math.random() * 0.025,
+      size: 0.8 + Math.random() * 1.6,
+    });
   }
+}
 
-  function boom157(ax, ay) {
+function spawnRing157Spark2(px, py, angle) {
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+    const va  = angle + (Math.random() - 0.5) * 1.8;
+    const spd = 0.6 + Math.random() * 1.4;
+    RING157_SPARKS2.push({
+      x: px, y: py,
+      vx: Math.cos(va) * spd, vy: Math.sin(va) * spd,
+      life: 1.0, decay: 0.035 + Math.random() * 0.025,
+      size: 0.8 + Math.random() * 1.6,
+    });
+  }
+}
+
+function boom157(ax, ay) {
   impactX = ax; impactY = ay;
   collisionFlash = 1.0; cooldown157 = 140;
   const COLS = [[255,255,255],[255,245,180],[255,210,80],[255,140,30],[201,169,110]];
@@ -378,173 +403,298 @@ let impactX = 0, impactY = 0;
   }
 }
 
-  function drawEnhancedRing157() {
-
-
-    // exact pixel position of each comet head
-const hax = cx + Math.cos(ring157CometAngle)  * BASE * 1.57;
-const hay = cy + Math.sin(ring157CometAngle)  * BASE * 1.57;
-const hbx = cx + Math.cos(ring157CometAngle2) * BASE * 1.57;
-const hby = cy + Math.sin(ring157CometAngle2) * BASE * 1.57;
-const dist = Math.hypot(hax - hbx, hay - hby);
-if (cooldown157 > 0) cooldown157--;
-if (dist < 14 && cooldown157 === 0) boom157((hax+hbx)/2, (hay+hby)/2);
-
-// flash at impact point
-if (collisionFlash > 0) {
-  const g = ctx.createRadialGradient(impactX,impactY,0, impactX,impactY, 88*collisionFlash);
-  g.addColorStop(0,   rgba(WHITE,  collisionFlash * 0.95));
-  g.addColorStop(0.18,rgba(HOT,    collisionFlash * 0.75));
-  g.addColorStop(0.5, rgba(HOT,    collisionFlash * 0.35));
-  g.addColorStop(1,   rgba(HOT,    0));
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.arc(impactX, impactY, 88*collisionFlash, 0, Math.PI*2); ctx.fill();
-  collisionFlash = Math.max(0, collisionFlash - 0.038);
-}
-
-
-    const R  = BASE * 1.57;
-    const sm = getSpeedMult();
-
-    ring157CometAngle  -= 0.022 * sm;
-    ring157CometAngle2 += 0.014 * sm;
-
-    /* base dotted ring */
-    const breathe = 0.22 + 0.12 * Math.sin(t * 1.4);
-    ctx.save();
-    ctx.shadowBlur  = 5 + clickPulse * 6;
-    ctx.shadowColor = `rgba(255,255,255,${breathe})`;
-    ctx.strokeStyle = `rgba(255,255,255,${breathe})`;
-    ctx.lineWidth   = 0.7;
-    ctx.setLineDash([2, 9]);
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-
-    /* sequential dot wave */
-    ctx.save();
-    const waveSpeed = t * 2.8 * sm;
-    for (let i = 0; i < RING157_DOTS; i++) {
-      const a  = (i / RING157_DOTS) * Math.PI * 2;
-      const wave  = 0.5 + 0.5 * Math.sin(a * 3 - waveSpeed);
-      const wave2 = 0.5 + 0.5 * Math.sin(a * 5 + waveSpeed * 0.7);
-      const combined = Math.max(wave, wave2) * (hoverActive ? 1.25 : 1.0);
-      if (combined < 0.35) continue;
-      const px = cx + Math.cos(a) * R;
-      const py = cy + Math.sin(a) * R;
-      const dotAlpha = combined * 0.7;
-      const dotSize  = 0.8 + combined * 1.4;
-      ctx.shadowBlur  = 8 * combined + clickPulse * 4;
-      ctx.shadowColor = `rgba(255,245,200,${dotAlpha})`;
-      ctx.fillStyle   = `rgba(255,255,255,${dotAlpha})`;
-      ctx.beginPath();
-      ctx.arc(px, py, dotSize, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-
-    /* two comets */
-    const COMET_TAIL = 22;
-    for (let c = 0; c < 2; c++) {
-      const baseAngle = c === 0 ? ring157CometAngle : ring157CometAngle2;
-      const dir       = c === 0 ? 1 : -1;
-      const cometCol  = c === 0 ? [255, 245, 200] : [201, 169, 110];
-      ctx.save();
-      for (let i = COMET_TAIL; i >= 0; i--) {
-        const tailAngle = baseAngle + dir * i * 0.055;
-        const frac   = 1 - i / COMET_TAIL;
-        const tAlpha = frac * frac * (0.9 - i * 0.01) * (hoverActive ? 1.2 : 1.0);
-        const tSize  = 0.5 + frac * 2.5;
-        const tx = cx + Math.cos(tailAngle) * R;
-        const ty = cy + Math.sin(tailAngle) * R;
-        if (i === 0) {
-          ctx.shadowBlur  = 20 + clickPulse * 14;
-          ctx.shadowColor = `rgba(${cometCol.join(',')},1)`;
-          ctx.fillStyle   = `rgba(255,255,255,1)`;
-          ctx.beginPath();
-          ctx.arc(tx, ty, tSize + 1, 0, Math.PI * 2);
-          ctx.fill();
-          if (Math.random() < 0.06) spawnRing157Spark(tx, ty, tailAngle);
-        } else {
-          ctx.shadowBlur  = 4 * frac;
-          ctx.shadowColor = `rgba(${cometCol.join(',')},${tAlpha})`;
-          ctx.fillStyle   = `rgba(${cometCol.join(',')},${tAlpha})`;
-          ctx.beginPath();
-          ctx.arc(tx, ty, tSize, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.restore();
-    }
-
-    /* energy arc near each comet head */
-    const arcAlpha = 0.18 + 0.10 * Math.sin(t * 3.2) + clickPulse * 0.12;
-    ctx.save();
-    ctx.shadowBlur  = 18 + clickPulse * 10;
-    ctx.shadowColor = `rgba(255,235,160,${arcAlpha})`;
-    ctx.strokeStyle = `rgba(255,235,160,${arcAlpha * 0.7})`;
-    ctx.lineWidth   = 2.5;
-    ctx.lineCap     = 'round';
-    [ring157CometAngle, ring157CometAngle2].forEach(a => {
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, a - 0.35, a + 0.35);
-      ctx.stroke();
-    });
-    ctx.restore();
-
-    /* discharge sparks */
-    ctx.save();
-    for (let i = RING157_SPARKS.length - 1; i >= 0; i--) {
-      const s = RING157_SPARKS[i];
-      s.x += s.vx; s.y += s.vy;
-      s.vx *= 0.93; s.vy *= 0.93;
-      s.life -= s.decay;
-      if (s.life <= 0) { RING157_SPARKS.splice(i, 1); continue; }
-      ctx.shadowBlur  = 8;
-      ctx.shadowColor = `rgba(255,245,200,${s.life * 0.7})`;
-      ctx.fillStyle   = `rgba(255,255,255,${s.life})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  
-  
-  
-  
-  // shockwave rings
-ctx.save();
-for (let i = SHOCKWAVES.length-1; i >= 0; i--) {
-  const sw = SHOCKWAVES[i]; sw.tick++;
-  if (sw.tick < sw.delay) continue;
-  sw.r += sw.sp;
-  const pr = (sw.r-2)/(sw.maxR-2), wa = sw.a*(1-pr);
-  if (sw.r >= sw.maxR || wa <= 0) { SHOCKWAVES.splice(i,1); continue; }
-  ctx.shadowBlur  = 16*(1-pr); ctx.shadowColor = rgba(sw.col, wa);
-  ctx.strokeStyle = rgba(sw.col, wa);
-  ctx.lineWidth   = Math.max(0.3, sw.lw*(1-pr*0.75));
-  ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI*2); ctx.stroke();
-}
-ctx.restore();
-
-// burst particles
-ctx.save();
-for (let i = COLLISION_PARTICLES.length-1; i >= 0; i--) {
-  const p = COLLISION_PARTICLES[i];
-  p.x += p.vx; p.y += p.vy; p.vx *= 0.93; p.vy *= 0.93; p.life -= p.decay;
-  if (p.life <= 0) { COLLISION_PARTICLES.splice(i,1); continue; }
-  ctx.shadowBlur  = p.glow ? 12 : 0;
-  ctx.shadowColor = p.glow ? rgba(p.col, p.life*0.8) : 'transparent';
-  ctx.fillStyle   = rgba(p.col, p.life);
-  ctx.beginPath(); ctx.arc(p.x, p.y, p.sz*p.life, 0, Math.PI*2); ctx.fill();
-}
-ctx.restore();
-  
-  
-  
+function boom157b(ax, ay) {
+  impactX2 = ax; impactY2 = ay;
+  collisionFlash2 = 1.0; cooldown157b = 140;
+  const COLS = [[255,255,255],[160,220,255],[100,180,255],[60,140,230],[80,160,200]];
+  for (let i = 0; i < 70; i++) {
+    const va = Math.random() * Math.PI * 2, sp = 1.8 + Math.random() * 5.5;
+    const col = COLS[Math.floor(Math.random() * COLS.length)];
+    COLLISION_PARTICLES2.push({ x:ax, y:ay, vx:Math.cos(va)*sp, vy:Math.sin(va)*sp,
+      life:1, decay:0.010+Math.random()*0.018, sz:1.0+Math.random()*3.5, col, glow:Math.random()>0.35 });
   }
+  for (let j = 0; j < 5; j++) {
+    SHOCKWAVES2.push({ x:ax, y:ay, r:2, maxR:50+j*20, a:1.0-j*0.14,
+      sp:5+j*1.1, lw:3.8-j*0.55,
+      col: j%2===0 ? [160,220,255] : [100,180,255], delay:j*5, tick:0 });
+  }
+}
+
+function drawEnhancedRing157() {
+
+  const R  = BASE * 1.57;
+  const sm = getSpeedMult();
+
+  /* ── move comet angles ── */
+  ring157CometAngle  -= 0.022 * sm;
+  ring157CometAngle2 += 0.014 * sm;
+  ring157CometAngle3 += 0.022 * sm;
+  ring157CometAngle4 -= 0.014 * sm;
+
+  /* ── warm pair collision detection ── */
+  const hax = cx + Math.cos(ring157CometAngle)  * R;
+  const hay = cy + Math.sin(ring157CometAngle)  * R;
+  const hbx = cx + Math.cos(ring157CometAngle2) * R;
+  const hby = cy + Math.sin(ring157CometAngle2) * R;
+  const dist = Math.hypot(hax - hbx, hay - hby);
+  if (cooldown157 > 0) cooldown157--;
+  if (dist < 14 && cooldown157 === 0) boom157((hax+hbx)/2, (hay+hby)/2);
+
+  /* ── cool pair collision detection ── */
+  const hcx = cx + Math.cos(ring157CometAngle3) * R;
+  const hcy = cy + Math.sin(ring157CometAngle3) * R;
+  const hdx = cx + Math.cos(ring157CometAngle4) * R;
+  const hdy = cy + Math.sin(ring157CometAngle4) * R;
+  const dist2 = Math.hypot(hcx - hdx, hcy - hdy);
+  if (cooldown157b > 0) cooldown157b--;
+  if (dist2 < 14 && cooldown157b === 0) boom157b((hcx+hdx)/2, (hcy+hdy)/2);
+
+  /* ── warm flash ── */
+  if (collisionFlash > 0) {
+    const g = ctx.createRadialGradient(impactX,impactY,0, impactX,impactY, 88*collisionFlash);
+    g.addColorStop(0,   rgba(WHITE, collisionFlash * 0.95));
+    g.addColorStop(0.18,rgba(HOT,   collisionFlash * 0.75));
+    g.addColorStop(0.5, rgba(HOT,   collisionFlash * 0.35));
+    g.addColorStop(1,   rgba(HOT,   0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(impactX, impactY, 88*collisionFlash, 0, Math.PI*2); ctx.fill();
+    collisionFlash = Math.max(0, collisionFlash - 0.038);
+  }
+
+  /* ── cool flash ── */
+  if (collisionFlash2 > 0) {
+    const g = ctx.createRadialGradient(impactX2,impactY2,0, impactX2,impactY2, 88*collisionFlash2);
+    g.addColorStop(0,   rgba(WHITE, collisionFlash2 * 0.95));
+    g.addColorStop(0.18,rgba(COOLL, collisionFlash2 * 0.75));
+    g.addColorStop(0.5, rgba(COOL,  collisionFlash2 * 0.35));
+    g.addColorStop(1,   rgba(COOL,  0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(impactX2, impactY2, 88*collisionFlash2, 0, Math.PI*2); ctx.fill();
+    collisionFlash2 = Math.max(0, collisionFlash2 - 0.038);
+  }
+
+  /* ── base dotted ring ── */
+  const breathe = 0.22 + 0.12 * Math.sin(t * 1.4);
+  ctx.save();
+  ctx.shadowBlur  = 5 + clickPulse * 6;
+  ctx.shadowColor = `rgba(255,255,255,${breathe})`;
+  ctx.strokeStyle = `rgba(255,255,255,${breathe})`;
+  ctx.lineWidth   = 0.7;
+  ctx.setLineDash([2, 9]);
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  /* ── sequential dot wave ── */
+  ctx.save();
+  const waveSpeed = t * 2.8 * sm;
+  for (let i = 0; i < RING157_DOTS; i++) {
+    const a  = (i / RING157_DOTS) * Math.PI * 2;
+    const wave  = 0.5 + 0.5 * Math.sin(a * 3 - waveSpeed);
+    const wave2 = 0.5 + 0.5 * Math.sin(a * 5 + waveSpeed * 0.7);
+    const combined = Math.max(wave, wave2) * (hoverActive ? 1.25 : 1.0);
+    if (combined < 0.35) continue;
+    const px = cx + Math.cos(a) * R;
+    const py = cy + Math.sin(a) * R;
+    const dotAlpha = combined * 0.7;
+    const dotSize  = 0.8 + combined * 1.4;
+    ctx.shadowBlur  = 8 * combined + clickPulse * 4;
+    ctx.shadowColor = `rgba(255,245,200,${dotAlpha})`;
+    ctx.fillStyle   = `rgba(255,255,255,${dotAlpha})`;
+    ctx.beginPath();
+    ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  /* ── warm comets ── */
+  const COMET_TAIL = 22;
+  for (let c = 0; c < 2; c++) {
+    const baseAngle = c === 0 ? ring157CometAngle : ring157CometAngle2;
+    const dir       = c === 0 ? 1 : -1;
+    const cometCol  = c === 0 ? [255, 245, 200] : [201, 169, 110];
+    ctx.save();
+    for (let i = COMET_TAIL; i >= 0; i--) {
+      const tailAngle = baseAngle + dir * i * 0.055;
+      const frac   = 1 - i / COMET_TAIL;
+      const tAlpha = frac * frac * (0.9 - i * 0.01) * (hoverActive ? 1.2 : 1.0);
+      const tSize  = 0.5 + frac * 2.5;
+      const tx = cx + Math.cos(tailAngle) * R;
+      const ty = cy + Math.sin(tailAngle) * R;
+      if (i === 0) {
+        ctx.shadowBlur  = 20 + clickPulse * 14;
+        ctx.shadowColor = `rgba(${cometCol.join(',')},1)`;
+        ctx.fillStyle   = `rgba(255,255,255,1)`;
+        ctx.beginPath();
+        ctx.arc(tx, ty, tSize + 1, 0, Math.PI * 2);
+        ctx.fill();
+        if (Math.random() < 0.06) spawnRing157Spark(tx, ty, tailAngle);
+      } else {
+        ctx.shadowBlur  = 4 * frac;
+        ctx.shadowColor = `rgba(${cometCol.join(',')},${tAlpha})`;
+        ctx.fillStyle   = `rgba(${cometCol.join(',')},${tAlpha})`;
+        ctx.beginPath();
+        ctx.arc(tx, ty, tSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  /* ── cool comets ── */
+  for (let c = 0; c < 2; c++) {
+    const baseAngle = c === 0 ? ring157CometAngle3 : ring157CometAngle4;
+    const dir       = c === 0 ? -1 : 1;
+    const cometCol  = c === 0 ? [160, 220, 255] : [100, 180, 255];
+    ctx.save();
+    for (let i = COMET_TAIL; i >= 0; i--) {
+      const tailAngle = baseAngle + dir * i * 0.055;
+      const frac   = 1 - i / COMET_TAIL;
+      const tAlpha = frac * frac * (0.9 - i * 0.01) * (hoverActive ? 1.2 : 1.0);
+      const tSize  = 0.5 + frac * 2.5;
+      const tx = cx + Math.cos(tailAngle) * R;
+      const ty = cy + Math.sin(tailAngle) * R;
+      if (i === 0) {
+        ctx.shadowBlur  = 20 + clickPulse * 14;
+        ctx.shadowColor = `rgba(${cometCol.join(',')},1)`;
+        ctx.fillStyle   = `rgba(255,255,255,1)`;
+        ctx.beginPath();
+        ctx.arc(tx, ty, tSize + 1, 0, Math.PI * 2);
+        ctx.fill();
+        if (Math.random() < 0.06) spawnRing157Spark2(tx, ty, tailAngle);
+      } else {
+        ctx.shadowBlur  = 4 * frac;
+        ctx.shadowColor = `rgba(${cometCol.join(',')},${tAlpha})`;
+        ctx.fillStyle   = `rgba(${cometCol.join(',')},${tAlpha})`;
+        ctx.beginPath();
+        ctx.arc(tx, ty, tSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  /* ── warm energy arcs ── */
+  const arcAlpha = 0.18 + 0.10 * Math.sin(t * 3.2) + clickPulse * 0.12;
+  ctx.save();
+  ctx.shadowBlur  = 18 + clickPulse * 10;
+  ctx.shadowColor = `rgba(255,235,160,${arcAlpha})`;
+  ctx.strokeStyle = `rgba(255,235,160,${arcAlpha * 0.7})`;
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = 'round';
+  [ring157CometAngle, ring157CometAngle2].forEach(a => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, a - 0.35, a + 0.35);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  /* ── cool energy arcs ── */
+  ctx.save();
+  ctx.shadowBlur  = 18 + clickPulse * 10;
+  ctx.shadowColor = `rgba(100,200,255,${arcAlpha})`;
+  ctx.strokeStyle = `rgba(100,200,255,${arcAlpha * 0.7})`;
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = 'round';
+  [ring157CometAngle3, ring157CometAngle4].forEach(a => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, a - 0.35, a + 0.35);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  /* ── warm discharge sparks ── */
+  ctx.save();
+  for (let i = RING157_SPARKS.length - 1; i >= 0; i--) {
+    const s = RING157_SPARKS[i];
+    s.x += s.vx; s.y += s.vy;
+    s.vx *= 0.93; s.vy *= 0.93;
+    s.life -= s.decay;
+    if (s.life <= 0) { RING157_SPARKS.splice(i, 1); continue; }
+    ctx.shadowBlur  = 8;
+    ctx.shadowColor = `rgba(255,245,200,${s.life * 0.7})`;
+    ctx.fillStyle   = `rgba(255,255,255,${s.life})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  /* ── cool discharge sparks ── */
+  ctx.save();
+  for (let i = RING157_SPARKS2.length - 1; i >= 0; i--) {
+    const s = RING157_SPARKS2[i];
+    s.x += s.vx; s.y += s.vy;
+    s.vx *= 0.93; s.vy *= 0.93;
+    s.life -= s.decay;
+    if (s.life <= 0) { RING157_SPARKS2.splice(i, 1); continue; }
+    ctx.shadowBlur  = 8;
+    ctx.shadowColor = `rgba(160,220,255,${s.life * 0.7})`;
+    ctx.fillStyle   = `rgba(255,255,255,${s.life})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  /* ── warm shockwave rings ── */
+  ctx.save();
+  for (let i = SHOCKWAVES.length-1; i >= 0; i--) {
+    const sw = SHOCKWAVES[i]; sw.tick++;
+    if (sw.tick < sw.delay) continue;
+    sw.r += sw.sp;
+    const pr = (sw.r-2)/(sw.maxR-2), wa = sw.a*(1-pr);
+    if (sw.r >= sw.maxR || wa <= 0) { SHOCKWAVES.splice(i,1); continue; }
+    ctx.shadowBlur  = 16*(1-pr); ctx.shadowColor = rgba(sw.col, wa);
+    ctx.strokeStyle = rgba(sw.col, wa);
+    ctx.lineWidth   = Math.max(0.3, sw.lw*(1-pr*0.75));
+    ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* ── cool shockwave rings ── */
+  ctx.save();
+  for (let i = SHOCKWAVES2.length-1; i >= 0; i--) {
+    const sw = SHOCKWAVES2[i]; sw.tick++;
+    if (sw.tick < sw.delay) continue;
+    sw.r += sw.sp;
+    const pr = (sw.r-2)/(sw.maxR-2), wa = sw.a*(1-pr);
+    if (sw.r >= sw.maxR || wa <= 0) { SHOCKWAVES2.splice(i,1); continue; }
+    ctx.shadowBlur  = 16*(1-pr); ctx.shadowColor = rgba(sw.col, wa);
+    ctx.strokeStyle = rgba(sw.col, wa);
+    ctx.lineWidth   = Math.max(0.3, sw.lw*(1-pr*0.75));
+    ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* ── warm burst particles ── */
+  ctx.save();
+  for (let i = COLLISION_PARTICLES.length-1; i >= 0; i--) {
+    const p = COLLISION_PARTICLES[i];
+    p.x += p.vx; p.y += p.vy; p.vx *= 0.93; p.vy *= 0.93; p.life -= p.decay;
+    if (p.life <= 0) { COLLISION_PARTICLES.splice(i,1); continue; }
+    ctx.shadowBlur  = p.glow ? 12 : 0;
+    ctx.shadowColor = p.glow ? rgba(p.col, p.life*0.8) : 'transparent';
+    ctx.fillStyle   = rgba(p.col, p.life);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.sz*p.life, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  /* ── cool burst particles ── */
+  ctx.save();
+  for (let i = COLLISION_PARTICLES2.length-1; i >= 0; i--) {
+    const p = COLLISION_PARTICLES2[i];
+    p.x += p.vx; p.y += p.vy; p.vx *= 0.93; p.vy *= 0.93; p.life -= p.decay;
+    if (p.life <= 0) { COLLISION_PARTICLES2.splice(i,1); continue; }
+    ctx.shadowBlur  = p.glow ? 12 : 0;
+    ctx.shadowColor = p.glow ? rgba(p.col, p.life*0.8) : 'transparent';
+    ctx.fillStyle   = rgba(p.col, p.life);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.sz*p.life, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
 
   /* ── Draw functions ── */
   function drawRing(cfg, rot) {
@@ -855,9 +1005,10 @@ ctx.restore();
     ctx.restore();
   }
 
-  drawBoxRing(BASE * 1.16, 24, 6,  0.38, 255, 255, 255, 2.0);
-drawBoxRing(BASE * 1.42, 18, 6,  0.14, 255, 255, 255, 2.0);
-drawBoxRing(BASE * 1.72, 12, 6,  0.07, 255, 255, 255, 2.0);
+const boxScale = Math.max(0.55, Math.min(2.0, BASE / 110));
+drawBoxRing(BASE * 1.16, 24, 6,  0.38, 255, 255, 255, boxScale);
+drawBoxRing(BASE * 1.42, 18, 6,  0.14, 255, 255, 255, boxScale);
+drawBoxRing(BASE * 1.72, 12, 6,  0.07, 255, 255, 255, boxScale);
 }
 
 
