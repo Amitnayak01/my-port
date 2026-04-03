@@ -423,130 +423,6 @@ function playCameraClick() {
     } catch(e) {}
 }
 
-/* ════════════════════════════════════════════════════
-   SOUND 10 — KIT-KIT Mechanical Scroll
-   Alternating sharp plastic ratchet ticks.
-   Mobile-friendly throttle built in.
-════════════════════════════════════════════════════ */
-var _scrollSoundLast = 0;
-var _scrollTickCount = 0;
-
-
-
-function playScroll(direction) {
-    if (!soundEnabled) return;
-    var now = Date.now();
-    var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (now - _scrollSoundLast < (isMobile ? 110 : 35)) return;
-    _scrollSoundLast = now;
-
-    try {
-        var ctx = getCtx(); if (!ctx) return;
-        var t   = ctx.currentTime;
-
-        _scrollTickCount = (_scrollTickCount + 1) % 2;
-
-        /* ── KIT snap impulse ── */
-        var kitSize = Math.floor(ctx.sampleRate * 0.006);
-        var kitBuf  = ctx.createBuffer(1, kitSize, ctx.sampleRate);
-        var kd      = kitBuf.getChannelData(0);
-        for (var i = 0; i < kitSize; i++) {
-            var p = i / kitSize;
-            kd[i] = Math.sin(p * Math.PI * 14)
-                  * Math.pow(1 - p, 28)
-                  * (Math.random() * 0.15 + 0.85);
-        }
-        var kit  = ctx.createBufferSource();
-        kit.buffer = kitBuf;
-
-        var kBpf1 = ctx.createBiquadFilter();
-        kBpf1.type = 'bandpass';
-        kBpf1.frequency.value = (_scrollTickCount === 0 ? 3400 : 3900)
-                              * (_scrollTickCount === 0 ? 1.0  : 1.18);
-        kBpf1.Q.value = 1.2;
-
-        var kBpf2 = ctx.createBiquadFilter();
-        kBpf2.type = 'peaking';
-        kBpf2.frequency.value = 6500;
-        kBpf2.gain.value = 8;
-        kBpf2.Q.value = 1.8;
-
-        var kGain = ctx.createGain();
-        kGain.gain.setValueAtTime(0.72, t);
-        kGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.006);
-
-        kit.connect(kBpf1); kBpf1.connect(kBpf2); kBpf2.connect(kGain); kGain.connect(ctx.destination);
-        kit.start(t); kit.stop(t + 0.008);
-
-        /* ── "IT" tone body ── */
-        var kitTone = ctx.createOscillator();
-        kitTone.type = 'square';
-        kitTone.frequency.setValueAtTime(_scrollTickCount === 0 ? 2800 : 3200, t);
-        kitTone.frequency.exponentialRampToValueAtTime(_scrollTickCount === 0 ? 1100 : 1300, t + 0.009);
-
-        var ktHpf = ctx.createBiquadFilter();
-        ktHpf.type = 'highpass';
-        ktHpf.frequency.value = 1800;
-
-        var ktGain = ctx.createGain();
-        ktGain.gain.setValueAtTime(0.0001, t);
-        ktGain.gain.linearRampToValueAtTime(0.06, t + 0.001);
-        ktGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.009);
-
-        kitTone.connect(ktHpf); ktHpf.connect(ktGain); ktGain.connect(ctx.destination);
-        kitTone.start(t); kitTone.stop(t + 0.01);
-
-        /* ── Air puff ── */
-        var airSize = Math.floor(ctx.sampleRate * 0.005);
-        var airBuf  = ctx.createBuffer(1, airSize, ctx.sampleRate);
-        var ad      = airBuf.getChannelData(0);
-        for (var j = 0; j < airSize; j++) {
-            var ap = j / airSize;
-            ad[j] = (Math.random() * 2 - 1) * Math.pow(1 - ap, 6);
-        }
-        var airSrc = ctx.createBufferSource();
-        airSrc.buffer = airBuf;
-
-        var airHpf = ctx.createBiquadFilter();
-        airHpf.type = 'highpass';
-        airHpf.frequency.value = 5500;
-
-        var airGain = ctx.createGain();
-        airGain.gain.setValueAtTime(0.18, t);
-        airGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.005);
-
-        airSrc.connect(airHpf); airHpf.connect(airGain); airGain.connect(ctx.destination);
-        airSrc.start(t); airSrc.stop(t + 0.006);
-
-        /* ── Every 2nd tick — index notch ── */
-        if (_scrollTickCount === 0) {
-            var notchSize = Math.floor(ctx.sampleRate * 0.007);
-            var notchBuf  = ctx.createBuffer(1, notchSize, ctx.sampleRate);
-            var nd        = notchBuf.getChannelData(0);
-            for (var n = 0; n < notchSize; n++) {
-                var np = n / notchSize;
-                nd[n] = Math.sin(np * Math.PI * 10)
-                      * Math.pow(1 - np, 20)
-                      * (Math.random() * 0.1 + 0.9);
-            }
-            var notch = ctx.createBufferSource();
-            notch.buffer = notchBuf;
-
-            var nBpf = ctx.createBiquadFilter();
-            nBpf.type = 'bandpass';
-            nBpf.frequency.value = 1600;
-            nBpf.Q.value = 0.7;
-
-            var nGain = ctx.createGain();
-            nGain.gain.setValueAtTime(0.28, t + 0.002);
-            nGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.018);
-
-            notch.connect(nBpf); nBpf.connect(nGain); nGain.connect(ctx.destination);
-            notch.start(t + 0.002); notch.stop(t + 0.02);
-        }
-
-    } catch(e) {}
-}
 
 /* ════════════════════════════════════════════════════
    SOUND 11 — Card Swipe
@@ -1000,76 +876,409 @@ function playCometImpact() {
         var ctx = getCtx(); if (!ctx) return;
         var t   = ctx.currentTime;
 
-        /* ── Low-end boom ── */
-        var boom = ctx.createOscillator();
-        boom.type = 'sine';
-        boom.frequency.setValueAtTime(90, t);
-        boom.frequency.exponentialRampToValueAtTime(22, t + 0.55);
-        var boomGain = ctx.createGain();
-        boomGain.gain.setValueAtTime(0.0001, t);
-        boomGain.gain.linearRampToValueAtTime(0.55, t + 0.012);
-        boomGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.60);
-        boom.connect(boomGain); boomGain.connect(ctx.destination);
-        boom.start(t); boom.stop(t + 0.65);
+        /* ══════════════════════════════════════════════════════
+           MASTER LIMITER — prevents clipping on any device
+        ══════════════════════════════════════════════════════ */
+        var masterComp = ctx.createDynamicsCompressor();
+        masterComp.threshold.value = -6;
+        masterComp.knee.value      = 8;
+        masterComp.ratio.value     = 12;
+        masterComp.attack.value    = 0.001;
+        masterComp.release.value   = 0.4;
+        masterComp.connect(ctx.destination);
+        var out = masterComp; /* everything routes here */
 
-        /* ── Sub thud ── */
-        var sub = ctx.createOscillator();
-        sub.type = 'sine';
-        sub.frequency.setValueAtTime(55, t);
-        sub.frequency.exponentialRampToValueAtTime(18, t + 0.40);
-        var subGain = ctx.createGain();
-        subGain.gain.setValueAtTime(0.42, t);
-        subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
-        sub.connect(subGain); subGain.connect(ctx.destination);
-        sub.start(t); sub.stop(t + 0.48);
+        /* ── Dynamic variation seed — every hit is different ── */
+        var rng  = function() { return Math.random(); };
+        var vary = function(base, pct) { return base * (1 + (rng() - 0.5) * pct); };
 
-        /* ── Impact crack (noise burst) ── */
-        var crackSize = Math.floor(ctx.sampleRate * 0.06);
-        var crackBuf  = ctx.createBuffer(1, crackSize, ctx.sampleRate);
-        var cd        = crackBuf.getChannelData(0);
-        for (var i = 0; i < crackSize; i++)
-            cd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / crackSize, 5);
-        var crack = ctx.createBufferSource();
-        crack.buffer = crackBuf;
-        var crackBpf = ctx.createBiquadFilter();
-        crackBpf.type = 'bandpass'; crackBpf.frequency.value = 3200; crackBpf.Q.value = 0.8;
-        var crackGain = ctx.createGain();
-        crackGain.gain.setValueAtTime(0.70, t);
-        crackGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-        crack.connect(crackBpf); crackBpf.connect(crackGain); crackGain.connect(ctx.destination);
-        crack.start(t); crack.stop(t + 0.07);
+        /* ── Stereo merge helper ── */
+        var merger = ctx.createChannelMerger(2);
+        merger.connect(out);
 
-        /* ── High sizzle / energy discharge ── */
-        var sizzSize = Math.floor(ctx.sampleRate * 0.18);
-        var sizzBuf  = ctx.createBuffer(1, sizzSize, ctx.sampleRate);
-        var sz       = sizzBuf.getChannelData(0);
-        for (var j = 0; j < sizzSize; j++)
-            sz[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / sizzSize, 2.2);
-        var sizz = ctx.createBufferSource();
-        sizz.buffer = sizzBuf;
-        var sizzHpf = ctx.createBiquadFilter();
-        sizzHpf.type = 'highpass'; sizzHpf.frequency.value = 5500;
-        var sizzGain = ctx.createGain();
-        sizzGain.gain.setValueAtTime(0.30, t + 0.01);
-        sizzGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.20);
-        sizz.connect(sizzHpf); sizzHpf.connect(sizzGain); sizzGain.connect(ctx.destination);
-        sizz.start(t + 0.01); sizz.stop(t + 0.22);
+        /* ══════════════════════════════════════════════════════
+           PHASE 1 — PRE-IMPACT WHOOSH / AIR TEAR  (0 → 0.32s)
+           Doppler-style falling tone + turbulent air rush
+        ══════════════════════════════════════════════════════ */
+        var whooshDur = vary(0.30, 0.15);
 
-        /* ── Resonant ring-out (sci-fi metallic tone) ── */
-        var ring = ctx.createOscillator();
-        ring.type = 'sine';
-        ring.frequency.setValueAtTime(520, t + 0.02);
-        ring.frequency.exponentialRampToValueAtTime(210, t + 0.55);
-        var ringGain = ctx.createGain();
-        ringGain.gain.setValueAtTime(0.0001, t + 0.02);
-        ringGain.gain.linearRampToValueAtTime(0.09, t + 0.04);
-        ringGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.58);
-        ring.connect(ringGain); ringGain.connect(ctx.destination);
-        ring.start(t + 0.02); ring.stop(t + 0.60);
+        /* Falling Doppler tone */
+        var dop = ctx.createOscillator();
+        dop.type = 'sawtooth';
+        dop.frequency.setValueAtTime(vary(1600, 0.12), t);
+        dop.frequency.exponentialRampToValueAtTime(vary(55, 0.10), t + whooshDur);
+        var dopDist = ctx.createWaveShaper();
+        (function() {
+            var curve = new Float32Array(256);
+            for (var i = 0; i < 256; i++) {
+                var x = (i * 2) / 256 - 1;
+                curve[i] = (Math.PI + 120) * x / (Math.PI + 120 * Math.abs(x));
+            }
+            dopDist.curve = curve;
+        })();
+        var dopGain = ctx.createGain();
+        dopGain.gain.setValueAtTime(0.0001, t);
+        dopGain.gain.linearRampToValueAtTime(0.055, t + whooshDur * 0.25);
+        dopGain.gain.linearRampToValueAtTime(0.09,  t + whooshDur * 0.80);
+        dopGain.gain.exponentialRampToValueAtTime(0.0001, t + whooshDur);
+        var dopLpf = ctx.createBiquadFilter();
+        dopLpf.type = 'lowpass'; dopLpf.frequency.value = 900;
+        dop.connect(dopDist); dopDist.connect(dopLpf);
+        dopLpf.connect(dopGain); dopGain.connect(out);
+        dop.start(t); dop.stop(t + whooshDur + 0.02);
+
+        /* Air tear noise — builds intensity */
+        var airSize = Math.floor(ctx.sampleRate * (whooshDur + 0.02));
+        var airBuf  = ctx.createBuffer(2, airSize, ctx.sampleRate);
+        for (var ch = 0; ch < 2; ch++) {
+            var acd = airBuf.getChannelData(ch);
+            for (var ai = 0; ai < airSize; ai++) {
+                var ap = ai / airSize;
+                /* slight per-channel phase offset for stereo width */
+                acd[ai] = (rng() * 2 - 1)
+                        * Math.pow(ap, 1.4)
+                        * (1 - ap * 0.25)
+                        * (1 + 0.35 * Math.sin(ap * 38 + ch * 1.3));
+            }
+        }
+        var airSrc  = ctx.createBufferSource();
+        airSrc.buffer = airBuf;
+        var airBpf  = ctx.createBiquadFilter();
+        airBpf.type = 'bandpass'; airBpf.frequency.value = vary(620, 0.12); airBpf.Q.value = 0.38;
+        var airHpf  = ctx.createBiquadFilter();
+        airHpf.type = 'highpass'; airHpf.frequency.value = 280;
+        var airGain = ctx.createGain();
+        airGain.gain.setValueAtTime(0.0001, t);
+        airGain.gain.linearRampToValueAtTime(vary(0.32, 0.10), t + whooshDur * 0.55);
+        airGain.gain.exponentialRampToValueAtTime(0.0001, t + whooshDur + 0.01);
+        airSrc.connect(airBpf); airBpf.connect(airHpf);
+        airHpf.connect(airGain); airGain.connect(out);
+        airSrc.start(t); airSrc.stop(t + whooshDur + 0.03);
+
+
+        /* ══════════════════════════════════════════════════════
+           PHASE 2 — DETONATION  (impact moment)
+        ══════════════════════════════════════════════════════ */
+        var impact = t + whooshDur;
+
+        /* ── CRACK L channel ── */
+        var crackSizeL = Math.floor(ctx.sampleRate * 0.07);
+        var crackBufL  = ctx.createBuffer(1, crackSizeL, ctx.sampleRate);
+        var cdL        = crackBufL.getChannelData(0);
+        for (var ci = 0; ci < crackSizeL; ci++)
+            cdL[ci] = (rng() * 2 - 1)
+                    * Math.pow(1 - ci / crackSizeL, 2.2)
+                    * (1 + 0.4 * Math.sin(ci * 0.8));
+        var crackL    = ctx.createBufferSource(); crackL.buffer = crackBufL;
+        var crackDistL = ctx.createWaveShaper();
+        (function() {
+            var k = 180 + rng() * 60;
+            var curve = new Float32Array(512);
+            for (var i = 0; i < 512; i++) {
+                var x = (i * 2) / 512 - 1;
+                curve[i] = (Math.PI + k) * x / (Math.PI + k * Math.abs(x));
+            }
+            crackDistL.curve = curve;
+        })();
+        var crackLpfL = ctx.createBiquadFilter();
+        crackLpfL.type = 'lowpass'; crackLpfL.frequency.value = vary(3800, 0.15);
+        var crackGainL = ctx.createGain();
+        crackGainL.gain.setValueAtTime(0.85, impact);
+        crackGainL.gain.exponentialRampToValueAtTime(0.0001, impact + 0.068);
+        crackL.connect(crackDistL); crackDistL.connect(crackLpfL);
+        crackLpfL.connect(crackGainL); crackGainL.connect(merger, 0, 0);
+        crackL.start(impact); crackL.stop(impact + 0.08);
+
+        /* ── CRACK R channel (2ms delayed for stereo width) ── */
+        var crackSizeR = Math.floor(ctx.sampleRate * 0.07);
+        var crackBufR  = ctx.createBuffer(1, crackSizeR, ctx.sampleRate);
+        var cdR        = crackBufR.getChannelData(0);
+        for (var cj = 0; cj < crackSizeR; cj++)
+            cdR[cj] = (rng() * 2 - 1)
+                    * Math.pow(1 - cj / crackSizeR, 2.4)
+                    * (1 + 0.35 * Math.sin(cj * 0.75));
+        var crackR     = ctx.createBufferSource(); crackR.buffer = crackBufR;
+        var crackDistR = ctx.createWaveShaper();
+        (function() {
+            var k = 180 + rng() * 60;
+            var curve = new Float32Array(512);
+            for (var i = 0; i < 512; i++) {
+                var x = (i * 2) / 512 - 1;
+                curve[i] = (Math.PI + k) * x / (Math.PI + k * Math.abs(x));
+            }
+            crackDistR.curve = curve;
+        })();
+        var crackLpfR = ctx.createBiquadFilter();
+        crackLpfR.type = 'lowpass'; crackLpfR.frequency.value = vary(3400, 0.15);
+        var crackGainR = ctx.createGain();
+        crackGainR.gain.setValueAtTime(0.82, impact + 0.002);
+        crackGainR.gain.exponentialRampToValueAtTime(0.0001, impact + 0.070);
+        crackR.connect(crackDistR); crackDistR.connect(crackLpfR);
+        crackLpfR.connect(crackGainR); crackGainR.connect(merger, 0, 1);
+        crackR.start(impact + 0.002); crackR.stop(impact + 0.08);
+
+
+        /* ══════════════════════════════════════════════════════
+           PHASE 3 — SUB-BASS & PRESSURE WAVE  (0 → 1s)
+        ══════════════════════════════════════════════════════ */
+
+        /* ── INFRASONIC CANNON — 10–18Hz felt not heard ── */
+        var cannon = ctx.createOscillator();
+        cannon.type = 'sine';
+        cannon.frequency.setValueAtTime(vary(16, 0.12), impact);
+        cannon.frequency.exponentialRampToValueAtTime(vary(3, 0.10), impact + 3.8);
+        var cannonGain = ctx.createGain();
+        cannonGain.gain.setValueAtTime(0.0001, impact);
+        cannonGain.gain.linearRampToValueAtTime(1.0, impact + 0.003);
+        cannonGain.gain.exponentialRampToValueAtTime(0.55, impact + 0.055);
+        cannonGain.gain.exponentialRampToValueAtTime(0.18, impact + 0.90);
+        cannonGain.gain.exponentialRampToValueAtTime(0.0001, impact + 3.9);
+        cannon.connect(cannonGain); cannonGain.connect(out);
+        cannon.start(impact); cannon.stop(impact + 4.0);
+
+        /* ── SUB 1 — 12Hz gut punch ── */
+        var sub1 = ctx.createOscillator();
+        sub1.type = 'sine';
+        sub1.frequency.setValueAtTime(vary(12, 0.12), impact);
+        sub1.frequency.exponentialRampToValueAtTime(vary(3, 0.10), impact + 2.4);
+        var sub1Gain = ctx.createGain();
+        sub1Gain.gain.setValueAtTime(0.0001, impact);
+        sub1Gain.gain.linearRampToValueAtTime(0.95, impact + 0.004);
+        sub1Gain.gain.exponentialRampToValueAtTime(0.38, impact + 0.12);
+        sub1Gain.gain.exponentialRampToValueAtTime(0.0001, impact + 2.5);
+        sub1.connect(sub1Gain); sub1Gain.connect(out);
+        sub1.start(impact); sub1.stop(impact + 2.6);
+
+        /* ── SUB 2 — 22Hz pressure wave (slightly detuned) ── */
+        var sub2 = ctx.createOscillator();
+        sub2.type = 'sine';
+        sub2.frequency.setValueAtTime(vary(22, 0.10), impact);
+        sub2.frequency.exponentialRampToValueAtTime(vary(5, 0.10), impact + 1.8);
+        var sub2Gain = ctx.createGain();
+        sub2Gain.gain.setValueAtTime(0.0001, impact);
+        sub2Gain.gain.linearRampToValueAtTime(0.80, impact + 0.005);
+        sub2Gain.gain.exponentialRampToValueAtTime(0.25, impact + 0.14);
+        sub2Gain.gain.exponentialRampToValueAtTime(0.0001, impact + 1.9);
+        sub2.connect(sub2Gain); sub2Gain.connect(out);
+        sub2.start(impact); sub2.stop(impact + 2.0);
+
+        /* ── BODY THUD — 35–50Hz warmth ── */
+        var body = ctx.createOscillator();
+        body.type = 'sine';
+        body.frequency.setValueAtTime(vary(42, 0.12), impact);
+        body.frequency.exponentialRampToValueAtTime(vary(7, 0.10), impact + 1.1);
+        var bodyGain = ctx.createGain();
+        bodyGain.gain.setValueAtTime(0.0001, impact);
+        bodyGain.gain.linearRampToValueAtTime(0.70, impact + 0.006);
+        bodyGain.gain.exponentialRampToValueAtTime(0.28, impact + 0.18);
+        bodyGain.gain.exponentialRampToValueAtTime(0.0001, impact + 1.2);
+        body.connect(bodyGain); bodyGain.connect(out);
+        body.start(impact); body.stop(impact + 1.3);
+
+
+        /* ══════════════════════════════════════════════════════
+           PHASE 4 — FIRE + DEBRIS + RUMBLE  (impact → 4s)
+        ══════════════════════════════════════════════════════ */
+
+        /* ── EARTH RUMBLE — double-filtered, very low noise ── */
+        var rumbleSize = Math.floor(ctx.sampleRate * 4.5);
+        var rumbleBuf  = ctx.createBuffer(2, rumbleSize, ctx.sampleRate);
+        for (var rc = 0; rc < 2; rc++) {
+            var rbd = rumbleBuf.getChannelData(rc);
+            for (var ri = 0; ri < rumbleSize; ri++) {
+                var rp = ri / rumbleSize;
+                /* slight randomness in envelope for organic feel */
+                rbd[ri] = (rng() * 2 - 1)
+                        * Math.pow(1 - rp, 0.28)
+                        * (1 + 0.18 * Math.sin(rp * 12 + rc));
+            }
+        }
+        var rumble  = ctx.createBufferSource(); rumble.buffer = rumbleBuf;
+        var rLpf1   = ctx.createBiquadFilter();
+        rLpf1.type  = 'lowpass'; rLpf1.frequency.value = 95;
+        var rLpf2   = ctx.createBiquadFilter();
+        rLpf2.type  = 'lowpass'; rLpf2.frequency.value = 95;
+        var rumbleGain = ctx.createGain();
+        rumbleGain.gain.setValueAtTime(0.0001, impact);
+        rumbleGain.gain.linearRampToValueAtTime(0.75, impact + 0.020);
+        rumbleGain.gain.setValueAtTime(0.75, impact + 0.22);
+        rumbleGain.gain.exponentialRampToValueAtTime(0.38, impact + 1.00);
+        rumbleGain.gain.exponentialRampToValueAtTime(0.0001, impact + 4.5);
+        rumble.connect(rLpf1); rLpf1.connect(rLpf2);
+        rLpf2.connect(rumbleGain); rumbleGain.connect(out);
+        rumble.start(impact); rumble.stop(impact + 4.6);
+
+        /* ── FIRE ROAR — evolving turbulent noise with LFO mod ── */
+        var fireSize = Math.floor(ctx.sampleRate * 3.5);
+        var fireBuf  = ctx.createBuffer(2, fireSize, ctx.sampleRate);
+        for (var fc = 0; fc < 2; fc++) {
+            var fcd = fireBuf.getChannelData(fc);
+            for (var fi = 0; fi < fireSize; fi++) {
+                var fp  = fi / fireSize;
+                var mod = 1 + 0.55 * Math.sin(fp * 28 + fc * 0.9)   /* turbulence */
+                            + 0.22 * Math.sin(fp * 71 + fc * 1.7)   /* flutter    */
+                            + 0.10 * Math.sin(fp * 134 + fc * 0.4); /* grain      */
+                fcd[fi] = (rng() * 2 - 1)
+                        * Math.pow(1 - fp, 0.50)
+                        * mod * 0.38;
+            }
+        }
+        var fire     = ctx.createBufferSource(); fire.buffer = fireBuf;
+        var fireLpf  = ctx.createBiquadFilter();
+        fireLpf.type = 'lowpass'; fireLpf.frequency.value = vary(380, 0.12);
+        var fireLpf2 = ctx.createBiquadFilter();
+        fireLpf2.type = 'lowpass'; fireLpf2.frequency.value = vary(380, 0.12);
+        var firePeak = ctx.createBiquadFilter();
+        firePeak.type = 'peaking';
+        firePeak.frequency.value = vary(180, 0.15);
+        firePeak.gain.value = 5; firePeak.Q.value = 0.6;
+        var fireGain = ctx.createGain();
+        fireGain.gain.setValueAtTime(0.0001, impact);
+        fireGain.gain.linearRampToValueAtTime(0.62, impact + 0.025);
+        fireGain.gain.exponentialRampToValueAtTime(0.40, impact + 0.50);
+        fireGain.gain.exponentialRampToValueAtTime(0.0001, impact + 3.5);
+        fire.connect(fireLpf); fireLpf.connect(fireLpf2);
+        fireLpf2.connect(firePeak); firePeak.connect(fireGain);
+        fireGain.connect(out);
+        fire.start(impact); fire.stop(impact + 3.6);
+
+        /* ── DEBRIS CRACKLES — granular noise bursts post-impact ── */
+        var debrisCount = 6 + Math.floor(rng() * 5); /* 6–10 bursts */
+        for (var db = 0; db < debrisCount; db++) {
+            (function() {
+                var dbDelay = 0.08 + rng() * 1.60;
+                var dbDur   = 0.012 + rng() * 0.025;
+                var dbSize  = Math.floor(ctx.sampleRate * dbDur);
+                var dbBuf   = ctx.createBuffer(1, dbSize, ctx.sampleRate);
+                var dbd     = dbBuf.getChannelData(0);
+                for (var di = 0; di < dbSize; di++)
+                    dbd[di] = (rng() * 2 - 1)
+                            * Math.pow(1 - di / dbSize, 2.0 + rng() * 2);
+                var dbSrc  = ctx.createBufferSource(); dbSrc.buffer = dbBuf;
+                var dbBpf  = ctx.createBiquadFilter();
+                dbBpf.type = 'bandpass';
+                dbBpf.frequency.value = 800 + rng() * 3200;
+                dbBpf.Q.value = 0.5 + rng() * 1.5;
+                var dbPan  = ctx.createStereoPanner();
+                dbPan.pan.value = (rng() * 2 - 1) * 0.85; /* scatter across field */
+                var dbGain = ctx.createGain();
+                var dbVol  = (0.08 + rng() * 0.22) * (1 - dbDelay / 2.0);
+                dbGain.gain.setValueAtTime(dbVol, impact + dbDelay);
+                dbGain.gain.exponentialRampToValueAtTime(0.0001, impact + dbDelay + dbDur);
+                dbSrc.connect(dbBpf); dbBpf.connect(dbPan);
+                dbPan.connect(dbGain); dbGain.connect(out);
+                dbSrc.start(impact + dbDelay);
+                dbSrc.stop(impact + dbDelay + dbDur + 0.01);
+            })();
+        }
+
+        /* ── MID SHRAPNEL — continuous fizz after impact ── */
+        var shrapSize = Math.floor(ctx.sampleRate * 0.55);
+        var shrapBuf  = ctx.createBuffer(2, shrapSize, ctx.sampleRate);
+        for (var sc = 0; sc < 2; sc++) {
+            var scd = shrapBuf.getChannelData(sc);
+            for (var si = 0; si < shrapSize; si++) {
+                var sp = si / shrapSize;
+                scd[si] = (rng() * 2 - 1)
+                        * Math.pow(1 - sp, 1.1)
+                        * (1 + 0.3 * Math.sin(sp * 55 + sc));
+            }
+        }
+        var shrap     = ctx.createBufferSource(); shrap.buffer = shrapBuf;
+        var shrapHpf  = ctx.createBiquadFilter();
+        shrapHpf.type = 'highpass'; shrapHpf.frequency.value = vary(3800, 0.12);
+        var shrapGain = ctx.createGain();
+        shrapGain.gain.setValueAtTime(0.0001, impact);
+        shrapGain.gain.linearRampToValueAtTime(vary(0.38, 0.12), impact + 0.009);
+        shrapGain.gain.exponentialRampToValueAtTime(0.0001, impact + 0.58);
+        shrap.connect(shrapHpf); shrapHpf.connect(shrapGain);
+        shrapGain.connect(out);
+        shrap.start(impact); shrap.stop(impact + 0.60);
+
+
+        /* ══════════════════════════════════════════════════════
+           PHASE 5 — CINEMATIC TAIL  (impact+0.1 → 6s)
+        ══════════════════════════════════════════════════════ */
+
+        /* ── DEEP RING-OUT — subsonic resonance, very slow fade ── */
+        var ringLo = ctx.createOscillator();
+        ringLo.type = 'sine';
+        ringLo.frequency.setValueAtTime(vary(24, 0.10), impact + 0.05);
+        ringLo.frequency.exponentialRampToValueAtTime(vary(5, 0.10), impact + 5.8);
+        var ringLoGain = ctx.createGain();
+        ringLoGain.gain.setValueAtTime(0.0001, impact + 0.05);
+        ringLoGain.gain.linearRampToValueAtTime(0.28, impact + 0.20);
+        ringLoGain.gain.exponentialRampToValueAtTime(0.0001, impact + 6.0);
+        ringLo.connect(ringLoGain); ringLoGain.connect(out);
+        ringLo.start(impact + 0.05); ringLo.stop(impact + 6.2);
+
+        /* ── MID RING-OUT — airy metallic tone ── */
+        var ringMid = ctx.createOscillator();
+        ringMid.type = 'sine';
+        ringMid.frequency.setValueAtTime(vary(88, 0.10), impact + 0.06);
+        ringMid.frequency.exponentialRampToValueAtTime(vary(22, 0.10), impact + 4.2);
+        var ringMidGain = ctx.createGain();
+        ringMidGain.gain.setValueAtTime(0.0001, impact + 0.06);
+        ringMidGain.gain.linearRampToValueAtTime(0.12, impact + 0.18);
+        ringMidGain.gain.exponentialRampToValueAtTime(0.0001, impact + 4.4);
+        ringMid.connect(ringMidGain); ringMidGain.connect(out);
+        ringMid.start(impact + 0.06); ringMid.stop(impact + 4.5);
+
+        /* ── ATMOSPHERIC DUST — ultra soft high-freq whisper ── */
+        var dustSize = Math.floor(ctx.sampleRate * 3.8);
+        var dustBuf  = ctx.createBuffer(2, dustSize, ctx.sampleRate);
+        for (var dc = 0; dc < 2; dc++) {
+            var dcd = dustBuf.getChannelData(dc);
+            for (var dui = 0; dui < dustSize; dui++) {
+                var dp = dui / dustSize;
+                dcd[dui] = (rng() * 2 - 1)
+                         * Math.pow(1 - dp, 0.42)
+                         * (1 + 0.14 * Math.sin(dp * 22 + dc * 0.8));
+            }
+        }
+        var dust     = ctx.createBufferSource(); dust.buffer = dustBuf;
+        var dustHpf  = ctx.createBiquadFilter();
+        dustHpf.type = 'highpass'; dustHpf.frequency.value = 5500;
+        var dustPan  = ctx.createStereoPanner(); dustPan.pan.value = 0;
+        var dustGain = ctx.createGain();
+        dustGain.gain.setValueAtTime(0.0001, impact + 0.55);
+        dustGain.gain.linearRampToValueAtTime(0.06, impact + 1.10);
+        dustGain.gain.exponentialRampToValueAtTime(0.0001, impact + 4.8);
+        dust.connect(dustHpf); dustHpf.connect(dustPan);
+        dustPan.connect(dustGain); dustGain.connect(out);
+        dust.start(impact + 0.55); dust.stop(impact + 5.0);
+
+        /* ── SIMULATED REVERB TAIL — sparse late reflections ── */
+        /* We simulate room/canyon reverb with 4 staggered
+           filtered noise bursts that mimic late reflections */
+        [0.18, 0.38, 0.65, 1.05].forEach(function(refDelay, idx) {
+            var refDelaySeed = refDelay * vary(1, 0.18);
+            var refSize = Math.floor(ctx.sampleRate * vary(0.10, 0.20));
+            var refBuf  = ctx.createBuffer(1, refSize, ctx.sampleRate);
+            var refd    = refBuf.getChannelData(0);
+            for (var rfi = 0; rfi < refSize; rfi++)
+                refd[rfi] = (rng() * 2 - 1)
+                          * Math.pow(1 - rfi / refSize, 1.8 + idx * 0.4);
+            var refSrc  = ctx.createBufferSource(); refSrc.buffer = refBuf;
+            var refBpf  = ctx.createBiquadFilter();
+            refBpf.type = 'bandpass';
+            refBpf.frequency.value = vary(350 - idx * 55, 0.18);
+            refBpf.Q.value = 0.4;
+            var refPan  = ctx.createStereoPanner();
+            refPan.pan.value = (idx % 2 === 0 ? -1 : 1) * (0.3 + idx * 0.12);
+            var refGain = ctx.createGain();
+            var refVol  = (0.22 - idx * 0.04) * vary(1, 0.15);
+            refGain.gain.setValueAtTime(refVol, impact + refDelaySeed);
+            refGain.gain.exponentialRampToValueAtTime(0.0001,
+                impact + refDelaySeed + vary(0.18, 0.20));
+            refSrc.connect(refBpf); refBpf.connect(refPan);
+            refPan.connect(refGain); refGain.connect(out);
+            refSrc.start(impact + refDelaySeed);
+            refSrc.stop(impact + refDelaySeed + 0.25);
+        });
 
     } catch(e) {}
 }
-
 /* ════════════════════════════════════════════════════
    SOUND TOGGLE
 ════════════════════════════════════════════════════ */
@@ -1081,48 +1290,7 @@ function toggleSound() {
     return soundEnabled;
 }
 
-/* ════════════════════════════════════════════════════
-   SCROLL + TOUCH LISTENERS — desktop & mobile
-════════════════════════════════════════════════════ */
-(function initScrollSound() {
 
-    var lastScrollY  = window.scrollY || 0;
-    var lastTouchY   = 0;
-    var touchActive  = false;
-
-    /* ── Desktop: wheel scroll ── */
-    window.addEventListener('scroll', function() {
-        var currentY = window.scrollY || 0;
-        var delta    = currentY - lastScrollY;
-        if (Math.abs(delta) > 1) {
-            playScroll(delta);
-            lastScrollY = currentY;
-        }
-    }, { passive: true });
-
-    /* ── Mobile: touchstart ── */
-    document.addEventListener('touchstart', function(e) {
-        lastTouchY  = e.touches[0].clientY;
-        touchActive = true;
-        lastScrollY = window.scrollY || 0;
-    }, { passive: true });
-
-    /* ── Mobile: touchmove ── */
-    document.addEventListener('touchmove', function(e) {
-        if (!touchActive) return;
-        var currentTouchY = e.touches[0].clientY;
-        var touchDelta    = lastTouchY - currentTouchY;
-        if (Math.abs(touchDelta) > 14) {
-            playScroll(touchDelta);
-            lastTouchY = currentTouchY;
-        }
-        lastScrollY = window.scrollY || 0;
-    }, { passive: true });
-
-    document.addEventListener('touchend',   function() { touchActive = false; }, { passive: true });
-    document.addEventListener('touchcancel',function() { touchActive = false; }, { passive: true });
-
-})();
 
 /* ════════════════════════════════════════════════════
    DOM EVENT BINDINGS
@@ -1223,18 +1391,6 @@ document.addEventListener('DOMContentLoaded', function() {
             var dx = e.changedTouches[0].clientX - _swipeSX;
             if (Math.abs(dx) > 45) playSwipe(dx < 0 ? 'left' : 'right');
         }, { passive: true });
-    }
-/* ── Lock screen unlock swipe sound ── */
-    var lockScreen = document.getElementById('lockScreen');
-    if (lockScreen) {
-        var lockWasUnlocked = false;
-        new MutationObserver(function() {
-            var isUnlocked = lockScreen.classList.contains('lock-unlocked');
-            if (isUnlocked && !lockWasUnlocked) {
-                lockWasUnlocked = true;
-                playSwipe('right');
-            }
-        }).observe(lockScreen, { attributes: true, attributeFilter: ['class'] });
     }
 
     /* ── Hero avatar flip ── */
